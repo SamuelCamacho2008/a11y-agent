@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Servicios Ciudadanos Accesibles | Municipio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #0f172a; /* Ratio de contraste superior a 12:1 */
+            margin: 0;
+            padding: 1.5rem;
+            line-height: 1.6;
+        }
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            background: #0284c7;
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .skip-link:focus {
+            position: static;
+            width: auto;
+            height: auto;
+        }
+        header, main, footer { max-width: 900px; margin: 0 auto; }
+        nav ul { list-style: none; padding: 0; display: flex; gap: 1rem; }
+        nav a { color: #0369a1; text-decoration: underline; font-weight: bold; }
+        nav a:focus, button:focus, input:focus { outline: 3px solid #0f172a; outline-offset: 2px; }
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; font-weight: bold; margin-bottom: 0.35rem; }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.5rem;
+            border: 2px solid #334155;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #0369a1;
+            color: #ffffff;
+            border: none;
+            padding: 0.65rem 1.25rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <a href="#contenido-principal" class="skip-link">Saltar al contenido principal</a>
+
+    <header role="banner">
+        <h1>Servicios Digitales del Municipio</h1>
+        <nav aria-label="Navegación principal">
+            <ul>
+                <li><a href="/inicio">Página de inicio</a></li>
+                <li><a href="/tramites">Catálogo de trámites en línea</a></li>
+                <li><a href="/contacto">Formulario de atención y contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="contenido-principal" role="main">
+        <section aria-labelledby="seccion-tramites">
+            <h2 id="seccion-tramites">Trámites y Certificados Frecuentes</h2>
+            <p>Acceda a los servicios administrativos oficiales con plena validez legal y soporte para tecnologías de asistencia.</p>
+
+            <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400"
+                 alt="Edificio de la sede municipal con rampa de acceso para personas con movilidad reducida"
+                 width="400" height="250">
+
+            <p>
+                <a href="/documentos/guia-tramites.pdf">Descargar la guía completa de trámites municipales en formato PDF accesible</a>
+            </p>
+        </section>
+
+        <section aria-labelledby="seccion-contacto">
+            <h2 id="seccion-contacto">Suscríbase al Boletín Informativo</h2>
+            <form action="/boletin" method="post">
+                <div class="form-group">
+                    <label for="campo-nombre">Nombre completo del ciudadano:</label>
+                    <input type="text" id="campo-nombre" name="nombre" autocomplete="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="campo-correo">Correo electrónico oficial:</label>
+                    <input type="email" id="campo-correo" name="correo" autocomplete="email" required>
+                </div>
+
+                <button type="submit">Suscribirme al boletín oficial</button>
+            </form>
+        </section>
+    </main>
+
+    <footer role="contentinfo" style="margin-top: 3rem; border-top: 1px solid #cbd5e1; padding-top: 1rem;">
+        <p>&copy; 2026 Municipio Digital. Todos los derechos reservados. Declaración de conformidad WCAG 2.1 nivel AA.</p>
+    </footer>
+</body>
+</html>

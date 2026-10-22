@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  a11y-agent:
+    build: .
+    container_name: a11y_agent
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - REQUEST_TIMEOUT=30
+    volumes:
+      - ./reports:/app/reports
+    restart: unless-stopped

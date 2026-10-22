@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment files with sensitive credentials
+.env
+!.env.example
+
+# Pytest & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Output Reports & Screenshots (temporary audit artifacts)
+reports/*.json
+reports/*.html
+reports/*.pdf
+reports/screenshots/*.png
+!reports/sample_report.*
+
+# Operating System Files
+.DS_Store
+Thumbs.db

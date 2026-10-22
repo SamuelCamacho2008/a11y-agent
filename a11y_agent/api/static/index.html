@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A11y Agent - Auditor de Accesibilidad Web & Remediation IA</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --purple: #7c3aed;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            z-index: 100;
+        }
+        .skip-link:focus { top: 0; }
+
+        header.site-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        main.container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .audit-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        @media (max-width: 850px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+        }
+
+        input[type="url"], select {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        input[type="url"]:focus, select:focus {
+            outline: 2px solid var(--primary);
+            border-color: var(--primary);
+        }
+
+        button.btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.4rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            height: 44px;
+        }
+
+        button.btn-primary:hover { background: var(--primary-hover); }
+        button.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Report View */
+        #results-container { display: none; }
+
+        .report-summary-bar {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .report-summary-bar { grid-template-columns: 1fr; }
+        }
+
+        .score-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+            padding-right: 1.5rem;
+        }
+
+        .score-circle {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            border: 5px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .kpi-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-badge {
+            flex: 1;
+            min-width: 140px;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            border-left: 4px solid;
+            background: #f8fafc;
+        }
+
+        .kpi-badge.danger { border-left-color: var(--danger); }
+        .kpi-badge.warning { border-left-color: var(--warning); }
+        .kpi-badge.info { border-left-color: var(--primary); }
+
+        .kpi-val { font-size: 1.5rem; font-weight: 700; }
+        .kpi-lbl { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+
+        .toolbar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .btn-secondary:hover { background: #f8fafc; }
+
+        /* Principles details */
+        .principle-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .principle-title {
+            background: #f8fafc;
+            padding: 1rem 1.25rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .findings-list { padding: 1rem 1.25rem; }
+
+        .finding-item {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+        }
+        .badge.problema { background: var(--danger-bg); color: var(--danger); border: 1px solid #fecaca; }
+        .badge.advertencia { background: var(--warning-bg); color: var(--warning); border: 1px solid #fed7aa; }
+        .badge.ia { background: #ede9fe; color: var(--purple); }
+        .badge.regla { background: #e0f2fe; color: #0369a1; }
+
+        pre.code-block {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .diff-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .diff-grid { grid-template-columns: 1fr; }
+        }
+
+        .diff-box {
+            padding: 0.6rem;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-family: monospace;
+        }
+        .diff-box.before { background: #fef2f2; border: 1px solid #fecaca; }
+        .diff-box.after { background: #f0fdf4; border: 1px solid #bbf7d0; }
+
+        /* Assistant Panel */
+        .chat-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .chat-history {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #fafafa;
+        }
+
+        .chat-msg {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+        }
+        .chat-msg.user { background: #e0f2fe; margin-left: 20%; }
+        .chat-msg.assistant { background: #ffffff; border: 1px solid var(--border); margin-right: 10%; }
+
+        .chat-form {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ffffff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <header class="site-header" role="banner">
+        <div class="brand">
+            <span>&#9855;</span> A11y Agent
+        </div>
+        <div>
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                Auditoría WCAG 2.1/2.2 con IA Semántica
+            </span>
+        </div>
+    </header>
+
+    <main id="main-content" class="container" role="main">
+        <section class="audit-card" aria-labelledby="form-heading">
+            <h1 id="form-heading" style="font-size: 1.4rem; margin-top: 0;">Auditar Página Web</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                Ingrese la URL para realizar una evaluación integral estilo TAW (axe-core + remediación semántica con LLM).
+            </p>
+
+            <form id="scan-form" class="form-grid">
+                <div>
+                    <label for="url-input">URL de la página:</label>
+                    <input type="url" id="url-input" required placeholder="https://ejemplo.com" aria-required="true">
+                </div>
+
+                <div>
+                    <label for="guidelines-select">Pautas:</label>
+                    <select id="guidelines-select">
+                        <option value="WCAG 2.1" selected>WCAG 2.1</option>
+                        <option value="WCAG 2.2">WCAG 2.2</option>
+                        <option value="WCAG 2.0">WCAG 2.0</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="level-select">Nivel:</label>
+                    <select id="level-select">
+                        <option value="AA" selected>AA (Estándar)</option>
+                        <option value="A">A (Básico)</option>
+                        <option value="AAA">AAA (Avanzado)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <button type="submit" id="btn-scan" class="btn-primary">
+                        <span id="btn-text">Analizar</span>
+                        <span id="btn-spinner" class="spinner" style="display: none;" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+
+            <div id="status-live" aria-live="polite" style="margin-top: 1rem; font-weight: 600; color: var(--primary);"></div>
+        </section>
+
+        <!-- Results Dashboard -->
+        <div id="results-container" role="region" aria-label="Resultados de la auditoría">
+            <div class="toolbar">
+                <a id="link-html" class="btn-secondary" target="_blank" download>&#128196; Descargar HTML</a>
+                <a id="link-json" class="btn-secondary" target="_blank" download>&#123;&#125; Descargar JSON</a>
+                <a id="link-pdf" class="btn-secondary" target="_blank" download>&#128442; Descargar PDF</a>
+            </div>
+
+            <section class="report-summary-bar">
+                <div class="score-display">
+                    <div id="score-val" class="score-circle">--</div>
+                    <div style="font-weight: 700; margin-top: 0.5rem;">Puntaje Global</div>
+                    <small style="color: var(--text-muted);">0 - 100</small>
+                </div>
+
+                <div>
+                    <div class="kpi-row">
+                        <div class="kpi-badge danger">
+                            <div id="kpi-prob" class="kpi-val" style="color: var(--danger);">0</div>
+                            <div class="kpi-lbl">Problemas (Reglas)</div>
+                        </div>
+                        <div class="kpi-badge warning">
+                            <div id="kpi-warn" class="kpi-val" style="color: var(--warning);">0</div>
+                            <div class="kpi-lbl">Advertencias (IA)</div>
+                        </div>
+                        <div class="kpi-badge info">
+                            <div id="kpi-unv" class="kpi-val" style="color: var(--primary);">0</div>
+                            <div class="kpi-lbl">No verificados</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 0.85rem; border-radius: 6px; border: 1px solid var(--border);">
+                        <strong>Resumen Ejecutivo:</strong>
+                        <div id="exec-summary-text" style="white-space: pre-line; margin-top: 0.35rem; font-size: 0.9rem;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4 Principles Container -->
+            <div id="principles-view"></div>
+
+            <!-- Remediation Chat Assistant -->
+            <section class="chat-section" aria-labelledby="chat-heading">
+                <h2 id="chat-heading" style="margin-top: 0; font-size: 1.25rem;">&#128172; Asistente de Remediación con IA</h2>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">
+                    Pregunta sobre cualquier problema detectado (ej. "¿Cómo arreglo el problema 1?", "¿Por qué falla el contraste?").
+                </p>
+
+                <div id="chat-box" class="chat-history">
+                    <div class="chat-msg assistant">
+                        ¡Hola! He analizado tu página. Puedes preguntarme sobre cualquiera de las barreras detectadas para darte la solución exacta de código.
+                    </div>
+                </div>
+
+                <form id="chat-form" class="chat-form">
+                    <input type="text" id="chat-input" placeholder="Pregunta sobre un problema..." required style="flex: 1; padding: 0.65rem; border: 1px solid var(--border); border-radius: 6px;">
+                    <button type="submit" class="btn-primary" id="btn-chat-send">Preguntar</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        let currentReportId = null;
+
+        const scanForm = document.getElementById('scan-form');
+        const btnScan = document.getElementById('btn-scan');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const statusLive = document.getElementById('status-live');
+        const resultsContainer = document.getElementById('results-container');
+
+        scanForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('url-input').value.trim();
+            const guidelines = document.getElementById('guidelines-select').value;
+            const level = document.getElementById('level-select').value;
+
+            btnScan.disabled = true;
+            btnText.textContent = "Auditando...";
+            btnSpinner.style.display = "inline-block";
+            statusLive.textContent = "Cargando página con Chromium y ejecutando comprobaciones WCAG...";
+            resultsContainer.style.display = "none";
+
+            try {
+                const response = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: url,
+                        guidelines: guidelines,
+                        target_level: level,
+                        allow_private_ips: false,
+                        export_formats: ['html', 'json', 'pdf']
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || 'Error al ejecutar la auditoría');
+                }
+
+                const report = await response.json();
+                currentReportId = report.id;
+                renderReportUI(report);
+                statusLive.textContent = "Auditoría completada exitosamente.";
+            } catch (err) {
+                statusLive.textContent = "Error: " + err.message;
+                alert("Error al auditar: " + err.message);
+            } finally {
+                btnScan.disabled = false;
+                btnText.textContent = "Analizar";
+                btnSpinner.style.display = "none";
+            }
+        });
+
+        function renderReportUI(report) {
+            resultsContainer.style.display = 'block';
+
+            // Score & KPIs
+            const scoreEl = document.getElementById('score-val');
+            scoreEl.textContent = report.summary.score;
+            scoreEl.style.borderColor = report.summary.score >= 80 ? 'var(--success)' : (report.summary.score >= 50 ? 'var(--warning)' : 'var(--danger)');
+            scoreEl.style.color = scoreEl.style.borderColor;
+
+            document.getElementById('kpi-prob').textContent = report.summary.total_problems;
+            document.getElementById('kpi-warn').textContent = report.summary.total_warnings;
+            document.getElementById('kpi-unv').textContent = report.summary.total_unverified;
+            document.getElementById('exec-summary-text').textContent = report.summary.executive_summary;
+
+            // Export links
+            document.getElementById('link-html').href = `/api/report/${report.id}/export/html`;
+            document.getElementById('link-json').href = `/api/report/${report.id}/export/json`;
+            document.getElementById('link-pdf').href = `/api/report/${report.id}/export/pdf`;
+
+            // Principles
+            const principlesView = document.getElementById('principles-view');
+            principlesView.innerHTML = '';
+
+            for (const [key, p] of Object.entries(report.principles)) {
+                const card = document.createElement('div');
+                card.className = 'principle-card';
+
+                let criteriaHtml = '';
+                if (p.success_criteria.length === 0) {
+                    criteriaHtml = '<div style="padding: 1rem; color: var(--success);">&#10003; No se detectaron fallos en este principio.</div>';
+                } else {
+                    criteriaHtml = p.success_criteria.map(c => `
+                        <div style="margin-bottom: 1.25rem;">
+                            <h4 style="margin: 0.5rem 0;">${c.criterion_id} ${c.criterion_title} <span class="badge" style="background:#e2e8f0;">Nivel ${c.level}</span></h4>
+                            ${c.findings.map(f => `
+                                <div class="finding-item">
+                                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                                        <span class="badge ${f.category.toLowerCase()}">${f.category}</span>
+                                        <span class="badge ${f.origin.toLowerCase()}">${f.origin.toUpperCase()}</span>
+                                        <strong>${f.id} - ${f.check_name}</strong>
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">Línea: ${f.line_number || 'DOM dinámico'}</span>
+                                    </div>
+                                    <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">${f.explanation}</div>
+                                    <pre class="code-block"><code>${escapeHtml(f.html_snippet)}</code></pre>
+                                    ${f.remediation ? `
+                                        <div style="margin-top: 0.5rem; background: #f8fafc; padding: 0.75rem; border-left: 3px solid var(--success); font-size: 0.85rem;">
+                                            <strong>Solución (Esfuerzo ${f.remediation.effort}):</strong> ${f.remediation.advice}
+                                            <div class="diff-grid">
+                                                <div class="diff-box before"><strong>Antes:</strong><br>${escapeHtml(f.remediation.before_snippet)}</div>
+                                                <div class="diff-box after"><strong>Después:</strong><br>${escapeHtml(f.remediation.after_snippet)}</div>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('');
+                }
+
+                card.innerHTML = `
+                    <div class="principle-title">${p.name}</div>
+                    <div class="findings-list">${criteriaHtml}</div>
+                `;
+                principlesView.appendChild(card);
+            }
+        }
+
+        // Chat functionality
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatBox = document.getElementById('chat-box');
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message || !currentReportId) return;
+
+            // Append user msg
+            const userMsgEl = document.createElement('div');
+            userMsgEl.className = 'chat-msg user';
+            userMsgEl.textContent = message;
+            chatBox.appendChild(userMsgEl);
+            chatInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Loading indicator
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'chat-msg assistant';
+            loadingMsg.textContent = 'Pensando solución de accesibilidad...';
+            chatBox.appendChild(loadingMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const resp = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        report_id: currentReportId,
+                        message: message
+                    })
+                });
+
+                if (!resp.ok) throw new Error('Error al consultar al asistente');
+                const data = await resp.json();
+                loadingMsg.innerHTML = formatChatReply(data.reply);
+            } catch (err) {
+                loadingMsg.textContent = 'Error: ' + err.message;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        function formatChatReply(text) {
+            // Replace markdown code blocks with html pre/code
+            return text
+                .replace(/```html([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>')
+                .replace(/```([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>

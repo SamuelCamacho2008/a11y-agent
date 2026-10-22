@@ -1,0 +1,177 @@
+"""Consolidation, deduplication, scoring, and report building."""
+
+from typing import List, Dict, Any, Tuple
+from collections import defaultdict
+import uuid
+
+from a11y_agent.models.schema import (
+    Finding, Category, FindingOrigin, ImpactLevel, Principle, WCAGLevel,
+    GuidelinesVersion, SuccessCriterionGroup, PrincipleFindings,
+    ReportMetadata, ReportSummary, A11yReport
+)
+from a11y_agent.models.wcag_catalog import PRINCIPLES_META, get_criterion_details
+
+def deduplicate_findings(findings: List[Finding]) -> List[Finding]:
+    """
+    Deduplicate findings where rule engine and IA flagged the same node and criterion.
+    Priority is given to deterministic rule category, enriched with IA remediation advice.
+    """
+    seen: Dict[Tuple[str, str], Finding] = {}
+
+    for f in findings:
+        key = (f.criterion_id, f.selector)
+        if key in seen:
+            existing = seen[key]
+            # If current finding is IA and existing is rule, enrich existing remediation
+            if f.origin == FindingOrigin.IA and existing.origin == FindingOrigin.REGLA:
+                if f.remediation and (not existing.remediation or len(f.remediation.advice) > len(existing.remediation.advice)):
+                    existing.remediation = f.remediation
+                existing.explanation = f"{existing.explanation} | Nota IA: {f.explanation}"
+            # If current is rule and existing is IA, promote to rule problem
+            elif f.origin == FindingOrigin.REGLA and existing.origin == FindingOrigin.IA:
+                f.remediation = existing.remediation or f.remediation
+                seen[key] = f
+        else:
+            seen[key] = f
+
+    return list(seen.values())
+
+def calculate_score(findings: List[Finding]) -> Tuple[int, Dict[str, int]]:
+    """
+    Calculate global accessibility score (0-100) based on severity weights.
+    Returns (score, impact_breakdown).
+    """
+    score = 100.0
+    impact_counts = {
+        "crítico": 0,
+        "alto": 0,
+        "medio": 0,
+        "bajo": 0
+    }
+
+    penalty_map = {
+        # Category.PROBLEMA
+        (Category.PROBLEMA, ImpactLevel.CRITICO): 15.0,
+        (Category.PROBLEMA, ImpactLevel.ALTO): 10.0,
+        (Category.PROBLEMA, ImpactLevel.MEDIO): 5.0,
+        (Category.PROBLEMA, ImpactLevel.BAJO): 2.0,
+        # Category.ADVERTENCIA
+        (Category.ADVERTENCIA, ImpactLevel.CRITICO): 5.0,
+        (Category.ADVERTENCIA, ImpactLevel.ALTO): 3.0,
+        (Category.ADVERTENCIA, ImpactLevel.MEDIO): 1.5,
+        (Category.ADVERTENCIA, ImpactLevel.BAJO): 0.5,
+        # Category.NO_VERIFICADO
+        (Category.NO_VERIFICADO, ImpactLevel.CRITICO): 1.0,
+        (Category.NO_VERIFICADO, ImpactLevel.ALTO): 0.5,
+        (Category.NO_VERIFICADO, ImpactLevel.MEDIO): 0.2,
+        (Category.NO_VERIFICADO, ImpactLevel.BAJO): 0.0,
+    }
+
+    for f in findings:
+        impact_counts[f.impact.value] = impact_counts.get(f.impact.value, 0) + 1
+        penalty = penalty_map.get((f.category, f.impact), 2.0)
+        score -= penalty
+
+    final_score = max(0, min(100, int(round(score))))
+    return final_score, impact_counts
+
+def generate_executive_summary(
+    score: int,
+    total_problems: int,
+    total_warnings: int,
+    target_level: WCAGLevel,
+    impact_counts: Dict[str, int]
+) -> str:
+    """Generate concise 5-line executive summary of the accessibility audit."""
+    level_status = "satisfactorio" if score >= 85 and total_problems == 0 else "con barreras significativas"
+    line1 = f"1. Estado General: La página obtiene un puntaje global de accesibilidad de {score}/100, evaluada bajo nivel {target_level.value} ({level_status})."
+    line2 = f"2. Barreras Críticas: Se detectaron {total_problems} problemas deterministas y {total_warnings} advertencias que requieren revisión experta."
+    line3 = f"3. Distribución de Impacto: {impact_counts.get('crítico', 0)} barreras de impacto crítico y {impact_counts.get('alto', 0)} de impacto alto impiden la interacción de usuarios con discapacidad."
+    line4 = f"4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en textos alternativos, contraste y control por teclado."
+    line5 = f"5. Plan de Acción: Se recomienda priorizar los fallos clasificados como Problemas Críticos aplicando las soluciones de código antes/después incluidas en este informe."
+    return "\n".join([line1, line2, line3, line4, line5])
+
+def build_a11y_report(
+    report_id: str,
+    url: str,
+    findings: List[Finding],
+    guidelines: GuidelinesVersion = GuidelinesVersion.WCAG_2_1,
+    target_level: WCAGLevel = WCAGLevel.AA,
+    technologies: List[str] = None,
+    execution_time_seconds: float = 0.0,
+    screenshot_path: str = None
+) -> A11yReport:
+    """
+    Consolidate findings, structure by the 4 Principles & Criteria, and produce final A11yReport.
+    """
+    deduped = deduplicate_findings(findings)
+    score, impact_counts = calculate_score(deduped)
+
+    total_problems = sum(1 for f in deduped if f.category == Category.PROBLEMA)
+    total_warnings = sum(1 for f in deduped if f.category == Category.ADVERTENCIA)
+    total_unverified = sum(1 for f in deduped if f.category == Category.NO_VERIFICADO)
+
+    exec_summary = generate_executive_summary(
+        score=score,
+        total_problems=total_problems,
+        total_warnings=total_warnings,
+        target_level=target_level,
+        impact_counts=impact_counts
+    )
+
+    # Group by Principle and Success Criterion
+    principles_dict: Dict[str, PrincipleFindings] = {}
+
+    for principle_enum in [Principle.PERCEPTIBLE, Principle.OPERABLE, Principle.UNDERSTANDABLE, Principle.ROBUST]:
+        meta = PRINCIPLES_META[principle_enum]
+        principle_findings = [f for f in deduped if f.principle == principle_enum]
+
+        # Group by criterion_id
+        criterion_groups_map: Dict[str, List[Finding]] = defaultdict(list)
+        for f in principle_findings:
+            criterion_groups_map[f.criterion_id].append(f)
+
+        groups_list: List[SuccessCriterionGroup] = []
+        for c_id, c_findings in sorted(criterion_groups_map.items()):
+            c_meta = get_criterion_details(c_id)
+            groups_list.append(
+                SuccessCriterionGroup(
+                    criterion_id=c_id,
+                    criterion_title=c_meta["title"],
+                    level=c_meta["level"],
+                    findings=c_findings
+                )
+            )
+
+        principles_dict[principle_enum.value] = PrincipleFindings(
+            key=principle_enum,
+            name=meta["name"],
+            description=meta["description"],
+            success_criteria=groups_list
+        )
+
+    metadata = ReportMetadata(
+        url=url,
+        guidelines=guidelines,
+        target_level=target_level,
+        technologies=technologies or ["HTML5", "CSS3", "JavaScript"],
+        execution_time_seconds=execution_time_seconds,
+        screenshot_path=screenshot_path
+    )
+
+    summary = ReportSummary(
+        score=score,
+        executive_summary=exec_summary,
+        total_problems=total_problems,
+        total_warnings=total_warnings,
+        total_unverified=total_unverified,
+        impact_breakdown=impact_counts
+    )
+
+    return A11yReport(
+        id=report_id,
+        metadata=metadata,
+        summary=summary,
+        principles=principles_dict,
+        all_findings=deduped
+    )

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Aplicación Dinámica SPA - Panel Interactivo</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f8fafc; color: #1e293b; }
+        .dynamic-card { background: white; border: 1px solid #cbd5e1; padding: 15px; border-radius: 6px; margin-top: 15px; }
+        .clickable-tab { display: inline-block; padding: 8px 12px; background: #e2e8f0; cursor: pointer; margin-right: 5px; }
+        .clickable-tab.active { background: #0284c7; color: white; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Panel de Control Dinámico (SPA)</h1>
+        <p>Esta aplicación renderiza la mayor parte de su contenido asíncronamente mediante JavaScript.</p>
+    </header>
+
+    <div id="spa-root">
+        <p id="loading-indicator">Cargando módulos de la aplicación...</p>
+    </div>
+
+    <script>
+        // Simular hidratación y renderizado dinámico de JavaScript
+        window.addEventListener('DOMContentLoaded', () => {
+            const root = document.getElementById('spa-root');
+            root.innerHTML = ''; // Limpiar loader
+
+            // 1. Inyectar tabs sin roles ARIA accesibles ni navegación por teclado
+            const tabContainer = document.createElement('div');
+            tabContainer.id = 'custom-tabs-container';
+            tabContainer.innerHTML = `
+                <div class="clickable-tab active" onclick="switchTab(1)">Resumen General</div>
+                <div class="clickable-tab" onclick="switchTab(2)">Métricas en Vivo</div>
+                <div class="clickable-tab" onclick="switchTab(3)">Configuración</div>
+            `;
+            root.appendChild(tabContainer);
+
+            // 2. Inyectar contenido con imágenes dinámicas sin alt
+            const card = document.createElement('div');
+            card.className = 'dynamic-card';
+            card.innerHTML = `
+                <h3>Gráfico de Rendimiento en Tiempo Real</h3>
+                <img id="dynamic-chart-img" src="/api/charts/weekly.png" style="width: 300px; height: 150px; background: #ccc;">
+                <p>Última sincronización completada.</p>
+                <!-- Control interactivo dinámico sin label ni teclado -->
+                <div style="margin-top: 10px;">
+                    <input type="text" id="dynamic-filter" placeholder="Filtrar por etiqueta...">
+                    <div id="btn-dynamic-refresh" onclick="alert('Refrescando')" style="display:inline-block; background:#0284c7; color:#fff; padding:6px 12px; cursor:pointer;">Actualizar datos</div>
+                </div>
+            `;
+            root.appendChild(card);
+        });
+
+        function switchTab(idx) {
+            console.log("Cambiando a pestaña " + idx);
+        }
+    </script>
+</body>
+</html>

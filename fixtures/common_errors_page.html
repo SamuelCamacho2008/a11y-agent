@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- Error 1: Falta título de la página (2.4.2) y falta lang en <html> (3.1.1) -->
+    <style>
+        body { font-family: sans-serif; background: #ffffff; color: #222; }
+        /* Error 2: Contraste insuficiente 1.4.3 */
+        .low-contrast-text {
+            color: #d1d5db; /* Gris muy claro sobre fondo blanco: Ratio ~1.4:1 */
+            background-color: #ffffff;
+            font-size: 14px;
+        }
+        .fake-button {
+            display: inline-block;
+            background: #0284c7;
+            color: white;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bienvenido a la Tienda de Pruebas</h1>
+
+    <!-- Error 3: Salto ilógico de encabezados h1 a h4 (1.3.1) -->
+    <h4>Catálogo de Novedades</h4>
+
+    <!-- Error 4: Imágenes sin alt y con alt genérico 'imagen' (1.1.1) -->
+    <div>
+        <img id="banner-hero" src="/images/banner-sale.png">
+        <img id="avatar-user" src="/images/user-pic.jpg" alt="imagen">
+    </div>
+
+    <!-- Error 5: Contraste deficiente -->
+    <p class="low-contrast-text">
+        Este texto de términos y condiciones es prácticamente invisible para usuarios con baja visión.
+    </p>
+
+    <!-- Error 6: Enlaces con texto ambiguo fuera de contexto (2.4.4) -->
+    <p>Para conocer todas las promociones de temporada, <a href="/ofertas">haz clic aquí</a>.</p>
+    <p>Nueva política de privacidad disponible: <a href="/politicas">leer más</a>.</p>
+
+    <!-- Error 7: Campos de formulario sin etiqueta <label> (3.3.2) -->
+    <form>
+        <input type="text" id="campo-buscar" placeholder="Buscar productos en el catálogo">
+        <input type="email" id="campo-newsletter" placeholder="Introduce tu correo">
+        <!-- Error 8: Elemento interactivo div con onclick pero sin teclado (2.1.1 / 4.1.2) -->
+        <div class="fake-button" onclick="alert('Enviado')">Suscribirme</div>
+    </form>
+</body>
+</html>
