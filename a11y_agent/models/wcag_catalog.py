@@ -178,6 +178,30 @@ WCAG_CRITERIA_CATALOG: Dict[str, Dict[str, Any]] = {
         "technique": "C15",
         "description": "Cualquier interfaz de usuario operable por teclado tiene una forma de operación donde el indicador de foco del teclado es visible."
     },
+    "2.4.11": {
+        "principle": Principle.OPERABLE,
+        "title": "Foco no oscurecido (mínimo)",
+        "level": WCAGLevel.AA,
+        "version": "2.2",
+        "technique": "G220",
+        "description": "Cuando un componente recibe el foco del teclado, dicho componente no queda totalmente cubierto por contenido creado por el autor (ej. banners o modales flotantes)."
+    },
+    "2.4.12": {
+        "principle": Principle.OPERABLE,
+        "title": "Foco no oscurecido (avanzado)",
+        "level": WCAGLevel.AAA,
+        "version": "2.2",
+        "technique": "G221",
+        "description": "Ninguna parte del indicador de foco del teclado queda oculta por contenido creado por el autor."
+    },
+    "2.4.13": {
+        "principle": Principle.OPERABLE,
+        "title": "Apariencia del foco",
+        "level": WCAGLevel.AAA,
+        "version": "2.2",
+        "technique": "G222",
+        "description": "El indicador de foco del teclado tiene un contraste de área de al menos 3:1 y un grosor perimetral mínimo de 2 píxeles CSS."
+    },
     "2.5.3": {
         "principle": Principle.OPERABLE,
         "title": "Etiqueta en el nombre",
@@ -186,13 +210,21 @@ WCAG_CRITERIA_CATALOG: Dict[str, Dict[str, Any]] = {
         "technique": "G208",
         "description": "Para los componentes con etiquetas de texto visible, el nombre accesible incluye el texto que se presenta visualmente."
     },
+    "2.5.7": {
+        "principle": Principle.OPERABLE,
+        "title": "Movimientos de arrastre",
+        "level": WCAGLevel.AA,
+        "version": "2.2",
+        "technique": "G215",
+        "description": "Toda funcionalidad que utilice un movimiento de arrastre para operar se puede lograr con un solo puntero sin arrastrar, a menos que el arrastre sea esencial."
+    },
     "2.5.8": {
         "principle": Principle.OPERABLE,
         "title": "Tamaño del objetivo (mínimo)",
         "level": WCAGLevel.AA,
         "version": "2.2",
         "technique": "G219",
-        "description": "El tamaño del objetivo para las entradas táctiles es de al menos 24 por 24 píxeles CSS, excepto ciertas excepciones."
+        "description": "El tamaño del objetivo para las entradas táctiles es de al menos 24 por 24 píxeles CSS, excepto ciertas excepciones de espacio adyacente."
     },
 
     # 3. COMPRENSIBLE
@@ -228,6 +260,14 @@ WCAG_CRITERIA_CATALOG: Dict[str, Dict[str, Any]] = {
         "technique": "G80",
         "description": "El cambio de ajuste en cualquier componente no provoca automáticamente un cambio de contexto a menos que el usuario haya sido avisado."
     },
+    "3.2.6": {
+        "principle": Principle.UNDERSTANDABLE,
+        "title": "Ayuda coherente",
+        "level": WCAGLevel.A,
+        "version": "2.2",
+        "technique": "G216",
+        "description": "Si una página contiene mecanismos de ayuda (contacto, chat, autoservicio), estos se presentan en el mismo orden relativo en todas las páginas."
+    },
     "3.3.1": {
         "principle": Principle.UNDERSTANDABLE,
         "title": "Identificación de errores",
@@ -244,6 +284,30 @@ WCAG_CRITERIA_CATALOG: Dict[str, Dict[str, Any]] = {
         "technique": "H44",
         "description": "Se proporcionan etiquetas o instrucciones cuando el contenido requiere la introducción de datos por parte del usuario."
     },
+    "3.3.7": {
+        "principle": Principle.UNDERSTANDABLE,
+        "title": "Entrada redundante",
+        "level": WCAGLevel.A,
+        "version": "2.2",
+        "technique": "G217",
+        "description": "La información ingresada previamente por el usuario en el mismo proceso se autocompleta o está disponible para selección, evitando reingresos innecesarios."
+    },
+    "3.3.8": {
+        "principle": Principle.UNDERSTANDABLE,
+        "title": "Autenticación accesible (mínimo)",
+        "level": WCAGLevel.AA,
+        "version": "2.2",
+        "technique": "G218",
+        "description": "No se requiere una prueba de función cognitiva (como memorizar contraseñas complejas o resolver acertijos) para iniciar sesión, a menos que se ofrezca un método alternativo o asistencia."
+    },
+    "3.3.9": {
+        "principle": Principle.UNDERSTANDABLE,
+        "title": "Autenticación accesible (avanzado)",
+        "level": WCAGLevel.AAA,
+        "version": "2.2",
+        "technique": "G218",
+        "description": "No se requiere ninguna prueba de función cognitiva para ningún paso del proceso de autenticación."
+    },
 
     # 4. ROBUSTO
     "4.1.1": {
@@ -252,7 +316,7 @@ WCAG_CRITERIA_CATALOG: Dict[str, Dict[str, Any]] = {
         "level": WCAGLevel.A,
         "version": "2.0",
         "technique": "H74",
-        "description": "Los elementos tienen etiquetas de apertura y cierre completas, están anidados adecuadamente y no contienen atributos duplicados."
+        "description": "Los elementos tienen etiquetas completas y anidación adecuada. (Nota: Criterio retirado y considerado obsoleto en la versión WCAG 2.2 oficial)."
     },
     "4.1.2": {
         "principle": Principle.ROBUST,
