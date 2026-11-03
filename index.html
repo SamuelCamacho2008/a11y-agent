@@ -97,42 +97,49 @@
             margin: 0 auto;
         }
 
-        /* Tabs Navigation (WAI-ARIA) */
+        /* Tabs Navigation (WAI-ARIA Pattern) */
         .tabs-nav {
             display: flex;
+            flex-wrap: wrap;
             gap: 0.5rem;
             border-bottom: 2px solid var(--border-color);
             margin-bottom: 1.5rem;
-            overflow-x: auto;
+            overflow: visible;
         }
 
         .tab-btn {
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 0.85rem 1.35rem;
-            font-size: 1rem;
+            padding: 0.75rem 1.1rem;
+            font-size: 0.92rem;
             font-weight: 600;
             cursor: pointer;
             border-bottom: 3px solid transparent;
             margin-bottom: -2px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            white-space: nowrap;
-            transition: color 0.2s, border-color 0.2s;
+            gap: 0.45rem;
+            white-space: normal;
+            word-break: normal;
+            border-radius: 6px 6px 0 0;
+            transition: color 0.2s, border-color 0.2s, background-color 0.2s;
         }
 
-        .tab-btn:hover { color: #ffffff; }
+        .tab-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.04);
+        }
 
         .tab-btn[aria-selected="true"] {
             color: var(--primary);
             border-bottom-color: var(--primary);
+            background: rgba(56, 189, 248, 0.08);
         }
 
         .tab-btn:focus-visible {
             outline: 2px solid var(--focus-ring);
-            outline-offset: -2px;
+            outline-offset: 2px;
         }
 
         /* Audit Panel Card */
@@ -251,60 +258,7 @@
             box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
         }
 
-        /* Coverage Map Table & Badges */
-        .cov-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.25rem;
-            font-size: 0.88rem;
-        }
-        .cov-table th, .cov-table td {
-            padding: 0.75rem 0.9rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .cov-table th {
-            background: rgba(15, 23, 42, 0.75);
-            color: #ffffff;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-        }
-        .cov-table tr:hover {
-            background: rgba(56, 189, 248, 0.04);
-        }
-        .cov-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 0.76rem;
-            font-weight: 700;
-            padding: 0.2rem 0.55rem;
-            border-radius: 9999px;
-            white-space: nowrap;
-        }
-        .cov-badge.auto {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
-        .cov-badge.partial {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning);
-            border: 1px solid var(--warning);
-        }
-        .cov-badge.manual {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-        .cov-badge.obsolete {
-            background: rgba(148, 163, 184, 0.15);
-            color: #94a3b8;
-            border: 1px solid #94a3b8;
-        }
-
-        /* Drag & Drop APK */
+/* Drag & Drop APK */
         .drop-zone {
             border: 2px dashed var(--border-color);
             border-radius: 10px;
@@ -685,27 +639,24 @@
         </header>
 
         <main id="main-content">
-            <!-- Tabs Navigation -->
+            <!-- Tabs Navigation (WAI-ARIA Pattern) -->
             <div role="tablist" aria-label="Modos de auditoría de accesibilidad" class="tabs-nav">
-                <button role="tab" id="tab-web" aria-controls="panel-web" aria-selected="true" class="tab-btn">
-                    🌐 Auditoría Web por URL
+                <button role="tab" id="tab-web" aria-controls="panel-web" aria-selected="true" tabindex="0" class="tab-btn">
+                    🌐 Auditoría Web
                 </button>
                 <button role="tab" id="tab-code" aria-controls="panel-code" aria-selected="false" tabindex="-1" class="tab-btn">
-                    📝 Código HTML Directo
+                    📝 Código HTML
                 </button>
                 <button role="tab" id="tab-apk" aria-controls="panel-apk" aria-selected="false" tabindex="-1" class="tab-btn">
-                    📱 Auditoría Android (.APK)
+                    📱 App Android (.APK)
                 </button>
                 <button role="tab" id="tab-bookmarklet" aria-controls="panel-bookmarklet" aria-selected="false" tabindex="-1" class="tab-btn">
-                    📌 Bookmarklet de 1 Clic (Login / Intranet)
-                </button>
-                <button role="tab" id="tab-coverage" aria-controls="panel-coverage" aria-selected="false" tabindex="-1" class="tab-btn">
-                    📋 Mapa de Cobertura (WCAG 2.2)
+                    📌 Bookmarklet (Login/Intranet)
                 </button>
             </div>
 
             <!-- Panel 1: URL Web Auditor -->
-            <div role="tabpanel" id="panel-web" aria-labelledby="tab-web" class="audit-card">
+            <div role="tabpanel" id="panel-web" aria-labelledby="tab-web" class="audit-card" tabindex="0">
                 <h2 style="font-size: 1.25rem; margin-bottom: 0.4rem; color: #ffffff;">Auditar Cualquier Sitio Web por URL</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
                     Pegue cualquier dirección web pública. El normalizador inteligente acepta dominios con o sin protocolo, subdominios, rutas complejas y dominios internacionalizados (IDN con tildes o eñes).
@@ -797,7 +748,7 @@
             </div>
 
             <!-- Panel 2: Direct HTML Code Auditor -->
-            <div role="tabpanel" id="panel-code" aria-labelledby="tab-code" class="audit-card" style="display: none;">
+            <div role="tabpanel" id="panel-code" aria-labelledby="tab-code" class="audit-card" tabindex="0" style="display: none;">
                 <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #ffffff;">Auditar Código HTML Directo</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
                     Pegue código HTML crudo o cargue un archivo <code>.html</code> para evaluarlo instantáneamente en su navegador sin barreras de red ni cortafuegos.
@@ -827,7 +778,7 @@
             </div>
 
             <!-- Panel 3: Android APK Auditor -->
-            <div role="tabpanel" id="panel-apk" aria-labelledby="tab-apk" class="audit-card" style="display: none;">
+            <div role="tabpanel" id="panel-apk" aria-labelledby="tab-apk" class="audit-card" tabindex="0" style="display: none;">
                 <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #ffffff;">Auditoría de Aplicaciones Android (.APK)</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
                     Arrastre o seleccione un paquete <code>.apk</code>. Se inspeccionan layouts XML, atributos <code>contentDescription</code>, tamaños de botones táctiles (48x48dp) y TalkBack directamente en el navegador mediante descompresión JSZip.
@@ -855,7 +806,7 @@
             </div>
 
             <!-- Panel 4: Bookmarklet 1-Click Auditor -->
-            <div role="tabpanel" id="panel-bookmarklet" aria-labelledby="tab-bookmarklet" class="audit-card" style="display: none;">
+            <div role="tabpanel" id="panel-bookmarklet" aria-labelledby="tab-bookmarklet" class="audit-card" tabindex="0" style="display: none;">
                 <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #ffffff;">📌 Bookmarklet de 1 Clic (Nivel 4 de Respaldo)</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
                     ¿El sitio web requiere inicio de sesión con usuario y contraseña, está en una red interna (intranet) o tiene un CAPTCHA estricto?
@@ -877,337 +828,6 @@
                     <li>Haga clic en el marcador <strong>"📌 Auditar con A11y TAW"</strong> en su barra de marcadores.</li>
                     <li>El motor oficial axe-core evaluará la pestaña abierta en vivo y transferirá los resultados a este informe interactivo con puntaje TAW.</li>
                 </ol>
-            </div>
-
-            <!-- Panel 5: Mapa de Cobertura WCAG 2.2 y Transparencia Metodológica -->
-            <div role="tabpanel" id="panel-coverage" aria-labelledby="tab-coverage" class="audit-card" style="display: none;">
-                <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #ffffff;">📋 Mapa de Cobertura WCAG 2.2 (Límites Reales de Detección)</h2>
-                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
-                    <strong>Compromiso de Honestidad y Rigor Técnico:</strong> Ningún software automático en el mundo puede auditar el 100% de las pautas W3C. La automatización formal determinista cubre entre el <strong>30% y 40%</strong> de las barreras (Problemas). El análisis heurístico cubre un <strong>25%</strong> (Advertencias). El <strong>35% restante</strong> exige comprobación humana obligatoria (No verificados). <em>A11y Agent nunca clasifica como "Aprobado" un criterio que no pueda comprobarse por código.</em>
-                </p>
-
-                <!-- Resumen de Métricas de Cobertura -->
-                <div class="kpi-row" style="margin-bottom: 1.5rem;">
-                    <div class="kpi-card danger">
-                        <div class="kpi-num" style="color: var(--danger);">32</div>
-                        <div class="kpi-lbl">🟢 Automáticos (Problemas)</div>
-                        <small style="color: var(--text-muted); font-size: 0.78rem;">100% deterministas en código DOM</small>
-                    </div>
-                    <div class="kpi-card warning">
-                        <div class="kpi-num" style="color: var(--warning);">24</div>
-                        <div class="kpi-lbl">🟡 Parciales (Advertencias)</div>
-                        <small style="color: var(--text-muted); font-size: 0.78rem;">Detección de candidatos + heurística</small>
-                    </div>
-                    <div class="kpi-card info">
-                        <div class="kpi-num" style="color: var(--primary);">30</div>
-                        <div class="kpi-lbl">🔵 Solo Manuales (No verificados)</div>
-                        <small style="color: var(--text-muted); font-size: 0.78rem;">Juicio humano W3C obligatorio</small>
-                    </div>
-                </div>
-
-                <div style="overflow-x: auto;">
-                    <table class="cov-table" aria-label="Tabla de cobertura de criterios WCAG 2.2">
-                        <thead>
-                            <tr>
-                                <th>Criterio WCAG 2.2</th>
-                                <th>Nivel</th>
-                                <th>Principio</th>
-                                <th>Tipo de Cobertura</th>
-                                <th>Qué detecta el Agente</th>
-                                <th>Qué requiere Revisión Humana Obligatoria</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Principio 1: Perceptible -->
-                            <tr>
-                                <td><strong>1.1.1 Contenido no textual</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Imágenes, botones gráficos y áreas sin atributo <code>alt</code> o nombre accesible.</td>
-                                <td>Comprobar si el texto alternativo transmite fielmente el significado contextual o si una imagen decorativa debió ser <code>alt=""</code>.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.2.1 Solo audio y solo vídeo</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>Presencia de etiquetas <code>&lt;audio&gt;</code> y <code>&lt;video&gt;</code>.</td>
-                                <td>Verificar que la transcripción textual completa coincida palabra por palabra con el audio pregrabado.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.2.2 Subtítulos (pregrabados)</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>Detección de pistas <code>&lt;track kind="captions"&gt;</code>.</td>
-                                <td>Verificar la sincronización temporal exacta de los subtítulos, identificación de hablantes y ruidos de fondo.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.2.3 Audiodescripción</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>No automatizable.</td>
-                                <td>Evaluar si las acciones visuales clave sin diálogo sonoro están descritas para personas ciegas.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.3.1 Información y relaciones</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Encabezados vacíos, tablas sin <code>&lt;th&gt;</code>, listas rotas, inputs sin <code>&lt;label&gt;</code>, fieldsets huérfanos.</td>
-                                <td>Verificar que la estructura semántica refleje la jerarquía mental y visual del documento.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.3.2 Secuencia con significado</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>Comparación de orden en el DOM frente a CSS <code>order</code> o <code>flex-direction</code>.</td>
-                                <td>Confirmar que la lectura lineal con lector de pantalla mantenga el sentido lógico del contenido.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.3.3 Características sensoriales</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>No automatizable.</td>
-                                <td>Comprobar que no haya instrucciones que dependan de la forma, tamaño o ubicación visual ("clic en el botón verde de la derecha").</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.4.1 Uso del color</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Detección de enlaces sin subrayado dentro de bloques de texto (ratio 3:1).</td>
-                                <td>Comprobar gráficos, mapas o estados de formulario donde el color sea el único indicador de estado o error.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.4.2 Control del audio</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Detección de elementos con <code>autoplay</code> que duren más de 3 segundos sin controles.</td>
-                                <td>Verificar que exista un mecanismo de teclado independiente para pausar el audio.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.4.3 Contraste (mínimo 4.5:1 / 3:1)</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Cálculo matemático de luminancia sobre fondos planos estáticos (4.5:1 normal, 3:1 texto grande).</td>
-                                <td>Inspección de texto sobre imágenes de fondo, gradientes CSS o vídeos en movimiento.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.4.4 Cambio de tamaño del texto (200%)</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Detección de bloqueo de zoom en <code>meta viewport</code> (<code>user-scalable=no</code>).</td>
-                                <td>Ampliación visual al 200% para verificar que no haya solapamiento de cajas ni recorte de texto.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.4.10 Reflujo (Reflow a 320px)</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Detección de anchos fijos en píxeles mayores a 320px sin media queries.</td>
-                                <td>Redimensionar a 320px y certificar que no aparezca barra de desplazamiento horizontal en contenidos bidireccionales.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.4.11 Contraste sin texto (3:1)</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Contraste en bordes de inputs nativos y botones con bordes definidos.</td>
-                                <td>Contraste de iconos interactivos personalizados e infografías SVG.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.4.12 Espaciado de texto</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Inyección de estilos de prueba con espaciados de párrafo, interlineado y caracteres.</td>
-                                <td>Verificar que las cajas no corten el texto al aumentar el espaciado.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>1.4.13 Contenido en hover o foco</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Perceptible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>Detección de selectores <code>:hover</code> y <code>:focus</code> en CSS.</td>
-                                <td>Verificar que los tooltips y desplegables sean descartables con <code>Esc</code>, mantenibles con el cursor y persistentes.</td>
-                            </tr>
-
-                            <!-- Principio 2: Operable -->
-                            <tr>
-                                <td><strong>2.1.1 Teclado</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Detecta eventos de ratón en divs/spans sin <code>role</code> ni <code>tabindex="0"</code>.</td>
-                                <td>Navegar flujos complejos (selectores de fecha, carruseles, modales) exclusivamente con teclado.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.1.2 Sin trampas para el teclado</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>Detección de modales o iframes sin gestión de foco.</td>
-                                <td>Recorrer con <code>Tab</code> y <code>Shift+Tab</code> comprobando que el foco nunca quede atrapado sin escape.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.4.1 Evitar bloques (Skip-links)</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Presencia de enlace de salto al contenido o estructura de landmarks ARIA (<code>&lt;main&gt;</code>, <code>&lt;nav&gt;</code>).</td>
-                                <td>Verificar que el enlace sea visible al tabular y desplace el foco correctamente.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.4.2 Página titulada</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Presencia de etiqueta <code>&lt;title&gt;</code> con contenido en el <code>&lt;head&gt;</code>.</td>
-                                <td>Evaluar si el título describe de forma específica el propósito de la página concreta.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.4.4 Propósito del enlace</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Enlaces vacíos o con texto genérico recurrente ("clic aquí", "leer más").</td>
-                                <td>Determinar si la frase o contexto inmediato aclara el destino real del enlace.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.4.7 Foco visible</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Detección de <code>outline: none</code> o <code>outline: 0</code> sin estilos de foco alternativos.</td>
-                                <td>Comprobar visualmente que el indicador de foco sea perceptible sobre todos los fondos.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.4.11 Foco no oscurecido (Mínimo) [WCAG 2.2]</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Detección de barras fijas (<code>sticky</code> / <code>fixed</code>) que se solapen con elementos interactivos.</td>
-                                <td>Verificar que ningún control quede 100% oculto tras una barra fija al navegar con teclado.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.4.12 Foco no oscurecido (Mejorado) [WCAG 2.2]</strong></td>
-                                <td><span class="badge-level">AAA</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>No automatizable.</td>
-                                <td>Certificar que el foco permanezca 0% tapado (completamente visible).</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.5.7 Movimientos de arrastre [WCAG 2.2]</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>Detección de librerías o eventos de arrastrar (drag-and-drop).</td>
-                                <td>Comprobar que exista una alternativa de clic único (ej. botones subir/bajar) sin obligar a arrastrar.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2.5.8 Tamaño del objetivo (Mínimo 24x24px) [WCAG 2.2]</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Operable</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Controles interactivos con dimensiones calculadas menores a 24x24 píxeles CSS.</td>
-                                <td>Verificar excepciones de espaciado concéntrico o enlaces en línea dentro de párrafos.</td>
-                            </tr>
-
-                            <!-- Principio 3: Comprensible -->
-                            <tr>
-                                <td><strong>3.1.1 Idioma de la página</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Comprensible</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Presencia y validez formal del atributo <code>lang</code> en la etiqueta <code>&lt;html&gt;</code>.</td>
-                                <td>Verificar que el código coincida con el idioma real del texto predominante.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>3.1.2 Idioma de las partes</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Comprensible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>Detección de atributos <code>lang</code> en elementos secundarios.</td>
-                                <td>Identificar citas o pasajes en otros idiomas que requieran etiquetado para sintetizadores de voz.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>3.2.6 Ayuda coherente [WCAG 2.2]</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Comprensible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>Detección de enlaces de contacto, soporte o chat de ayuda.</td>
-                                <td>Comprobar que el mecanismo de ayuda aparezca en el mismo orden relativo en todas las páginas.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>3.3.1 Identificación de errores</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Comprensible</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Validaciones HTML5 y presencia de <code>aria-invalid="true"</code>.</td>
-                                <td>Comprobar que los mensajes de error expliquen con claridad qué falló y en qué campo.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>3.3.2 Etiquetas o instrucciones</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Comprensible</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Campos de formulario sin <code>&lt;label&gt;</code> ni <code>aria-label</code> o con placeholder como única guía.</td>
-                                <td>Evaluar si las instrucciones provistas son comprensibles y no ambiguas.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>3.3.7 Entrada redundante [WCAG 2.2]</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Comprensible</td>
-                                <td><span class="cov-badge manual">🔵 Solo Manual</span></td>
-                                <td>No automatizable.</td>
-                                <td>Verificar que en procesos de varios pasos la información previa se autorellene o pueda seleccionarse.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>3.3.8 Autenticación accesible [WCAG 2.2]</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Comprensible</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Detección de captchas de rompecabezas o pruebas de transcripción de caracteres.</td>
-                                <td>Verificar que el inicio de sesión admita gestores de contraseñas (pegar credenciales) o enlace de correo.</td>
-                            </tr>
-
-                            <!-- Principio 4: Robusto -->
-                            <tr>
-                                <td><strong>4.1.1 Procesamiento (Parsing)</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Robusto</td>
-                                <td><span class="cov-badge obsolete">⚪ Obsoleto en WCAG 2.2</span></td>
-                                <td>Eliminado en WCAG 2.2 por el W3C. Ya no se audita en esta versión.</td>
-                                <td>Ninguna (criterio eliminado de la especificación oficial).</td>
-                            </tr>
-                            <tr>
-                                <td><strong>4.1.2 Nombre, función, valor</strong></td>
-                                <td><span class="badge-level">A</span></td>
-                                <td>Robusto</td>
-                                <td><span class="cov-badge auto">🟢 Automático</span></td>
-                                <td>Roles ARIA no válidos, botones sin nombre accesible, estados <code>aria-expanded</code> o <code>aria-selected</code> rotos.</td>
-                                <td>Comprobar widgets interactivos personalizados con lectores de pantalla reales (NVDA, JAWS, VoiceOver).</td>
-                            </tr>
-                            <tr>
-                                <td><strong>4.1.3 Mensajes de estado</strong></td>
-                                <td><span class="badge-level">AA</span></td>
-                                <td>Robusto</td>
-                                <td><span class="cov-badge partial">🟡 Parcial</span></td>
-                                <td>Presencia de atributos <code>role="status"</code> o <code>aria-live="polite"</code> en el DOM.</td>
-                                <td>Validar que cuando ocurra un evento asíncrono (guardado automático) el lector lo anuncie sin interrumpir el foco.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
 
             <!-- Status Indicator -->
@@ -1351,25 +971,49 @@
             "4.1.3": { principle: "Robusto", title: "Mensajes de estado", level: "AA", technique: "ARIA19", slug: "status-messages" }
         };
 
-        // Tabs switching logic
+        // Tabs switching logic (WAI-ARIA Pattern with Keyboard Arrows & Roving Tabindex)
         const tabs = [
             { btn: document.getElementById('tab-web'), panel: document.getElementById('panel-web') },
             { btn: document.getElementById('tab-code'), panel: document.getElementById('panel-code') },
             { btn: document.getElementById('tab-apk'), panel: document.getElementById('panel-apk') },
-            { btn: document.getElementById('tab-bookmarklet'), panel: document.getElementById('panel-bookmarklet') },
-            { btn: document.getElementById('tab-coverage'), panel: document.getElementById('panel-coverage') }
+            { btn: document.getElementById('tab-bookmarklet'), panel: document.getElementById('panel-bookmarklet') }
         ];
 
-        tabs.forEach((t) => {
+        function activateTab(tabIndex, setFocus = true) {
+            tabs.forEach((t, i) => {
+                const isSelected = i === tabIndex;
+                t.btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+                t.btn.tabIndex = isSelected ? 0 : -1;
+                t.panel.style.display = isSelected ? 'block' : 'none';
+                if (isSelected && setFocus) {
+                    t.btn.focus();
+                }
+            });
+        }
+
+        tabs.forEach((t, index) => {
+            // Click activation
             t.btn.addEventListener('click', () => {
-                tabs.forEach(item => {
-                    item.btn.setAttribute('aria-selected', 'false');
-                    item.btn.tabIndex = -1;
-                    item.panel.style.display = 'none';
-                });
-                t.btn.setAttribute('aria-selected', 'true');
-                t.btn.tabIndex = 0;
-                t.panel.style.display = 'block';
+                activateTab(index, false);
+            });
+
+            // WAI-ARIA Keyboard navigation (ArrowLeft, ArrowRight, Home, End)
+            t.btn.addEventListener('keydown', (e) => {
+                let targetIndex = null;
+                if (e.key === 'ArrowRight') {
+                    targetIndex = (index + 1) % tabs.length;
+                } else if (e.key === 'ArrowLeft') {
+                    targetIndex = (index - 1 + tabs.length) % tabs.length;
+                } else if (e.key === 'Home') {
+                    targetIndex = 0;
+                } else if (e.key === 'End') {
+                    targetIndex = tabs.length - 1;
+                }
+
+                if (targetIndex !== null) {
+                    e.preventDefault();
+                    activateTab(targetIndex, true);
+                }
             });
         });
 
@@ -1678,11 +1322,11 @@
         }
 
         function switchToCodeTab() {
-            document.getElementById('tab-code').click();
+            activateTab(1, true);
         }
 
         function switchToBookmarkletTab() {
-            document.getElementById('tab-bookmarklet').click();
+            activateTab(3, true);
         }
 
         // =========================================================================
