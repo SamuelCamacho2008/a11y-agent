@@ -1,8 +1,8 @@
-"""Pydantic data models for A11y Agent conforming to WCAG 2.1 / 2.2 specifications."""
+"""Pydantic data models for A11y Agent conforming to WCAG 2.1 / 2.2 and mobile accessibility specifications."""
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Literal
 from pydantic import BaseModel, Field
 
 class Principle(str, Enum):
@@ -20,6 +20,7 @@ class GuidelinesVersion(str, Enum):
     WCAG_2_0 = "WCAG 2.0"
     WCAG_2_1 = "WCAG 2.1"
     WCAG_2_2 = "WCAG 2.2"
+    EN_301_549 = "EN 301 549"
 
 class Category(str, Enum):
     PROBLEMA = "Problema"
@@ -42,8 +43,8 @@ class EffortLevel(str, Enum):
     ALTO = "alto"
 
 class Remediation(BaseModel):
-    before_snippet: str = Field(..., description="Fragmento HTML con el problema")
-    after_snippet: str = Field(..., description="Fragmento HTML con la solución accesible")
+    before_snippet: str = Field(..., description="Fragmento de código con el problema")
+    after_snippet: str = Field(..., description="Fragmento de código con la solución accesible")
     advice: str = Field(..., description="Instrucciones claras de corrección")
     effort: EffortLevel = Field(default=EffortLevel.MEDIO, description="Esfuerzo estimado de corrección")
 
@@ -56,10 +57,10 @@ class Finding(BaseModel):
     category: Category = Field(..., description="Problema, Advertencia o No verificado")
     origin: FindingOrigin = Field(default=FindingOrigin.REGLA, description="Origen de detección (regla o ia)")
     check_name: str = Field(..., description="Nombre técnico de la comprobación")
-    w3c_technique: str = Field(default="G94", description="Técnica W3C asociada (ej. H37, F65, G94)")
-    selector: str = Field(..., description="Selector CSS del elemento en el DOM")
-    line_number: Optional[int] = Field(default=None, description="Número de línea en el HTML fuente si fue localizado")
-    html_snippet: str = Field(..., description="Fragmento de código HTML analizado")
+    w3c_technique: str = Field(default="G94", description="Técnica W3C o móvil asociada (ej. H37, AND1, G219)")
+    selector: str = Field(..., description="Selector CSS, XPath o View ID del elemento")
+    line_number: Optional[int] = Field(default=None, description="Número de línea en el código fuente si fue localizado")
+    html_snippet: str = Field(..., description="Fragmento de código analizado (HTML o XML Android)")
     explanation: str = Field(..., description="Explicación en lenguaje simple del impacto en la accesibilidad")
     remediation: Optional[Remediation] = Field(default=None, description="Solución concreta antes y después")
     impact: ImpactLevel = Field(default=ImpactLevel.MEDIO, description="Nivel de impacto en el usuario")
@@ -78,7 +79,11 @@ class PrincipleFindings(BaseModel):
     success_criteria: List[SuccessCriterionGroup] = Field(default_factory=list)
 
 class ReportMetadata(BaseModel):
-    url: str
+    url: str = Field(..., description="URL analizada o identificador del paquete APK")
+    target_type: Literal["web", "apk"] = Field(default="web", description="Tipo de recurso analizado ('web' o 'apk')")
+    app_name: Optional[str] = Field(default=None, description="Nombre de la aplicación móvil (si aplica)")
+    package_name: Optional[str] = Field(default=None, description="Package Name de la app Android (si aplica)")
+    public_url: Optional[str] = Field(default=None, description="Enlace público compartible del informe")
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     guidelines: GuidelinesVersion = Field(default=GuidelinesVersion.WCAG_2_1)
     target_level: WCAGLevel = Field(default=WCAGLevel.AA)
@@ -96,6 +101,10 @@ class ReportSummary(BaseModel):
 
 class A11yReport(BaseModel):
     id: str
+    target_type: Literal["web", "apk"] = Field(default="web", description="Tipo de recurso analizado ('web' o 'apk')")
+    app_name: Optional[str] = Field(default=None, description="Nombre de la app si es APK")
+    package_name: Optional[str] = Field(default=None, description="Package Name de la app si es APK")
+    public_url: Optional[str] = Field(default=None, description="Enlace público compartible permanente")
     metadata: ReportMetadata
     summary: ReportSummary
     principles: Dict[str, PrincipleFindings]
@@ -103,7 +112,7 @@ class A11yReport(BaseModel):
     disclaimer: str = (
         "AVISO IMPORTANTE: Esta auditoría automática y asistida por IA es una herramienta de apoyo "
         "y no sustituye la evaluación manual exhaustiva realizada por expertos ni las pruebas directas "
-        "con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla, switches, etc.)."
+        "con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla TalkBack, NVDA, switches, etc.)."
     )
 
 class ChatMessage(BaseModel):

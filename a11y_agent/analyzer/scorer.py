@@ -1,6 +1,6 @@
 """Consolidation, deduplication, scoring, and report building."""
 
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from collections import defaultdict
 import uuid
 
@@ -80,14 +80,18 @@ def generate_executive_summary(
     total_problems: int,
     total_warnings: int,
     target_level: WCAGLevel,
-    impact_counts: Dict[str, int]
+    impact_counts: Dict[str, int],
+    target_type: str = "web",
+    target_name: str = ""
 ) -> str:
     """Generate concise 5-line executive summary of the accessibility audit."""
     level_status = "satisfactorio" if score >= 85 and total_problems == 0 else "con barreras significativas"
-    line1 = f"1. Estado General: La página obtiene un puntaje global de accesibilidad de {score}/100, evaluada bajo nivel {target_level.value} ({level_status})."
+    entity = "La aplicación móvil Android" if target_type == "apk" else "La página"
+    name_clause = f" ({target_name})" if target_name and target_type == "apk" else ""
+    line1 = f"1. Estado General: {entity}{name_clause} obtiene un puntaje global de accesibilidad de {score}/100, evaluada bajo nivel {target_level.value} ({level_status})."
     line2 = f"2. Barreras Críticas: Se detectaron {total_problems} problemas deterministas y {total_warnings} advertencias que requieren revisión experta."
     line3 = f"3. Distribución de Impacto: {impact_counts.get('crítico', 0)} barreras de impacto crítico y {impact_counts.get('alto', 0)} de impacto alto impiden la interacción de usuarios con discapacidad."
-    line4 = f"4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en textos alternativos, contraste y control por teclado."
+    line4 = f"4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en etiquetado accesible, contraste y adaptabilidad para tecnologías de asistencia."
     line5 = f"5. Plan de Acción: Se recomienda priorizar los fallos clasificados como Problemas Críticos aplicando las soluciones de código antes/después incluidas en este informe."
     return "\n".join([line1, line2, line3, line4, line5])
 
@@ -99,7 +103,11 @@ def build_a11y_report(
     target_level: WCAGLevel = WCAGLevel.AA,
     technologies: List[str] = None,
     execution_time_seconds: float = 0.0,
-    screenshot_path: str = None
+    screenshot_path: str = None,
+    target_type: str = "web",
+    app_name: Optional[str] = None,
+    package_name: Optional[str] = None,
+    public_url: Optional[str] = None
 ) -> A11yReport:
     """
     Consolidate findings, structure by the 4 Principles & Criteria, and produce final A11yReport.
@@ -111,12 +119,15 @@ def build_a11y_report(
     total_warnings = sum(1 for f in deduped if f.category == Category.ADVERTENCIA)
     total_unverified = sum(1 for f in deduped if f.category == Category.NO_VERIFICADO)
 
+    target_display = app_name or package_name or url
     exec_summary = generate_executive_summary(
         score=score,
         total_problems=total_problems,
         total_warnings=total_warnings,
         target_level=target_level,
-        impact_counts=impact_counts
+        impact_counts=impact_counts,
+        target_type=target_type,
+        target_name=target_display
     )
 
     # Group by Principle and Success Criterion
@@ -152,9 +163,13 @@ def build_a11y_report(
 
     metadata = ReportMetadata(
         url=url,
+        target_type="apk" if target_type == "apk" else "web",
+        app_name=app_name,
+        package_name=package_name,
+        public_url=public_url,
         guidelines=guidelines,
         target_level=target_level,
-        technologies=technologies or ["HTML5", "CSS3", "JavaScript"],
+        technologies=technologies or (["Android APK", "XML Layouts"] if target_type == "apk" else ["HTML5", "CSS3", "JavaScript"]),
         execution_time_seconds=execution_time_seconds,
         screenshot_path=screenshot_path
     )
@@ -170,6 +185,10 @@ def build_a11y_report(
 
     return A11yReport(
         id=report_id,
+        target_type="apk" if target_type == "apk" else "web",
+        app_name=app_name,
+        package_name=package_name,
+        public_url=public_url,
         metadata=metadata,
         summary=summary,
         principles=principles_dict,

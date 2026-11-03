@@ -9,7 +9,7 @@ HTML_REPORT_TEMPLATE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informe de Accesibilidad - {{ report.metadata.url }} | A11y Agent</title>
+    <title>Informe de Accesibilidad - {{ report.metadata.app_name or report.metadata.url }} | A11y Agent</title>
     <style>
         :root {
             --bg-main: #f8fafc;
@@ -374,12 +374,18 @@ HTML_REPORT_TEMPLATE = """<!DOCTYPE html>
     <!-- Header -->
     <header class="report-header">
         <h1>
-            <span>&#9855;</span> Informe de Accesibilidad Web (A11y Agent)
+            <span>&#9855;</span> Informe de Accesibilidad {% if report.metadata.target_type == 'apk' %}Android APK{% else %}Web{% endif %} (A11y Agent)
         </h1>
         <div class="meta-grid">
             <div class="meta-item">
                 <strong>Recurso Analizado</strong>
-                <span><a href="{{ report.metadata.url }}" target="_blank" rel="noopener">{{ report.metadata.url }}</a></span>
+                <span>
+                    {% if report.metadata.url.startswith('http') %}
+                    <a href="{{ report.metadata.url }}" target="_blank" rel="noopener">{{ report.metadata.url }}</a>
+                    {% else %}
+                    <code>{{ report.metadata.app_name or report.metadata.package_name or report.metadata.url }}</code>
+                    {% endif %}
+                </span>
             </div>
             <div class="meta-item">
                 <strong>Fecha y Hora (UTC)</strong>
@@ -397,6 +403,12 @@ HTML_REPORT_TEMPLATE = """<!DOCTYPE html>
                     {% endfor %}
                 </div>
             </div>
+            {% if report.public_url %}
+            <div class="meta-item" style="grid-column: 1 / -1;">
+                <strong>Enlace Público Permanente</strong>
+                <span><a href="{{ report.public_url }}" target="_blank" rel="noopener">{{ report.public_url }}</a></span>
+            </div>
+            {% endif %}
         </div>
     </header>
 
@@ -479,7 +491,7 @@ HTML_REPORT_TEMPLATE = """<!DOCTYPE html>
                         <td>
                             <strong>{{ finding.check_name }}</strong>
                             <br>
-                            <small style="color: var(--text-muted);">Técnica W3C: <strong>{{ finding.w3c_technique }}</strong></small>
+                            <small style="color: var(--text-muted);">Técnica: <strong>{{ finding.w3c_technique }}</strong></small>
                             <br>
                             <small style="color: #64748b;">ID: {{ finding.id }}</small>
                         </td>
@@ -488,11 +500,11 @@ HTML_REPORT_TEMPLATE = """<!DOCTYPE html>
                             {% if finding.line_number %}
                             <br>
                             <span style="color: var(--primary-dark); font-weight: 600; font-size: 0.8rem;">
-                                Línea HTML: {{ finding.line_number }}
+                                Línea: {{ finding.line_number }}
                             </span>
                             {% else %}
                             <br>
-                            <small style="color: var(--text-muted);">Línea no indexada</small>
+                            <small style="color: var(--text-muted);">XML / Layout</small>
                             {% endif %}
                         </td>
                         <td>

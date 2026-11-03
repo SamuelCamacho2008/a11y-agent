@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A11y Agent - Auditor de Accesibilidad Web & Remediation IA</title>
+    <title>A11y Agent - Auditor de Accesibilidad Web & Android APK con IA</title>
     <style>
         :root {
             --primary: #0284c7;
@@ -38,8 +38,9 @@
             left: 0;
             background: #000;
             color: #fff;
-            padding: 8px;
+            padding: 8px 16px;
             z-index: 100;
+            font-weight: 700;
         }
         .skip-link:focus { top: 0; }
 
@@ -66,11 +67,54 @@
             padding: 0 1rem;
         }
 
+        /* Tabs Navigation */
+        .tabs-header {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: -1px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tab-btn {
+            background: #e2e8f0;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            background: #cbd5e1;
+            color: var(--text-main);
+        }
+
+        .tab-btn:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: -2px;
+        }
+
+        .tab-btn[aria-selected="true"] {
+            background: var(--bg-card);
+            color: var(--primary);
+            border-color: var(--border);
+            border-top: 3px solid var(--primary);
+            padding-top: calc(0.75rem - 2px);
+        }
+
         .audit-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.75rem;
+            border-radius: 0 8px 8px 8px;
+            padding: 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.04);
             margin-bottom: 2rem;
         }
@@ -93,7 +137,7 @@
             margin-bottom: 0.4rem;
         }
 
-        input[type="url"], select {
+        input[type="url"], input[type="text"], select {
             width: 100%;
             padding: 0.65rem 0.85rem;
             border: 1px solid var(--border);
@@ -101,7 +145,7 @@
             font-size: 1rem;
         }
 
-        input[type="url"]:focus, select:focus {
+        input:focus, select:focus {
             outline: 2px solid var(--primary);
             border-color: var(--primary);
         }
@@ -112,7 +156,7 @@
             border: none;
             padding: 0.7rem 1.4rem;
             border-radius: 6px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
             display: inline-flex;
@@ -124,6 +168,80 @@
 
         button.btn-primary:hover { background: var(--primary-hover); }
         button.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Drag & Drop Zone for APK */
+        .dropzone-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .dropzone {
+            border: 2px dashed var(--primary);
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            background: #e0f2fe;
+            border-color: var(--primary-hover);
+        }
+
+        .dropzone:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .dropzone-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .dropzone-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .dropzone-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .file-selected-badge {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--success-bg);
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            color: #166534;
+            font-weight: 600;
+            font-size: 0.95rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            display: none;
+            margin-top: 1.5rem;
+            background: #e2e8f0;
+            border-radius: 999px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
 
         /* Report View */
         #results-container { display: none; }
@@ -192,12 +310,13 @@
             gap: 0.75rem;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .btn-secondary {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 0.5rem 1rem;
+            padding: 0.55rem 1.1rem;
             border-radius: 6px;
             font-size: 0.9rem;
             font-weight: 600;
@@ -206,10 +325,41 @@
             color: var(--text-main);
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
         }
 
-        .btn-secondary:hover { background: #f8fafc; }
+        .btn-secondary:hover { background: #f8fafc; border-color: #94a3b8; }
+
+        .btn-share {
+            background: #0284c7;
+            color: #ffffff;
+            border: 1px solid #0369a1;
+        }
+
+        .btn-share:hover {
+            background: #0369a1;
+            color: #ffffff;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 0.85rem 1.4rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Principles details */
         .principle-card {
@@ -331,59 +481,174 @@
         </div>
         <div>
             <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
-                Auditoría WCAG 2.1/2.2 con IA Semántica
+                Auditoría WCAG 2.1 / 2.2 &amp; EN 301 549 (Web &amp; Android APK)
             </span>
         </div>
     </header>
 
     <main id="main-content" class="container" role="main">
-        <section class="audit-card" aria-labelledby="form-heading">
-            <h1 id="form-heading" style="font-size: 1.4rem; margin-top: 0;">Auditar Página Web</h1>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
-                Ingrese la URL para realizar una evaluación integral estilo TAW (axe-core + remediación semántica con LLM).
-            </p>
+        <!-- Accessible Navigation Tabs for Mode 1 (Web) and Mode 2 (APK) -->
+        <div class="tabs-header" role="tablist" aria-label="Modo de auditoría">
+            <button
+                role="tab"
+                id="tab-web"
+                aria-controls="panel-web"
+                aria-selected="true"
+                tabindex="0"
+                class="tab-btn"
+            >
+                🌐 Auditoría Web (URL)
+            </button>
+            <button
+                role="tab"
+                id="tab-apk"
+                aria-controls="panel-apk"
+                aria-selected="false"
+                tabindex="-1"
+                class="tab-btn"
+            >
+                📱 Auditoría Android (APK)
+            </button>
+        </div>
 
-            <form id="scan-form" class="form-grid">
-                <div>
-                    <label for="url-input">URL de la página:</label>
-                    <input type="url" id="url-input" required placeholder="https://ejemplo.com" aria-required="true">
+        <section class="audit-card">
+            <!-- Panel 1: Web Auditor -->
+            <div role="tabpanel" id="panel-web" aria-labelledby="tab-web">
+                <h1 id="heading-web" style="font-size: 1.35rem; margin-top: 0;">Auditar Página Web</h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                    Ingrese la URL para realizar una evaluación integral estilo TAW (axe-core + remediación semántica con LLM).
+                </p>
+
+                <form id="scan-form" class="form-grid">
+                    <div>
+                        <label for="url-input">URL de la página:</label>
+                        <input type="url" id="url-input" required placeholder="https://ejemplo.com" aria-required="true">
+                    </div>
+
+                    <div>
+                        <label for="guidelines-select">Pautas:</label>
+                        <select id="guidelines-select">
+                            <option value="WCAG 2.2" selected>WCAG 2.2</option>
+                            <option value="WCAG 2.1">WCAG 2.1</option>
+                            <option value="WCAG 2.0">WCAG 2.0</option>
+                            <option value="EN 301 549">EN 301 549</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="level-select">Nivel:</label>
+                        <select id="level-select">
+                            <option value="AA" selected>AA (Estándar)</option>
+                            <option value="A">A (Básico)</option>
+                            <option value="AAA">AAA (Avanzado)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button type="submit" id="btn-scan" class="btn-primary">
+                            <span id="btn-text">Analizar Web</span>
+                            <span id="btn-spinner" class="spinner" style="display: none;" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Panel 2: Android APK Auditor -->
+            <div role="tabpanel" id="panel-apk" aria-labelledby="tab-apk" style="display: none;">
+                <h1 id="heading-apk" style="font-size: 1.35rem; margin-top: 0;">Auditar Aplicación Android (.APK)</h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                    Cargue el paquete binario APK para descompilar e inspeccionar estáticamente layouts XML, manifiesto, descripciones accesibles, dimensiones táctiles (48x48dp) y contraste.
+                </p>
+
+                <form id="apk-scan-form">
+                    <div class="dropzone-container">
+                        <div
+                            id="apk-dropzone"
+                            class="dropzone"
+                            tabindex="0"
+                            role="button"
+                            aria-label="Área de carga de archivo APK. Presione Enter o arrastre un archivo .apk aquí."
+                        >
+                            <span class="dropzone-icon" aria-hidden="true">📦</span>
+                            <div class="dropzone-text">Arrastre y suelte su archivo APK aquí</div>
+                            <div class="dropzone-sub">o haga clic para explorar archivos en su equipo (máximo 150 MB)</div>
+                        </div>
+
+                        <input
+                            type="file"
+                            id="apk-file-input"
+                            accept=".apk,application/vnd.android.package-archive"
+                            style="display: none;"
+                        >
+
+                        <div id="file-badge" class="file-selected-badge" role="status">
+                            <span id="file-badge-text">Archivo seleccionado</span>
+                            <button
+                                type="button"
+                                id="btn-remove-file"
+                                style="background: none; border: none; color: #dc2626; font-weight: 700; cursor: pointer;"
+                                aria-label="Quitar archivo seleccionado"
+                            >
+                                ✕ Quitar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="apk-guidelines-select">Pautas aplicables:</label>
+                            <select id="apk-guidelines-select">
+                                <option value="WCAG 2.2" selected>WCAG 2.2 (Recomendado)</option>
+                                <option value="EN 301 549">EN 301 549 (Capítulo 11 - Software no web)</option>
+                                <option value="WCAG 2.1">WCAG 2.1</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="apk-level-select">Nivel de conformidad:</label>
+                            <select id="apk-level-select">
+                                <option value="AA" selected>AA (Estándar móvil)</option>
+                                <option value="A">A (Básico)</option>
+                                <option value="AAA">AAA (Avanzado)</option>
+                            </select>
+                        </div>
+
+                        <div style="grid-column: span 2; display: flex; justify-content: flex-end;">
+                            <button type="submit" id="btn-apk-scan" class="btn-primary" disabled>
+                                <span id="btn-apk-text">Analizar APK</span>
+                                <span id="btn-apk-spinner" class="spinner" style="display: none;" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="progress-bar-container" id="apk-progress-container">
+                    <div class="progress-bar-fill" id="apk-progress-fill"></div>
                 </div>
+            </div>
 
-                <div>
-                    <label for="guidelines-select">Pautas:</label>
-                    <select id="guidelines-select">
-                        <option value="WCAG 2.1" selected>WCAG 2.1</option>
-                        <option value="WCAG 2.2">WCAG 2.2</option>
-                        <option value="WCAG 2.0">WCAG 2.0</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label for="level-select">Nivel:</label>
-                    <select id="level-select">
-                        <option value="AA" selected>AA (Estándar)</option>
-                        <option value="A">A (Básico)</option>
-                        <option value="AAA">AAA (Avanzado)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <button type="submit" id="btn-scan" class="btn-primary">
-                        <span id="btn-text">Analizar</span>
-                        <span id="btn-spinner" class="spinner" style="display: none;" aria-hidden="true"></span>
-                    </button>
-                </div>
-            </form>
-
+            <!-- Status announce -->
             <div id="status-live" aria-live="polite" style="margin-top: 1rem; font-weight: 600; color: var(--primary);"></div>
         </section>
 
         <!-- Results Dashboard -->
         <div id="results-container" role="region" aria-label="Resultados de la auditoría">
             <div class="toolbar">
-                <a id="link-html" class="btn-secondary" target="_blank" download>&#128196; Descargar HTML</a>
-                <a id="link-json" class="btn-secondary" target="_blank" download>&#123;&#125; Descargar JSON</a>
-                <a id="link-pdf" class="btn-secondary" target="_blank" download>&#128442; Descargar PDF</a>
+                <button type="button" id="btn-copy-link" class="btn-secondary btn-share" title="Copiar enlace público directo al portapapeles">
+                    <span aria-hidden="true">🔗</span> <span id="btn-copy-label">Copiar Enlace Público</span>
+                </button>
+                <a id="link-public-view" class="btn-secondary" target="_blank" rel="noopener">
+                    <span aria-hidden="true">↗</span> Ver en URL Pública
+                </a>
+                <a id="link-html" class="btn-secondary" target="_blank" download>
+                    <span aria-hidden="true">📄</span> Descargar HTML
+                </a>
+                <a id="link-json" class="btn-secondary" target="_blank" download>
+                    <span aria-hidden="true">{}</span> Descargar JSON
+                </a>
+                <a id="link-pdf" class="btn-secondary" target="_blank" download>
+                    <span aria-hidden="true">📑</span> Descargar PDF
+                </a>
             </div>
 
             <section class="report-summary-bar">
@@ -401,7 +666,7 @@
                         </div>
                         <div class="kpi-badge warning">
                             <div id="kpi-warn" class="kpi-val" style="color: var(--warning);">0</div>
-                            <div class="kpi-lbl">Advertencias (IA)</div>
+                            <div class="kpi-lbl">Advertencias (IA / Revisión)</div>
                         </div>
                         <div class="kpi-badge info">
                             <div id="kpi-unv" class="kpi-val" style="color: var(--primary);">0</div>
@@ -421,14 +686,14 @@
 
             <!-- Remediation Chat Assistant -->
             <section class="chat-section" aria-labelledby="chat-heading">
-                <h2 id="chat-heading" style="margin-top: 0; font-size: 1.25rem;">&#128172; Asistente de Remediación con IA</h2>
+                <h2 id="chat-heading" style="margin-top: 0; font-size: 1.25rem;">💬 Asistente de Remediación con IA</h2>
                 <p style="font-size: 0.9rem; color: var(--text-muted);">
-                    Pregunta sobre cualquier problema detectado (ej. "¿Cómo arreglo el problema 1?", "¿Por qué falla el contraste?").
+                    Pregunta sobre cualquier problema detectado (ej. "¿Cómo arreglo el botón sin contentDescription?", "¿Por qué falla el tamaño táctil de 48dp?").
                 </p>
 
                 <div id="chat-box" class="chat-history">
                     <div class="chat-msg assistant">
-                        ¡Hola! He analizado tu página. Puedes preguntarme sobre cualquiera de las barreras detectadas para darte la solución exacta de código.
+                        ¡Hola! He analizado el recurso. Puedes preguntarme sobre cualquiera de las barreras detectadas para darte la solución exacta de código.
                     </div>
                 </div>
 
@@ -440,9 +705,54 @@
         </div>
     </main>
 
+    <!-- Toast Notification -->
+    <div id="toast-msg" class="toast" role="status" aria-live="polite">
+        ¡Enlace público copiado al portapapeles!
+    </div>
+
     <script>
         let currentReportId = null;
+        let currentPublicUrl = null;
+        let selectedApkFile = null;
 
+        // Tabs Logic (Accessible WAI-ARIA)
+        const tabWeb = document.getElementById('tab-web');
+        const tabApk = document.getElementById('tab-apk');
+        const panelWeb = document.getElementById('panel-web');
+        const panelApk = document.getElementById('panel-apk');
+        const tabs = [tabWeb, tabApk];
+
+        function switchTab(targetTab) {
+            tabs.forEach(t => {
+                const isSelected = (t === targetTab);
+                t.setAttribute('aria-selected', isSelected);
+                t.tabIndex = isSelected ? 0 : -1;
+            });
+            if (targetTab === tabWeb) {
+                panelWeb.style.display = 'block';
+                panelApk.style.display = 'none';
+            } else {
+                panelWeb.style.display = 'none';
+                panelApk.style.display = 'block';
+            }
+            targetTab.focus();
+        }
+
+        tabs.forEach(t => {
+            t.addEventListener('click', () => switchTab(t));
+            t.addEventListener('keydown', (e) => {
+                let idx = tabs.indexOf(t);
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    switchTab(tabs[(idx + 1) % tabs.length]);
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    switchTab(tabs[(idx - 1 + tabs.length) % tabs.length]);
+                }
+            });
+        });
+
+        // Web Scanner Form
         const scanForm = document.getElementById('scan-form');
         const btnScan = document.getElementById('btn-scan');
         const btnText = document.getElementById('btn-text');
@@ -457,7 +767,7 @@
             const level = document.getElementById('level-select').value;
 
             btnScan.disabled = true;
-            btnText.textContent = "Auditando...";
+            btnText.textContent = "Auditando Web...";
             btnSpinner.style.display = "inline-block";
             statusLive.textContent = "Cargando página con Chromium y ejecutando comprobaciones WCAG...";
             resultsContainer.style.display = "none";
@@ -477,25 +787,173 @@
 
                 if (!response.ok) {
                     const errData = await response.json();
-                    throw new Error(errData.detail || 'Error al ejecutar la auditoría');
+                    throw new Error(errData.detail || 'Error al ejecutar la auditoría web');
                 }
 
                 const report = await response.json();
                 currentReportId = report.id;
+                currentPublicUrl = report.public_url || `${window.location.origin}/view/${report.id}`;
                 renderReportUI(report);
-                statusLive.textContent = "Auditoría completada exitosamente.";
+                statusLive.textContent = "Auditoría web completada exitosamente.";
             } catch (err) {
                 statusLive.textContent = "Error: " + err.message;
                 alert("Error al auditar: " + err.message);
             } finally {
                 btnScan.disabled = false;
-                btnText.textContent = "Analizar";
+                btnText.textContent = "Analizar Web";
                 btnSpinner.style.display = "none";
+            }
+        });
+
+        // Drag & Drop APK File Logic
+        const apkDropzone = document.getElementById('apk-dropzone');
+        const apkFileInput = document.getElementById('apk-file-input');
+        const fileBadge = document.getElementById('file-badge');
+        const fileBadgeText = document.getElementById('file-badge-text');
+        const btnRemoveFile = document.getElementById('btn-remove-file');
+        const btnApkScan = document.getElementById('btn-apk-scan');
+        const apkScanForm = document.getElementById('apk-scan-form');
+        const btnApkText = document.getElementById('btn-apk-text');
+        const btnApkSpinner = document.getElementById('btn-apk-spinner');
+        const apkProgressContainer = document.getElementById('apk-progress-container');
+        const apkProgressFill = document.getElementById('apk-progress-fill');
+
+        function handleFileSelection(file) {
+            if (!file) return;
+            if (!file.name.toLowerCase().endsWith('.apk')) {
+                alert('Por favor seleccione un archivo de aplicación Android válido con extensión .apk');
+                return;
+            }
+            selectedApkFile = file;
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+            fileBadgeText.textContent = `📦 ${file.name} (${sizeMb} MB)`;
+            fileBadge.style.display = 'flex';
+            btnApkScan.disabled = false;
+        }
+
+        apkDropzone.addEventListener('click', () => apkFileInput.click());
+        apkDropzone.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                apkFileInput.click();
+            }
+        });
+
+        apkFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelection(e.target.files[0]);
+            }
+        });
+
+        ['dragenter', 'dragover'].forEach(name => {
+            apkDropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                apkDropzone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(name => {
+            apkDropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                apkDropzone.classList.remove('dragover');
+            });
+        });
+
+        apkDropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleFileSelection(e.dataTransfer.files[0]);
+            }
+        });
+
+        btnRemoveFile.addEventListener('click', () => {
+            selectedApkFile = null;
+            apkFileInput.value = '';
+            fileBadge.style.display = 'none';
+            btnApkScan.disabled = true;
+        });
+
+        // APK Form Submission
+        apkScanForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!selectedApkFile) return;
+
+            const guidelines = document.getElementById('apk-guidelines-select').value;
+            const level = document.getElementById('apk-level-select').value;
+
+            btnApkScan.disabled = true;
+            btnApkText.textContent = "Descompilando y analizando APK...";
+            btnApkSpinner.style.display = "inline-block";
+            apkProgressContainer.style.display = "block";
+            apkProgressFill.style.width = "40%";
+            statusLive.textContent = "Subiendo archivo APK y extrayendo layouts XML...";
+            resultsContainer.style.display = "none";
+
+            const formData = new FormData();
+            formData.append('file', selectedApkFile);
+            formData.append('guidelines', guidelines);
+            formData.append('target_level', level);
+
+            try {
+                apkProgressFill.style.width = "75%";
+                const response = await fetch('/api/scan-apk', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                apkProgressFill.style.width = "95%";
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || 'Error durante el análisis del APK');
+                }
+
+                const report = await response.json();
+                currentReportId = report.id;
+                currentPublicUrl = report.public_url || `${window.location.origin}/view/${report.id}`;
+                renderReportUI(report);
+                statusLive.textContent = "Auditoría de aplicación APK completada con éxito.";
+                apkProgressFill.style.width = "100%";
+            } catch (err) {
+                statusLive.textContent = "Error: " + err.message;
+                alert("Error al auditar APK: " + err.message);
+            } finally {
+                btnApkScan.disabled = false;
+                btnApkText.textContent = "Analizar APK";
+                btnApkSpinner.style.display = "none";
+                setTimeout(() => { apkProgressContainer.style.display = "none"; }, 1000);
+            }
+        });
+
+        // Public Shareable Link Feature
+        const btnCopyLink = document.getElementById('btn-copy-link');
+        const btnCopyLabel = document.getElementById('btn-copy-label');
+        const linkPublicView = document.getElementById('link-public-view');
+        const toastMsg = document.getElementById('toast-msg');
+
+        function showToast(message) {
+            toastMsg.textContent = message;
+            toastMsg.style.display = 'block';
+            setTimeout(() => { toastMsg.style.display = 'none'; }, 3500);
+        }
+
+        btnCopyLink.addEventListener('click', async () => {
+            if (!currentPublicUrl) return;
+            try {
+                await navigator.clipboard.writeText(currentPublicUrl);
+                btnCopyLabel.textContent = "¡Copiado!";
+                showToast("¡Enlace público copiado al portapapeles!");
+                setTimeout(() => { btnCopyLabel.textContent = "Copiar Enlace Público"; }, 2500);
+            } catch (err) {
+                prompt("Copie el enlace permanente manualmente:", currentPublicUrl);
             }
         });
 
         function renderReportUI(report) {
             resultsContainer.style.display = 'block';
+
+            // Public link setup
+            const pubUrl = report.public_url || `${window.location.origin}/view/${report.id}`;
+            currentPublicUrl = pubUrl;
+            linkPublicView.href = pubUrl;
 
             // Score & KPIs
             const scoreEl = document.getElementById('score-val');
@@ -530,11 +988,11 @@
                             <h4 style="margin: 0.5rem 0;">${c.criterion_id} ${c.criterion_title} <span class="badge" style="background:#e2e8f0;">Nivel ${c.level}</span></h4>
                             ${c.findings.map(f => `
                                 <div class="finding-item">
-                                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
                                         <span class="badge ${f.category.toLowerCase()}">${f.category}</span>
                                         <span class="badge ${f.origin.toLowerCase()}">${f.origin.toUpperCase()}</span>
                                         <strong>${f.id} - ${f.check_name}</strong>
-                                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">Línea: ${f.line_number || 'DOM dinámico'}</span>
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: auto;">${f.line_number ? 'Línea ' + f.line_number : 'Ubicación XML/DOM'}</span>
                                     </div>
                                     <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">${f.explanation}</div>
                                     <pre class="code-block"><code>${escapeHtml(f.html_snippet)}</code></pre>
@@ -606,8 +1064,8 @@
         });
 
         function formatChatReply(text) {
-            // Replace markdown code blocks with html pre/code
             return text
+                .replace(/```xml([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>')
                 .replace(/```html([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>')
                 .replace(/```([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')

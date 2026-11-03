@@ -8,7 +8,7 @@ from pydantic import Field
 
 class Settings(BaseSettings):
     app_name: str = "A11y Agent"
-    version: str = "1.0.0"
+    version: str = "1.1.0"
     env: str = "development"
     debug: bool = False
 
@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     user_agent: str = "A11yAgent/1.0 (+https://github.com/a11y-agent/bot; accessibility audit bot)"
     request_timeout: int = 30  # seconds
     max_page_size_bytes: int = 15 * 1024 * 1024  # 15 MB
+    max_apk_size_bytes: int = 150 * 1024 * 1024  # 150 MB
     respect_robots_txt: bool = True
     allow_private_ips: bool = False  # Strict SSRF protection by default
 
@@ -30,6 +31,7 @@ class Settings(BaseSettings):
     base_dir: Path = Path(__file__).resolve().parent.parent.parent
     reports_dir: Path = base_dir / "reports"
     screenshots_dir: Path = base_dir / "reports" / "screenshots"
+    uploads_dir: Path = base_dir / "uploads"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -41,6 +43,7 @@ class Settings(BaseSettings):
         """Ensure necessary output directories exist."""
         self.reports_dir.mkdir(parents=True, exist_ok=True)
         self.screenshots_dir.mkdir(parents=True, exist_ok=True)
+        self.uploads_dir.mkdir(parents=True, exist_ok=True)
 
 
 settings = Settings()

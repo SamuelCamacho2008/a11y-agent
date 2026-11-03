@@ -1,9 +1,11 @@
 """FastAPI application for A11y Agent."""
 
 import json
+import re
+import secrets
 from pathlib import Path
 from typing import Optional, List, Dict
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form, BackgroundTasks
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -13,13 +15,14 @@ from a11y_agent.models.schema import (
     A11yReport, GuidelinesVersion, WCAGLevel, ChatRequest, ChatResponse
 )
 from a11y_agent.analyzer.engine import A11yEngine
+from a11y_agent.analyzer.apk_scanner import APKScanner
 from a11y_agent.assistant.chat import A11yChatAssistant
 from a11y_agent.reporters.html_reporter import render_html_report
 
 app = FastAPI(
     title="A11y Agent API",
-    description="Automated & AI-powered Web Accessibility Auditor (WCAG 2.0 / 2.1 / 2.2)",
-    version="1.0.0"
+    description="Automated & AI-powered Web & Android APK Accessibility Auditor (WCAG 2.0 / 2.1 / 2.2 / EN 301 549)",
+    version="1.1.0"
 )
 
 app.add_middleware(
@@ -31,6 +34,8 @@ app.add_middleware(
 )
 
 engine = A11yEngine()
+apk_scanner = APKScanner()
+
 # In-memory storage for active session reports
 REPORTS_CACHE: Dict[str, A11yReport] = {}
 
@@ -48,39 +53,154 @@ async def health_check():
         "status": "healthy",
         "service": settings.app_name,
         "version": settings.version,
-        "llm_provider": engine.llm_analyzer.provider
+        "llm_provider": engine.llm_analyzer.provider,
+        "capabilities": ["web_audit", "apk_audit", "public_reports", "remediation_chat"]
     }
 
-@app.post("/api/scan", response_model=A11yReport)
-async def scan_url(request: ScanRequest):
+# ==============================================================================
+# REQUERIMIENTO 1: SERVIDOR DE REPORTES PÚBLICOS (GET /view/{report_id})
+# ==============================================================================
+@app.get("/view/{report_id}", response_class=HTMLResponse)
+async def view_public_report(report_id: str):
     """
-    Audit an accessible URL against WCAG guidelines and return full structured report.
+    Serve a public, accessible, standalone HTML report via a permanent URL.
+    """
+    # Security check: Validate report_id format to prevent directory traversal
+    if not re.match(r"^rep_[a-zA-Z0-9_-]{8,64}$", report_id):
+        raise HTTPException(status_code=400, detail="Identificador de informe inválido o con formato incorrecto.")
+
+    html_file = settings.reports_dir / f"{report_id}.html"
+    if html_file.exists():
+        content = html_file.read_text(encoding="utf-8")
+        return HTMLResponse(
+            content=content,
+            status_code=200,
+            headers={
+                "Content-Type": "text/html; charset=utf-8",
+                "X-Content-Type-Options": "nosniff",
+                "Cache-Control": "public, max-age=3600"
+            }
+        )
+
+    # Fallback: check if JSON report exists and dynamically render HTML
+    json_file = settings.reports_dir / f"{report_id}.json"
+    if json_file.exists():
+        data = json.loads(json_file.read_text(encoding="utf-8"))
+        report = A11yReport.model_validate(data)
+        html_content = render_html_report(report)
+        html_file.write_text(html_content, encoding="utf-8")
+        return HTMLResponse(
+            content=html_content,
+            status_code=200,
+            headers={
+                "Content-Type": "text/html; charset=utf-8",
+                "X-Content-Type-Options": "nosniff",
+                "Cache-Control": "public, max-age=3600"
+            }
+        )
+
+    raise HTTPException(status_code=404, detail="El informe público solicitado no existe o ha expirado.")
+
+@app.post("/api/scan", response_model=A11yReport)
+async def scan_url(scan_req: ScanRequest, request: Request):
+    """
+    Audit an accessible URL against WCAG guidelines and return full structured report with public URL.
     """
     try:
+        base_url = str(request.base_url).rstrip("/")
         report = await engine.run_audit(
-            url=request.url,
-            guidelines=request.guidelines,
-            target_level=request.target_level,
-            allow_private_ips=request.allow_private_ips,
-            export_formats=request.export_formats
+            url=scan_req.url,
+            guidelines=scan_req.guidelines,
+            target_level=scan_req.target_level,
+            allow_private_ips=scan_req.allow_private_ips,
+            export_formats=scan_req.export_formats,
+            base_public_url=base_url
         )
         REPORTS_CACHE[report.id] = report
         return report
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.get("/api/report/{report_id}", response_model=A11yReport)
-async def get_report(report_id: str):
-    """Retrieve an existing report by ID."""
-    if report_id in REPORTS_CACHE:
-        return REPORTS_CACHE[report_id]
+# ==============================================================================
+# REQUERIMIENTO 2: AUDITORÍA DE APLICACIONES ANDROID (POST /api/scan-apk)
+# ==============================================================================
+@app.post("/api/scan-apk", response_model=A11yReport)
+async def scan_apk_package(
+    request: Request,
+    file: UploadFile = File(...),
+    guidelines: GuidelinesVersion = Form(GuidelinesVersion.WCAG_2_2),
+    target_level: WCAGLevel = Form(WCAGLevel.AA)
+):
+    """
+    Analyze an uploaded Android APK file for mobile accessibility guidelines (WCAG 2.1/2.2 / EN 301 549).
+    """
+    filename = file.filename or "app.apk"
+    if not filename.lower().endswith(".apk"):
+        raise HTTPException(
+            status_code=400,
+            detail="Formato de archivo inválido. Solo se admiten paquetes de aplicación Android con extensión '.apk'."
+        )
 
-    # Check disk cache
-    json_file = settings.reports_dir / f"{report_id}.json"
-    if json_file.exists():
-        data = json.loads(json_file.read_text(encoding="utf-8"))
-        report = A11yReport.model_validate(data)
-        REPORTS_CACHE[report_id] = report
+    # Save uploaded APK safely to uploads directory
+    temp_id = secrets.token_hex(8)
+    safe_name = f"{temp_id}_{re.sub(r'[^a-zA-Z0-9_.-]', '_', filename)}"
+    temp_apk_path = settings.uploads_dir / safe_name
+
+    try:
+        # Read file in chunks and check max size limit
+        bytes_read = 0
+        with open(temp_apk_path, "wb") as f_out:
+            while chunk := await file.read(1024 * 1024):  # 1MB chunks
+                bytes_read += len(chunk)
+                if bytes_read > settings.max_apk_size_bytes:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"El archivo APK supera el tamaño máximo permitido ({settings.max_apk_size_bytes // (1024*1024)} MB)."
+                    )
+                f_out.write(chunk)
+
+        base_url = str(request.base_url).rstrip("/")
+        report = await apk_scanner.scan_apk(
+            apk_path=temp_apk_path,
+            guidelines=guidelines,
+            target_level=target_level,
+            export_formats=["html", "json", "pdf"],
+            base_public_url=base_url
+        )
+
+        REPORTS_CACHE[report.id] = report
+        return report
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error durante el análisis del APK: {str(e)}")
+    finally:
+        # Clean up temporary uploaded file
+        if temp_apk_path.exists():
+            try:
+                temp_apk_path.unlink()
+            except Exception:
+                pass
+
+@app.get("/api/report/{report_id}", response_model=A11yReport)
+async def get_report(report_id: str, request: Request):
+    """Retrieve an existing report by ID."""
+    report = None
+    if report_id in REPORTS_CACHE:
+        report = REPORTS_CACHE[report_id]
+    else:
+        # Check disk cache
+        json_file = settings.reports_dir / f"{report_id}.json"
+        if json_file.exists():
+            data = json.loads(json_file.read_text(encoding="utf-8"))
+            report = A11yReport.model_validate(data)
+            REPORTS_CACHE[report_id] = report
+
+    if report:
+        if not report.public_url:
+            report.public_url = f"{str(request.base_url).rstrip('/')}/view/{report.id}"
+            report.metadata.public_url = report.public_url
         return report
 
     raise HTTPException(status_code=404, detail="Informe no encontrado.")

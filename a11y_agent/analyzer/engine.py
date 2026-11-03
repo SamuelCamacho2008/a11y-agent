@@ -1,7 +1,7 @@
 """Main accessibility audit orchestration engine."""
 
 import time
-import uuid
+import secrets
 from pathlib import Path
 from typing import Optional, List
 
@@ -31,7 +31,8 @@ class A11yEngine:
         guidelines: GuidelinesVersion = GuidelinesVersion.WCAG_2_1,
         target_level: WCAGLevel = WCAGLevel.AA,
         allow_private_ips: bool = False,
-        export_formats: Optional[List[str]] = None
+        export_formats: Optional[List[str]] = None,
+        base_public_url: Optional[str] = None
     ) -> A11yReport:
         """
         Execute full pipeline:
@@ -43,7 +44,9 @@ class A11yEngine:
         6. Optional export to HTML/JSON/PDF
         """
         start_time = time.time()
-        report_id = f"rep_{uuid.uuid4().hex[:12]}"
+        # Cryptographically strong, non-enumerable 32-character hexadecimal token
+        report_id = f"rep_{secrets.token_hex(16)}"
+        public_url = f"{base_public_url.rstrip('/')}/view/{report_id}" if base_public_url else f"/view/{report_id}"
 
         async with get_browser_page() as page:
             # 1 & 2: Fetch and render dynamically
@@ -82,7 +85,9 @@ class A11yEngine:
                 target_level=target_level,
                 technologies=crawl_res.technologies,
                 execution_time_seconds=execution_time,
-                screenshot_path=crawl_res.screenshot_path
+                screenshot_path=crawl_res.screenshot_path,
+                target_type="web",
+                public_url=public_url
             )
 
             # 6: Export formats if requested
