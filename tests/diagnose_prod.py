@@ -61,7 +61,8 @@ async def diagnose_production():
         for t in tabs:
             txt = await t.inner_text()
             selected = await t.get_attribute("aria-selected")
-            print(f"  Tab '{txt.strip()}' -> aria-selected={selected}")
+            safe_txt = txt.strip().encode('ascii', 'replace').decode('ascii')
+            print(f"  Tab '{safe_txt}' -> aria-selected={selected}")
 
         await browser.close()
 
