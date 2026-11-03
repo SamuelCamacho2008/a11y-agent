@@ -102,4 +102,9 @@ class A11yEngine:
                 pdf_path = settings.reports_dir / f"{report_id}.pdf"
                 await export_to_pdf(report, pdf_path)
 
+            # 7: Publish to GitHub Pages docs structure
+            if settings.github_pages_enabled:
+                from a11y_agent.reporters.git_publisher import publish_report_to_docs
+                publish_report_to_docs(report)
+
             return report

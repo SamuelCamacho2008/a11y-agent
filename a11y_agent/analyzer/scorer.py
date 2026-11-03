@@ -10,6 +10,7 @@ from a11y_agent.models.schema import (
     ReportMetadata, ReportSummary, A11yReport
 )
 from a11y_agent.models.wcag_catalog import PRINCIPLES_META, get_criterion_details
+from a11y_agent.core.config import settings
 
 def deduplicate_findings(findings: List[Finding]) -> List[Finding]:
     """
@@ -107,11 +108,14 @@ def build_a11y_report(
     target_type: str = "web",
     app_name: Optional[str] = None,
     package_name: Optional[str] = None,
-    public_url: Optional[str] = None
+    public_url: Optional[str] = None,
+    github_pages_url: Optional[str] = None
 ) -> A11yReport:
     """
     Consolidate findings, structure by the 4 Principles & Criteria, and produce final A11yReport.
     """
+    gh_url = github_pages_url or (f"{settings.github_pages_base_url}/reports/{report_id}.html" if settings.github_pages_enabled else None)
+    effective_public_url = public_url or gh_url
     deduped = deduplicate_findings(findings)
     score, impact_counts = calculate_score(deduped)
 
@@ -166,7 +170,8 @@ def build_a11y_report(
         target_type="apk" if target_type == "apk" else "web",
         app_name=app_name,
         package_name=package_name,
-        public_url=public_url,
+        public_url=effective_public_url,
+        github_pages_url=gh_url,
         guidelines=guidelines,
         target_level=target_level,
         technologies=technologies or (["Android APK", "XML Layouts"] if target_type == "apk" else ["HTML5", "CSS3", "JavaScript"]),
@@ -188,7 +193,8 @@ def build_a11y_report(
         target_type="apk" if target_type == "apk" else "web",
         app_name=app_name,
         package_name=package_name,
-        public_url=public_url,
+        public_url=effective_public_url,
+        github_pages_url=gh_url,
         metadata=metadata,
         summary=summary,
         principles=principles_dict,

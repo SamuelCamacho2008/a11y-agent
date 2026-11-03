@@ -84,6 +84,7 @@ class ReportMetadata(BaseModel):
     app_name: Optional[str] = Field(default=None, description="Nombre de la aplicación móvil (si aplica)")
     package_name: Optional[str] = Field(default=None, description="Package Name de la app Android (si aplica)")
     public_url: Optional[str] = Field(default=None, description="Enlace público compartible del informe")
+    github_pages_url: Optional[str] = Field(default=None, description="Enlace público permanente en GitHub Pages")
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     guidelines: GuidelinesVersion = Field(default=GuidelinesVersion.WCAG_2_1)
     target_level: WCAGLevel = Field(default=WCAGLevel.AA)
@@ -105,6 +106,7 @@ class A11yReport(BaseModel):
     app_name: Optional[str] = Field(default=None, description="Nombre de la app si es APK")
     package_name: Optional[str] = Field(default=None, description="Package Name de la app si es APK")
     public_url: Optional[str] = Field(default=None, description="Enlace público compartible permanente")
+    github_pages_url: Optional[str] = Field(default=None, description="Enlace público permanente en GitHub Pages")
     metadata: ReportMetadata
     summary: ReportSummary
     principles: Dict[str, PrincipleFindings]

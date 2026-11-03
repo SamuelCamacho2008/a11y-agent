@@ -32,6 +32,15 @@ class Settings(BaseSettings):
     reports_dir: Path = base_dir / "reports"
     screenshots_dir: Path = base_dir / "reports" / "screenshots"
     uploads_dir: Path = base_dir / "uploads"
+    docs_dir: Path = base_dir / "docs"
+    docs_reports_dir: Path = base_dir / "docs" / "reports"
+
+    # GitHub Pages & Public Git Hosting
+    github_pages_enabled: bool = True
+    github_pages_base_url: str = "https://samuelcamacho2008.github.io/a11y-agent"
+    auto_git_push_reports: bool = False
+    git_remote: str = "origin"
+    git_branch: str = "main"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -44,6 +53,8 @@ class Settings(BaseSettings):
         self.reports_dir.mkdir(parents=True, exist_ok=True)
         self.screenshots_dir.mkdir(parents=True, exist_ok=True)
         self.uploads_dir.mkdir(parents=True, exist_ok=True)
+        self.docs_dir.mkdir(parents=True, exist_ok=True)
+        self.docs_reports_dir.mkdir(parents=True, exist_ok=True)
 
 
 settings = Settings()

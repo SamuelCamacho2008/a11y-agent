@@ -1,0 +1,111 @@
+{
+  "id": "rep_gh_pages_test_1234567890abcdef",
+  "target_type": "web",
+  "app_name": null,
+  "package_name": null,
+  "public_url": "https://samuelcamacho2008.github.io/a11y-agent/reports/rep_gh_pages_test_1234567890abcdef.html",
+  "github_pages_url": "https://samuelcamacho2008.github.io/a11y-agent/reports/rep_gh_pages_test_1234567890abcdef.html",
+  "metadata": {
+    "url": "https://ejemplo.com/landing",
+    "target_type": "web",
+    "app_name": null,
+    "package_name": null,
+    "public_url": "https://samuelcamacho2008.github.io/a11y-agent/reports/rep_gh_pages_test_1234567890abcdef.html",
+    "github_pages_url": "https://samuelcamacho2008.github.io/a11y-agent/reports/rep_gh_pages_test_1234567890abcdef.html",
+    "timestamp": "2026-11-03T21:02:19.411736Z",
+    "guidelines": "WCAG 2.2",
+    "target_level": "AA",
+    "technologies": [
+      "HTML5",
+      "TailwindCSS"
+    ],
+    "execution_time_seconds": 0.0,
+    "screenshot_path": null
+  },
+  "summary": {
+    "score": 90,
+    "executive_summary": "1. Estado General: La página obtiene un puntaje global de accesibilidad de 90/100, evaluada bajo nivel AA (con barreras significativas).\n2. Barreras Críticas: Se detectaron 1 problemas deterministas y 0 advertencias que requieren revisión experta.\n3. Distribución de Impacto: 0 barreras de impacto crítico y 1 de impacto alto impiden la interacción de usuarios con discapacidad.\n4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en etiquetado accesible, contraste y adaptabilidad para tecnologías de asistencia.\n5. Plan de Acción: Se recomienda priorizar los fallos clasificados como Problemas Críticos aplicando las soluciones de código antes/después incluidas en este informe.",
+    "total_problems": 1,
+    "total_warnings": 0,
+    "total_unverified": 0,
+    "impact_breakdown": {
+      "crítico": 0,
+      "alto": 1,
+      "medio": 0,
+      "bajo": 0
+    }
+  },
+  "principles": {
+    "perceptible": {
+      "key": "perceptible",
+      "name": "1. Perceptible",
+      "description": "La información y los componentes de la interfaz de usuario deben presentarse a los usuarios de modo que puedan percibirlos (no puede ser invisible para todos sus sentidos).",
+      "success_criteria": [
+        {
+          "criterion_id": "1.1.1",
+          "criterion_title": "Contenido no textual",
+          "level": "A",
+          "findings": [
+            {
+              "id": "P-001",
+              "principle": "perceptible",
+              "criterion_id": "1.1.1",
+              "criterion_title": "Contenido no textual",
+              "level": "A",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "Falta texto alternativo",
+              "w3c_technique": "H37",
+              "selector": "img.logo",
+              "line_number": 12,
+              "html_snippet": "<img class=\"logo\" src=\"logo.png\">",
+              "explanation": "La imagen no tiene atributo alt.",
+              "remediation": null,
+              "impact": "alto",
+              "confidence": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    "operable": {
+      "key": "operable",
+      "name": "2. Operable",
+      "description": "Los componentes de la interfaz de usuario y la navegación deben ser operables (la interfaz no puede requerir una interacción que el usuario no pueda realizar).",
+      "success_criteria": []
+    },
+    "understandable": {
+      "key": "understandable",
+      "name": "3. Comprensible",
+      "description": "La información y el manejo de la interfaz de usuario deben ser comprensibles (el contenido y los controles no pueden resultar confusos o impredecibles).",
+      "success_criteria": []
+    },
+    "robust": {
+      "key": "robust",
+      "name": "4. Robusto",
+      "description": "El contenido debe ser suficientemente robusto como para que pueda ser interpretado de forma fiable por una amplia variedad de agentes de usuario, incluyendo tecnologías de asistencia.",
+      "success_criteria": []
+    }
+  },
+  "all_findings": [
+    {
+      "id": "P-001",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "Falta texto alternativo",
+      "w3c_technique": "H37",
+      "selector": "img.logo",
+      "line_number": 12,
+      "html_snippet": "<img class=\"logo\" src=\"logo.png\">",
+      "explanation": "La imagen no tiene atributo alt.",
+      "remediation": null,
+      "impact": "alto",
+      "confidence": 1.0
+    }
+  ],
+  "disclaimer": "AVISO IMPORTANTE: Esta auditoría automática y asistida por IA es una herramienta de apoyo y no sustituye la evaluación manual exhaustiva realizada por expertos ni las pruebas directas con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla TalkBack, NVDA, switches, etc.)."
+}

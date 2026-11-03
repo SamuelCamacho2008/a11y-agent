@@ -1,0 +1,372 @@
+{
+  "id": "rep_bdc1d16825909bdad94d4e096d3aeb6f",
+  "target_type": "web",
+  "app_name": null,
+  "package_name": null,
+  "public_url": "/view/rep_bdc1d16825909bdad94d4e096d3aeb6f",
+  "github_pages_url": "https://samuelcamacho2008.github.io/a11y-agent/reports/rep_bdc1d16825909bdad94d4e096d3aeb6f.html",
+  "metadata": {
+    "url": "http://127.0.0.1:63708/dynamic_spa_page.html",
+    "target_type": "web",
+    "app_name": null,
+    "package_name": null,
+    "public_url": "/view/rep_bdc1d16825909bdad94d4e096d3aeb6f",
+    "github_pages_url": "https://samuelcamacho2008.github.io/a11y-agent/reports/rep_bdc1d16825909bdad94d4e096d3aeb6f.html",
+    "timestamp": "2026-11-03T21:02:16.717753Z",
+    "guidelines": "WCAG 2.1",
+    "target_level": "AA",
+    "technologies": [
+      "HTML5"
+    ],
+    "execution_time_seconds": 1.86,
+    "screenshot_path": "C:\\Users\\samue\\OneDrive\\Escritorio\\Nueva carpeta (2)\\reports\\screenshots\\rep_bdc1d16825909bdad94d4e096d3aeb6f.png"
+  },
+  "summary": {
+    "score": 58,
+    "executive_summary": "1. Estado General: La página obtiene un puntaje global de accesibilidad de 58/100, evaluada bajo nivel AA (con barreras significativas).\n2. Barreras Críticas: Se detectaron 3 problemas deterministas y 3 advertencias que requieren revisión experta.\n3. Distribución de Impacto: 1 barreras de impacto crítico y 4 de impacto alto impiden la interacción de usuarios con discapacidad.\n4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en etiquetado accesible, contraste y adaptabilidad para tecnologías de asistencia.\n5. Plan de Acción: Se recomienda priorizar los fallos clasificados como Problemas Críticos aplicando las soluciones de código antes/después incluidas en este informe.",
+    "total_problems": 3,
+    "total_warnings": 3,
+    "total_unverified": 0,
+    "impact_breakdown": {
+      "crítico": 1,
+      "alto": 4,
+      "medio": 1,
+      "bajo": 0
+    }
+  },
+  "principles": {
+    "perceptible": {
+      "key": "perceptible",
+      "name": "1. Perceptible",
+      "description": "La información y los componentes de la interfaz de usuario deben presentarse a los usuarios de modo que puedan percibirlos (no puede ser invisible para todos sus sentidos).",
+      "success_criteria": [
+        {
+          "criterion_id": "1.1.1",
+          "criterion_title": "Contenido no textual",
+          "level": "A",
+          "findings": [
+            {
+              "id": "P-003",
+              "principle": "perceptible",
+              "criterion_id": "1.1.1",
+              "criterion_title": "Contenido no textual",
+              "level": "A",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "Elementos <img> deben tener un atributo alt descriptivo",
+              "w3c_technique": "H37",
+              "selector": "#dynamic-chart-img",
+              "line_number": 23,
+              "html_snippet": "<img id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\">",
+              "explanation": "Images must have alternative text",
+              "remediation": {
+                "before_snippet": "<img id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\">",
+                "after_snippet": "<img alt=\"Descripción clara de la imagen\" id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\">",
+                "advice": "Agregue un atributo alt con una descripción funcional y precisa de la imagen.",
+                "effort": "bajo"
+              },
+              "impact": "crítico",
+              "confidence": 1.0
+            },
+            {
+              "id": "IA-IMG-01",
+              "principle": "perceptible",
+              "criterion_id": "1.1.1",
+              "criterion_title": "Contenido no textual",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Evaluación semántica de texto alternativo",
+              "w3c_technique": "H37",
+              "selector": "img[src='/api/charts/weekly.png']",
+              "line_number": 23,
+              "html_snippet": "<img id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\"/>",
+              "explanation": "La imagen carece de texto alternativo. Los lectores de pantalla leerán el nombre del archivo o la ignorarán.",
+              "remediation": {
+                "before_snippet": "<img id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\"/>",
+                "after_snippet": "<img alt=\"Descripción concisa y útil de la imagen\" id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\"/>",
+                "advice": "Agregue un atributo alt descriptivo con el propósito de la imagen.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 0.88
+            }
+          ]
+        },
+        {
+          "criterion_id": "1.3.1",
+          "criterion_title": "Información y relaciones",
+          "level": "A",
+          "findings": [
+            {
+              "id": "IA-HDG-02",
+              "principle": "perceptible",
+              "criterion_id": "1.3.1",
+              "criterion_title": "Información y relaciones",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Discontinuidad en jerarquía de encabezados",
+              "w3c_technique": "G141",
+              "selector": "h3",
+              "line_number": 22,
+              "html_snippet": "<h3>Gráfico de Rendimiento en Tiempo Real</h3>",
+              "explanation": "Se detectó un salto brusco de nivel <h1> a <h3> ('Gráfico de Rendimiento en Tiempo Real'). La estructura de encabezados debe ser secuencial sin saltos.",
+              "remediation": {
+                "before_snippet": "<h3>Gráfico de Rendimiento en Tiempo Real</h3>",
+                "after_snippet": "<h2>Gráfico de Rendimiento en Tiempo Real</h2>",
+                "advice": "Utilice <h2> para mantener una jerarquía anidada lógica.",
+                "effort": "bajo"
+              },
+              "impact": "medio",
+              "confidence": 0.9
+            }
+          ]
+        },
+        {
+          "criterion_id": "1.4.3",
+          "criterion_title": "Contraste (mínimo)",
+          "level": "AA",
+          "findings": [
+            {
+              "id": "P-001",
+              "principle": "perceptible",
+              "criterion_id": "1.4.3",
+              "criterion_title": "Contraste (mínimo)",
+              "level": "AA",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "El contraste de color del texto cumple el umbral mínimo (4.5:1 / 3:1)",
+              "w3c_technique": "G18",
+              "selector": ".active",
+              "line_number": 18,
+              "html_snippet": "<div class=\"clickable-tab active\" onclick=\"switchTab(1)\">Resumen General</div>",
+              "explanation": "Elements must meet minimum color contrast ratio thresholds",
+              "remediation": {
+                "before_snippet": "<div class=\"clickable-tab active\" onclick=\"switchTab(1)\">Resumen General</div>",
+                "after_snippet": "<div class=\"clickable-tab active\" onclick=\"switchTab(1)\">Resumen General</div>",
+                "advice": "Ajuste el color de texto o fondo para alcanzar un contraste mínimo de 4.5:1 (o 3:1 para texto mayor a 18pt/24px).",
+                "effort": "medio"
+              },
+              "impact": "alto",
+              "confidence": 1.0
+            },
+            {
+              "id": "P-002",
+              "principle": "perceptible",
+              "criterion_id": "1.4.3",
+              "criterion_title": "Contraste (mínimo)",
+              "level": "AA",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "El contraste de color del texto cumple el umbral mínimo (4.5:1 / 3:1)",
+              "w3c_technique": "G18",
+              "selector": "#btn-dynamic-refresh",
+              "line_number": 28,
+              "html_snippet": "<div id=\"btn-dynamic-refresh\" onclick=\"alert('Refrescando')\" style=\"display:inline-block; background:#0284c7; color:#fff; padding:6px 12px; cursor:pointer;\">Actualizar datos</div>",
+              "explanation": "Elements must meet minimum color contrast ratio thresholds",
+              "remediation": {
+                "before_snippet": "<div id=\"btn-dynamic-refresh\" onclick=\"alert('Refrescando')\" style=\"display:inline-block; background:#0284c7; color:#fff; padding:6px 12px; cursor:pointer;\">Actualizar datos</div>",
+                "after_snippet": "<div id=\"btn-dynamic-refresh\" onclick=\"alert('Refrescando')\" style=\"display:inline-block; background:#0284c7; color:#fff; padding:6px 12px; cursor:pointer;\">Actualizar datos</div>",
+                "advice": "Ajuste el color de texto o fondo para alcanzar un contraste mínimo de 4.5:1 (o 3:1 para texto mayor a 18pt/24px).",
+                "effort": "medio"
+              },
+              "impact": "alto",
+              "confidence": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    "operable": {
+      "key": "operable",
+      "name": "2. Operable",
+      "description": "Los componentes de la interfaz de usuario y la navegación deben ser operables (la interfaz no puede requerir una interacción que el usuario no pueda realizar).",
+      "success_criteria": []
+    },
+    "understandable": {
+      "key": "understandable",
+      "name": "3. Comprensible",
+      "description": "La información y el manejo de la interfaz de usuario deben ser comprensibles (el contenido y los controles no pueden resultar confusos o impredecibles).",
+      "success_criteria": [
+        {
+          "criterion_id": "3.3.2",
+          "criterion_title": "Etiquetas o instrucciones",
+          "level": "A",
+          "findings": [
+            {
+              "id": "IA-FRM-03",
+              "principle": "understandable",
+              "criterion_id": "3.3.2",
+              "criterion_title": "Etiquetas o instrucciones",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Uso inadecuado de placeholder en vez de etiqueta",
+              "w3c_technique": "H44",
+              "selector": "input#dynamic-filter",
+              "line_number": 27,
+              "html_snippet": "<input id=\"dynamic-filter\" placeholder=\"Filtrar por etiqueta...\" type=\"text\"/>",
+              "explanation": "El campo no tiene una etiqueta <label> formal. Los placeholders desaparecen al escribir y no son reconocidos como etiquetas persistentes por todas las ayudas técnicas.",
+              "remediation": {
+                "before_snippet": "<input id=\"dynamic-filter\" placeholder=\"Filtrar por etiqueta...\" type=\"text\"/>",
+                "after_snippet": "<label for=\"campo-accesible\">Filtrar por etiqueta...:</label>\n<input id=\"campo-accesible\" id=\"dynamic-filter\" placeholder=\"Filtrar por etiqueta...\" type=\"text\"/>",
+                "advice": "Asocie una etiqueta <label for='...'> visible con el identificador del campo de entrada.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 0.95
+            }
+          ]
+        }
+      ]
+    },
+    "robust": {
+      "key": "robust",
+      "name": "4. Robusto",
+      "description": "El contenido debe ser suficientemente robusto como para que pueda ser interpretado de forma fiable por una amplia variedad de agentes de usuario, incluyendo tecnologías de asistencia.",
+      "success_criteria": []
+    }
+  },
+  "all_findings": [
+    {
+      "id": "P-001",
+      "principle": "perceptible",
+      "criterion_id": "1.4.3",
+      "criterion_title": "Contraste (mínimo)",
+      "level": "AA",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "El contraste de color del texto cumple el umbral mínimo (4.5:1 / 3:1)",
+      "w3c_technique": "G18",
+      "selector": ".active",
+      "line_number": 18,
+      "html_snippet": "<div class=\"clickable-tab active\" onclick=\"switchTab(1)\">Resumen General</div>",
+      "explanation": "Elements must meet minimum color contrast ratio thresholds",
+      "remediation": {
+        "before_snippet": "<div class=\"clickable-tab active\" onclick=\"switchTab(1)\">Resumen General</div>",
+        "after_snippet": "<div class=\"clickable-tab active\" onclick=\"switchTab(1)\">Resumen General</div>",
+        "advice": "Ajuste el color de texto o fondo para alcanzar un contraste mínimo de 4.5:1 (o 3:1 para texto mayor a 18pt/24px).",
+        "effort": "medio"
+      },
+      "impact": "alto",
+      "confidence": 1.0
+    },
+    {
+      "id": "P-002",
+      "principle": "perceptible",
+      "criterion_id": "1.4.3",
+      "criterion_title": "Contraste (mínimo)",
+      "level": "AA",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "El contraste de color del texto cumple el umbral mínimo (4.5:1 / 3:1)",
+      "w3c_technique": "G18",
+      "selector": "#btn-dynamic-refresh",
+      "line_number": 28,
+      "html_snippet": "<div id=\"btn-dynamic-refresh\" onclick=\"alert('Refrescando')\" style=\"display:inline-block; background:#0284c7; color:#fff; padding:6px 12px; cursor:pointer;\">Actualizar datos</div>",
+      "explanation": "Elements must meet minimum color contrast ratio thresholds",
+      "remediation": {
+        "before_snippet": "<div id=\"btn-dynamic-refresh\" onclick=\"alert('Refrescando')\" style=\"display:inline-block; background:#0284c7; color:#fff; padding:6px 12px; cursor:pointer;\">Actualizar datos</div>",
+        "after_snippet": "<div id=\"btn-dynamic-refresh\" onclick=\"alert('Refrescando')\" style=\"display:inline-block; background:#0284c7; color:#fff; padding:6px 12px; cursor:pointer;\">Actualizar datos</div>",
+        "advice": "Ajuste el color de texto o fondo para alcanzar un contraste mínimo de 4.5:1 (o 3:1 para texto mayor a 18pt/24px).",
+        "effort": "medio"
+      },
+      "impact": "alto",
+      "confidence": 1.0
+    },
+    {
+      "id": "P-003",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "Elementos <img> deben tener un atributo alt descriptivo",
+      "w3c_technique": "H37",
+      "selector": "#dynamic-chart-img",
+      "line_number": 23,
+      "html_snippet": "<img id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\">",
+      "explanation": "Images must have alternative text",
+      "remediation": {
+        "before_snippet": "<img id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\">",
+        "after_snippet": "<img alt=\"Descripción clara de la imagen\" id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\">",
+        "advice": "Agregue un atributo alt con una descripción funcional y precisa de la imagen.",
+        "effort": "bajo"
+      },
+      "impact": "crítico",
+      "confidence": 1.0
+    },
+    {
+      "id": "IA-IMG-01",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Evaluación semántica de texto alternativo",
+      "w3c_technique": "H37",
+      "selector": "img[src='/api/charts/weekly.png']",
+      "line_number": 23,
+      "html_snippet": "<img id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\"/>",
+      "explanation": "La imagen carece de texto alternativo. Los lectores de pantalla leerán el nombre del archivo o la ignorarán.",
+      "remediation": {
+        "before_snippet": "<img id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\"/>",
+        "after_snippet": "<img alt=\"Descripción concisa y útil de la imagen\" id=\"dynamic-chart-img\" src=\"/api/charts/weekly.png\" style=\"width: 300px; height: 150px; background: #ccc;\"/>",
+        "advice": "Agregue un atributo alt descriptivo con el propósito de la imagen.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 0.88
+    },
+    {
+      "id": "IA-HDG-02",
+      "principle": "perceptible",
+      "criterion_id": "1.3.1",
+      "criterion_title": "Información y relaciones",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Discontinuidad en jerarquía de encabezados",
+      "w3c_technique": "G141",
+      "selector": "h3",
+      "line_number": 22,
+      "html_snippet": "<h3>Gráfico de Rendimiento en Tiempo Real</h3>",
+      "explanation": "Se detectó un salto brusco de nivel <h1> a <h3> ('Gráfico de Rendimiento en Tiempo Real'). La estructura de encabezados debe ser secuencial sin saltos.",
+      "remediation": {
+        "before_snippet": "<h3>Gráfico de Rendimiento en Tiempo Real</h3>",
+        "after_snippet": "<h2>Gráfico de Rendimiento en Tiempo Real</h2>",
+        "advice": "Utilice <h2> para mantener una jerarquía anidada lógica.",
+        "effort": "bajo"
+      },
+      "impact": "medio",
+      "confidence": 0.9
+    },
+    {
+      "id": "IA-FRM-03",
+      "principle": "understandable",
+      "criterion_id": "3.3.2",
+      "criterion_title": "Etiquetas o instrucciones",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Uso inadecuado de placeholder en vez de etiqueta",
+      "w3c_technique": "H44",
+      "selector": "input#dynamic-filter",
+      "line_number": 27,
+      "html_snippet": "<input id=\"dynamic-filter\" placeholder=\"Filtrar por etiqueta...\" type=\"text\"/>",
+      "explanation": "El campo no tiene una etiqueta <label> formal. Los placeholders desaparecen al escribir y no son reconocidos como etiquetas persistentes por todas las ayudas técnicas.",
+      "remediation": {
+        "before_snippet": "<input id=\"dynamic-filter\" placeholder=\"Filtrar por etiqueta...\" type=\"text\"/>",
+        "after_snippet": "<label for=\"campo-accesible\">Filtrar por etiqueta...:</label>\n<input id=\"campo-accesible\" id=\"dynamic-filter\" placeholder=\"Filtrar por etiqueta...\" type=\"text\"/>",
+        "advice": "Asocie una etiqueta <label for='...'> visible con el identificador del campo de entrada.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 0.95
+    }
+  ],
+  "disclaimer": "AVISO IMPORTANTE: Esta auditoría automática y asistida por IA es una herramienta de apoyo y no sustituye la evaluación manual exhaustiva realizada por expertos ni las pruebas directas con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla TalkBack, NVDA, switches, etc.)."
+}

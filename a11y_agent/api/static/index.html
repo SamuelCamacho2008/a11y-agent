@@ -640,6 +640,9 @@
                 <a id="link-public-view" class="btn-secondary" target="_blank" rel="noopener">
                     <span aria-hidden="true">↗</span> Ver en URL Pública
                 </a>
+                <button type="button" id="btn-sync-git" class="btn-secondary" title="Sincronizar y publicar este informe en GitHub Pages">
+                    <span aria-hidden="true">🐙</span> <span id="btn-sync-label">Sincronizar a GitHub</span>
+                </button>
                 <a id="link-html" class="btn-secondary" target="_blank" download>
                     <span aria-hidden="true">📄</span> Descargar HTML
                 </a>
@@ -649,6 +652,15 @@
                 <a id="link-pdf" class="btn-secondary" target="_blank" download>
                     <span aria-hidden="true">📑</span> Descargar PDF
                 </a>
+            </div>
+
+            <!-- GitHub Pages Public Link Banner -->
+            <div id="gh-pages-banner" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.75rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                <div>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Enlace Público Global (GitHub Pages)</span>
+                    <a id="gh-pages-link" href="#" target="_blank" rel="noopener" style="color: #0369a1; font-weight: 600; text-decoration: underline; font-size: 0.95rem; word-break: break-all;"></a>
+                </div>
+                <button type="button" id="btn-copy-gh" class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">📋 Copiar Enlace Git</button>
             </div>
 
             <section class="report-summary-bar">
@@ -947,13 +959,60 @@
             }
         });
 
+        // Copy GitHub Pages specific URL
+        const btnCopyGh = document.getElementById('btn-copy-gh');
+        btnCopyGh.addEventListener('click', async () => {
+            const ghUrl = document.getElementById('gh-pages-link').href;
+            if (!ghUrl || ghUrl === '#') return;
+            try {
+                await navigator.clipboard.writeText(ghUrl);
+                showToast("¡Enlace de GitHub Pages copiado!");
+            } catch (err) {
+                prompt("Copie el enlace de GitHub Pages:", ghUrl);
+            }
+        });
+
+        // Trigger manual git sync
+        const btnSyncGit = document.getElementById('btn-sync-git');
+        const btnSyncLabel = document.getElementById('btn-sync-label');
+        btnSyncGit.addEventListener('click', async () => {
+            if (!currentReportId) return;
+            btnSyncLabel.textContent = "Sincronizando...";
+            btnSyncGit.disabled = true;
+            try {
+                const resp = await fetch(`/api/publish-git/${currentReportId}`, { method: 'POST' });
+                const res = await resp.json();
+                if (resp.ok && res.success) {
+                    btnSyncLabel.textContent = "¡Publicado en Git!";
+                    showToast("¡Informe sincronizado en GitHub Pages con éxito!");
+                } else {
+                    btnSyncLabel.textContent = "Aviso sincronización";
+                    showToast(res.message || "Aviso al sincronizar con Git");
+                }
+            } catch (e) {
+                btnSyncLabel.textContent = "Error de red";
+                showToast("Error de conexión al sincronizar con Git");
+            } finally {
+                setTimeout(() => {
+                    btnSyncLabel.textContent = "Sincronizar a GitHub";
+                    btnSyncGit.disabled = false;
+                }, 3000);
+            }
+        });
+
         function renderReportUI(report) {
             resultsContainer.style.display = 'block';
 
-            // Public link setup
+            // Public link setup (GitHub Pages or fallback)
+            const ghPagesUrl = report.github_pages_url || report.public_url || `https://samuelcamacho2008.github.io/a11y-agent/reports/${report.id}.html`;
             const pubUrl = report.public_url || `${window.location.origin}/view/${report.id}`;
-            currentPublicUrl = pubUrl;
+            currentPublicUrl = ghPagesUrl || pubUrl;
             linkPublicView.href = pubUrl;
+
+            // GitHub Pages Banner
+            const ghLinkElem = document.getElementById('gh-pages-link');
+            ghLinkElem.href = ghPagesUrl;
+            ghLinkElem.textContent = ghPagesUrl;
 
             // Score & KPIs
             const scoreEl = document.getElementById('score-val');

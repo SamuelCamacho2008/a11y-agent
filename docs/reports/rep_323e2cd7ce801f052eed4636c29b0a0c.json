@@ -1,0 +1,435 @@
+{
+  "id": "rep_323e2cd7ce801f052eed4636c29b0a0c",
+  "target_type": "apk",
+  "app_name": "Accessible Test App",
+  "package_name": "com.example.accessibleapp",
+  "public_url": "http://localhost:8000/view/rep_323e2cd7ce801f052eed4636c29b0a0c",
+  "github_pages_url": "https://samuelcamacho2008.github.io/a11y-agent/reports/rep_323e2cd7ce801f052eed4636c29b0a0c.html",
+  "metadata": {
+    "url": "apk://com.example.accessibleapp (test_app.apk)",
+    "target_type": "apk",
+    "app_name": "Accessible Test App",
+    "package_name": "com.example.accessibleapp",
+    "public_url": "http://localhost:8000/view/rep_323e2cd7ce801f052eed4636c29b0a0c",
+    "github_pages_url": "https://samuelcamacho2008.github.io/a11y-agent/reports/rep_323e2cd7ce801f052eed4636c29b0a0c.html",
+    "timestamp": "2026-11-03T21:02:17.392140Z",
+    "guidelines": "EN 301 549",
+    "target_level": "AA",
+    "technologies": [
+      "Android APK",
+      "XML Layouts"
+    ],
+    "execution_time_seconds": 0.36,
+    "screenshot_path": null
+  },
+  "summary": {
+    "score": 42,
+    "executive_summary": "1. Estado General: La aplicación móvil Android (Accessible Test App) obtiene un puntaje global de accesibilidad de 42/100, evaluada bajo nivel AA (con barreras significativas).\n2. Barreras Críticas: Se detectaron 4 problemas deterministas y 3 advertencias que requieren revisión experta.\n3. Distribución de Impacto: 2 barreras de impacto crítico y 4 de impacto alto impiden la interacción de usuarios con discapacidad.\n4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en etiquetado accesible, contraste y adaptabilidad para tecnologías de asistencia.\n5. Plan de Acción: Se recomienda priorizar los fallos clasificados como Problemas Críticos aplicando las soluciones de código antes/después incluidas en este informe.",
+    "total_problems": 4,
+    "total_warnings": 3,
+    "total_unverified": 0,
+    "impact_breakdown": {
+      "crítico": 2,
+      "alto": 4,
+      "medio": 1,
+      "bajo": 0
+    }
+  },
+  "principles": {
+    "perceptible": {
+      "key": "perceptible",
+      "name": "1. Perceptible",
+      "description": "La información y los componentes de la interfaz de usuario deben presentarse a los usuarios de modo que puedan percibirlos (no puede ser invisible para todos sus sentidos).",
+      "success_criteria": [
+        {
+          "criterion_id": "1.1.1",
+          "criterion_title": "Contenido no textual",
+          "level": "A",
+          "findings": [
+            {
+              "id": "APK-02-111-002",
+              "principle": "perceptible",
+              "criterion_id": "1.1.1",
+              "criterion_title": "Contenido no textual (Android)",
+              "level": "A",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "Control gráfico sin descripción accesible (android:contentDescription ausente)",
+              "w3c_technique": "AND1",
+              "selector": "res/layout/activity_main.xml#btn_cart",
+              "line_number": null,
+              "html_snippet": "<ImageButton xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_cart\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:src=\"@drawable/ic_cart\" />\n\n    \n    ",
+              "explanation": "El componente interactivo <ImageButton> carece de 'android:contentDescription'. Los lectores de pantalla como TalkBack no podrán informar su propósito al usuario ciego.",
+              "remediation": {
+                "before_snippet": "<ImageButton xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_cart\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:src=\"@drawable/ic_cart\" />\n\n    \n    ",
+                "after_snippet": "<ImageButton android:contentDescription=\"@string/desc_btn_cart\" xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_cart\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:src=\"@drawable/ic_cart\" />\n\n    \n    ",
+                "advice": "Defina un recurso de texto accesible descriptivo con 'android:contentDescription'. Si la imagen es puramente decorativa, use android:importantForAccessibility='no'.",
+                "effort": "bajo"
+              },
+              "impact": "crítico",
+              "confidence": 1.0
+            },
+            {
+              "id": "IA-IMG-01",
+              "principle": "perceptible",
+              "criterion_id": "1.1.1",
+              "criterion_title": "Contenido no textual",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Evaluación semántica de texto alternativo",
+              "w3c_technique": "H37",
+              "selector": "res/layout/activity_main.xml#ImageView",
+              "line_number": null,
+              "html_snippet": "<ImageView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/img_good\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:contentDescription=\"Logotipo accesible de la aplicación\" />\n",
+              "explanation": "El texto alternativo 'Logotipo accesible de la aplicación' es genérico y no describe el contenido visual para usuarios ciegos.",
+              "remediation": {
+                "before_snippet": "<ImageView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/img_good\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:contentDescription=\"Logotipo accesible de la aplicación\" />\n",
+                "after_snippet": "<ImageView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/img_good\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:contentDescription=\"Logotipo accesible de la aplicación\" />\n",
+                "advice": "Sustituya el texto alternativo por uno que describa objetivamente la función o información de la imagen.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 0.88
+            }
+          ]
+        },
+        {
+          "criterion_id": "1.4.3",
+          "criterion_title": "Contraste (mínimo)",
+          "level": "AA",
+          "findings": [
+            {
+              "id": "APK-06-143-COL-006",
+              "principle": "perceptible",
+              "criterion_id": "1.4.3",
+              "criterion_title": "Contraste (mínimo) en vistas Android",
+              "level": "AA",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "Contraste de color insuficiente (1.61:1 frente al mínimo 4.5:1)",
+              "w3c_technique": "G18",
+              "selector": "res/layout/activity_main.xml#txt_low_contrast",
+              "line_number": null,
+              "html_snippet": "<TextView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/txt_low_contrast\" ns0:layout_width=\"wrap_content\" ns0:layout_height=\"wrap_content\" ns0:text=\"Texto con bajo contraste\" ns0:textColor=\"#CCCCCC\" ns0:background=\"#FFFFFF\" />\n\n    \n    ",
+              "explanation": "La relación de contraste entre el texto (#CCCCCC) y el fondo (#FFFFFF) es de 1.61:1, por debajo del estándar mínimo de 4.5:1 para texto normal.",
+              "remediation": {
+                "before_snippet": "<TextView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/txt_low_contrast\" ns0:layout_width=\"wrap_content\" ns0:layout_height=\"wrap_content\" ns0:text=\"Texto con bajo contraste\" ns0:textColor=\"#CCCCCC\" ns0:background=\"#FFFFFF\" />\n\n    \n    ",
+                "after_snippet": "<TextView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/txt_low_contrast\" ns0:layout_width=\"wrap_content\" ns0:layout_height=\"wrap_content\" ns0:text=\"Texto con bajo contraste\" ns0:textColor=\"#CCCCCC\" ns0:background=\"#FFFFFF\" />\n\n    \n    ",
+                "advice": "Oscurezca el color del texto o aclare el fondo para garantizar un ratio de contraste superior a 4.5:1.",
+                "effort": "medio"
+              },
+              "impact": "alto",
+              "confidence": 0.98
+            }
+          ]
+        }
+      ]
+    },
+    "operable": {
+      "key": "operable",
+      "name": "2. Operable",
+      "description": "Los componentes de la interfaz de usuario y la navegación deben ser operables (la interfaz no puede requerir una interacción que el usuario no pueda realizar).",
+      "success_criteria": [
+        {
+          "criterion_id": "2.5.5",
+          "criterion_title": "Criterio 2.5.5",
+          "level": "A",
+          "findings": [
+            {
+              "id": "APK-04-258-004",
+              "principle": "operable",
+              "criterion_id": "2.5.5",
+              "criterion_title": "Tamaño del objetivo táctil (Android Target Size)",
+              "level": "AAA",
+              "category": "Advertencia",
+              "origin": "regla",
+              "check_name": "Objetivo táctil con dimensiones inferiores a 48x48dp (32.0x24.0dp)",
+              "w3c_technique": "G219",
+              "selector": "res/layout/activity_main.xml#btn_small",
+              "line_number": null,
+              "html_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_small\" ns0:layout_width=\"32dp\" ns0:layout_height=\"24dp\" ns0:text=\"OK\" />\n\n    \n    ",
+              "explanation": "El elemento interactivo <Button> tiene dimensiones táctiles reducidas (32.0x24.0dp). La pauta Android y WCAG recomiendan un mínimo de 48x48dp para evitar pulsaciones erróneas en pantallas táctiles.",
+              "remediation": {
+                "before_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_small\" ns0:layout_width=\"32dp\" ns0:layout_height=\"24dp\" ns0:text=\"OK\" />\n\n    \n    ",
+                "after_snippet": "<Button android:minWidth=\"48dp\" android:minHeight=\"48dp\" android:padding=\"10dp\" xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_small\" ns0:layout_width=\"32dp\" ns0:layout_height=\"24dp\" ns0:text=\"OK\" />\n\n    \n    ",
+                "advice": "Establezca 'android:minWidth=\"48dp\"' y 'android:minHeight=\"48dp\"' o compense con padding interno para alcanzar el área táctil recomendada.",
+                "effort": "bajo"
+              },
+              "impact": "medio",
+              "confidence": 0.95
+            }
+          ]
+        }
+      ]
+    },
+    "understandable": {
+      "key": "understandable",
+      "name": "3. Comprensible",
+      "description": "La información y el manejo de la interfaz de usuario deben ser comprensibles (el contenido y los controles no pueden resultar confusos o impredecibles).",
+      "success_criteria": [
+        {
+          "criterion_id": "3.1.1",
+          "criterion_title": "Idioma de la página",
+          "level": "A",
+          "findings": [
+            {
+              "id": "IA-LNG-02",
+              "principle": "understandable",
+              "criterion_id": "3.1.1",
+              "criterion_title": "Idioma de la página",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Atributo lang ausente en etiqueta <html>",
+              "w3c_technique": "H57",
+              "selector": "html",
+              "line_number": 1,
+              "html_snippet": "<html>",
+              "explanation": "La etiqueta <html> no define el idioma del documento. Los sintetizadores de voz pronunciarán el texto con el acento predeterminado del sistema operativo.",
+              "remediation": {
+                "before_snippet": "<html>",
+                "after_snippet": "<html lang=\"es\">",
+                "advice": "Declare el idioma primario del documento mediante el atributo lang='es' (o el código correspondiente).",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 0.99
+            }
+          ]
+        },
+        {
+          "criterion_id": "3.3.2",
+          "criterion_title": "Etiquetas o instrucciones",
+          "level": "A",
+          "findings": [
+            {
+              "id": "APK-03-332-003",
+              "principle": "understandable",
+              "criterion_id": "3.3.2",
+              "criterion_title": "Etiquetas o instrucciones (Android)",
+              "level": "A",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "Campo de entrada de texto sin etiqueta ni hint accesible",
+              "w3c_technique": "AND2",
+              "selector": "res/layout/activity_main.xml#input_user",
+              "line_number": null,
+              "html_snippet": "<EditText xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/input_user\" ns0:layout_width=\"match_parent\" ns0:layout_height=\"48dp\" />\n\n    \n    ",
+              "explanation": "El campo <EditText> no define 'android:hint', 'android:labelFor' ni 'android:contentDescription'. Los usuarios de tecnologías de asistencia no sabrán qué dato deben introducir.",
+              "remediation": {
+                "before_snippet": "<EditText xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/input_user\" ns0:layout_width=\"match_parent\" ns0:layout_height=\"48dp\" />\n\n    \n    ",
+                "after_snippet": "<EditText android:hint=\"@string/hint_input_user\" android:autofillHints=\"name\" xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/input_user\" ns0:layout_width=\"match_parent\" ns0:layout_height=\"48dp\" />\n\n    \n    ",
+                "advice": "Agregue 'android:hint' o vincule un TextView descriptivo mediante 'android:labelFor'.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    "robust": {
+      "key": "robust",
+      "name": "4. Robusto",
+      "description": "El contenido debe ser suficientemente robusto como para que pueda ser interpretado de forma fiable por una amplia variedad de agentes de usuario, incluyendo tecnologías de asistencia.",
+      "success_criteria": [
+        {
+          "criterion_id": "4.1.2",
+          "criterion_title": "Nombre, función, valor",
+          "level": "A",
+          "findings": [
+            {
+              "id": "APK-05-412-SUP-005",
+              "principle": "robust",
+              "criterion_id": "4.1.2",
+              "criterion_title": "Nombre, función, valor (Android)",
+              "level": "A",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "Control interactivo oculto indebidamente con android:importantForAccessibility='no'",
+              "w3c_technique": "AND4",
+              "selector": "res/layout/activity_main.xml#btn_hidden_interactive",
+              "line_number": null,
+              "html_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_hidden_interactive\" ns0:layout_width=\"50dp\" ns0:layout_height=\"50dp\" ns0:text=\"Ignorado\" ns0:importantForAccessibility=\"no\" />\n\n    \n    ",
+              "explanation": "El componente interactivo <Button> fue marcado con importantForAccessibility='no'. Esto elimina el elemento del árbol accesible de TalkBack, impidiendo su uso a personas con discapacidad visual.",
+              "remediation": {
+                "before_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_hidden_interactive\" ns0:layout_width=\"50dp\" ns0:layout_height=\"50dp\" ns0:text=\"Ignorado\" ns0:importantForAccessibility=\"no\" />\n\n    \n    ",
+                "after_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_hidden_interactive\" ns0:layout_width=\"50dp\" ns0:layout_height=\"50dp\" ns0:text=\"Ignorado\" ns0:importantForAccessibility=\"no\" />\n\n    \n    ",
+                "advice": "Elimine 'android:importantForAccessibility=\"no\"' o cámbielo a 'yes' en controles que admiten clics o interacción.",
+                "effort": "bajo"
+              },
+              "impact": "crítico",
+              "confidence": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "all_findings": [
+    {
+      "id": "APK-02-111-002",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual (Android)",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "Control gráfico sin descripción accesible (android:contentDescription ausente)",
+      "w3c_technique": "AND1",
+      "selector": "res/layout/activity_main.xml#btn_cart",
+      "line_number": null,
+      "html_snippet": "<ImageButton xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_cart\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:src=\"@drawable/ic_cart\" />\n\n    \n    ",
+      "explanation": "El componente interactivo <ImageButton> carece de 'android:contentDescription'. Los lectores de pantalla como TalkBack no podrán informar su propósito al usuario ciego.",
+      "remediation": {
+        "before_snippet": "<ImageButton xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_cart\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:src=\"@drawable/ic_cart\" />\n\n    \n    ",
+        "after_snippet": "<ImageButton android:contentDescription=\"@string/desc_btn_cart\" xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_cart\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:src=\"@drawable/ic_cart\" />\n\n    \n    ",
+        "advice": "Defina un recurso de texto accesible descriptivo con 'android:contentDescription'. Si la imagen es puramente decorativa, use android:importantForAccessibility='no'.",
+        "effort": "bajo"
+      },
+      "impact": "crítico",
+      "confidence": 1.0
+    },
+    {
+      "id": "APK-03-332-003",
+      "principle": "understandable",
+      "criterion_id": "3.3.2",
+      "criterion_title": "Etiquetas o instrucciones (Android)",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "Campo de entrada de texto sin etiqueta ni hint accesible",
+      "w3c_technique": "AND2",
+      "selector": "res/layout/activity_main.xml#input_user",
+      "line_number": null,
+      "html_snippet": "<EditText xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/input_user\" ns0:layout_width=\"match_parent\" ns0:layout_height=\"48dp\" />\n\n    \n    ",
+      "explanation": "El campo <EditText> no define 'android:hint', 'android:labelFor' ni 'android:contentDescription'. Los usuarios de tecnologías de asistencia no sabrán qué dato deben introducir.",
+      "remediation": {
+        "before_snippet": "<EditText xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/input_user\" ns0:layout_width=\"match_parent\" ns0:layout_height=\"48dp\" />\n\n    \n    ",
+        "after_snippet": "<EditText android:hint=\"@string/hint_input_user\" android:autofillHints=\"name\" xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/input_user\" ns0:layout_width=\"match_parent\" ns0:layout_height=\"48dp\" />\n\n    \n    ",
+        "advice": "Agregue 'android:hint' o vincule un TextView descriptivo mediante 'android:labelFor'.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 1.0
+    },
+    {
+      "id": "APK-04-258-004",
+      "principle": "operable",
+      "criterion_id": "2.5.5",
+      "criterion_title": "Tamaño del objetivo táctil (Android Target Size)",
+      "level": "AAA",
+      "category": "Advertencia",
+      "origin": "regla",
+      "check_name": "Objetivo táctil con dimensiones inferiores a 48x48dp (32.0x24.0dp)",
+      "w3c_technique": "G219",
+      "selector": "res/layout/activity_main.xml#btn_small",
+      "line_number": null,
+      "html_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_small\" ns0:layout_width=\"32dp\" ns0:layout_height=\"24dp\" ns0:text=\"OK\" />\n\n    \n    ",
+      "explanation": "El elemento interactivo <Button> tiene dimensiones táctiles reducidas (32.0x24.0dp). La pauta Android y WCAG recomiendan un mínimo de 48x48dp para evitar pulsaciones erróneas en pantallas táctiles.",
+      "remediation": {
+        "before_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_small\" ns0:layout_width=\"32dp\" ns0:layout_height=\"24dp\" ns0:text=\"OK\" />\n\n    \n    ",
+        "after_snippet": "<Button android:minWidth=\"48dp\" android:minHeight=\"48dp\" android:padding=\"10dp\" xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_small\" ns0:layout_width=\"32dp\" ns0:layout_height=\"24dp\" ns0:text=\"OK\" />\n\n    \n    ",
+        "advice": "Establezca 'android:minWidth=\"48dp\"' y 'android:minHeight=\"48dp\"' o compense con padding interno para alcanzar el área táctil recomendada.",
+        "effort": "bajo"
+      },
+      "impact": "medio",
+      "confidence": 0.95
+    },
+    {
+      "id": "APK-05-412-SUP-005",
+      "principle": "robust",
+      "criterion_id": "4.1.2",
+      "criterion_title": "Nombre, función, valor (Android)",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "Control interactivo oculto indebidamente con android:importantForAccessibility='no'",
+      "w3c_technique": "AND4",
+      "selector": "res/layout/activity_main.xml#btn_hidden_interactive",
+      "line_number": null,
+      "html_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_hidden_interactive\" ns0:layout_width=\"50dp\" ns0:layout_height=\"50dp\" ns0:text=\"Ignorado\" ns0:importantForAccessibility=\"no\" />\n\n    \n    ",
+      "explanation": "El componente interactivo <Button> fue marcado con importantForAccessibility='no'. Esto elimina el elemento del árbol accesible de TalkBack, impidiendo su uso a personas con discapacidad visual.",
+      "remediation": {
+        "before_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_hidden_interactive\" ns0:layout_width=\"50dp\" ns0:layout_height=\"50dp\" ns0:text=\"Ignorado\" ns0:importantForAccessibility=\"no\" />\n\n    \n    ",
+        "after_snippet": "<Button xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/btn_hidden_interactive\" ns0:layout_width=\"50dp\" ns0:layout_height=\"50dp\" ns0:text=\"Ignorado\" ns0:importantForAccessibility=\"no\" />\n\n    \n    ",
+        "advice": "Elimine 'android:importantForAccessibility=\"no\"' o cámbielo a 'yes' en controles que admiten clics o interacción.",
+        "effort": "bajo"
+      },
+      "impact": "crítico",
+      "confidence": 1.0
+    },
+    {
+      "id": "APK-06-143-COL-006",
+      "principle": "perceptible",
+      "criterion_id": "1.4.3",
+      "criterion_title": "Contraste (mínimo) en vistas Android",
+      "level": "AA",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "Contraste de color insuficiente (1.61:1 frente al mínimo 4.5:1)",
+      "w3c_technique": "G18",
+      "selector": "res/layout/activity_main.xml#txt_low_contrast",
+      "line_number": null,
+      "html_snippet": "<TextView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/txt_low_contrast\" ns0:layout_width=\"wrap_content\" ns0:layout_height=\"wrap_content\" ns0:text=\"Texto con bajo contraste\" ns0:textColor=\"#CCCCCC\" ns0:background=\"#FFFFFF\" />\n\n    \n    ",
+      "explanation": "La relación de contraste entre el texto (#CCCCCC) y el fondo (#FFFFFF) es de 1.61:1, por debajo del estándar mínimo de 4.5:1 para texto normal.",
+      "remediation": {
+        "before_snippet": "<TextView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/txt_low_contrast\" ns0:layout_width=\"wrap_content\" ns0:layout_height=\"wrap_content\" ns0:text=\"Texto con bajo contraste\" ns0:textColor=\"#CCCCCC\" ns0:background=\"#FFFFFF\" />\n\n    \n    ",
+        "after_snippet": "<TextView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/txt_low_contrast\" ns0:layout_width=\"wrap_content\" ns0:layout_height=\"wrap_content\" ns0:text=\"Texto con bajo contraste\" ns0:textColor=\"#CCCCCC\" ns0:background=\"#FFFFFF\" />\n\n    \n    ",
+        "advice": "Oscurezca el color del texto o aclare el fondo para garantizar un ratio de contraste superior a 4.5:1.",
+        "effort": "medio"
+      },
+      "impact": "alto",
+      "confidence": 0.98
+    },
+    {
+      "id": "IA-IMG-01",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Evaluación semántica de texto alternativo",
+      "w3c_technique": "H37",
+      "selector": "res/layout/activity_main.xml#ImageView",
+      "line_number": null,
+      "html_snippet": "<ImageView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/img_good\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:contentDescription=\"Logotipo accesible de la aplicación\" />\n",
+      "explanation": "El texto alternativo 'Logotipo accesible de la aplicación' es genérico y no describe el contenido visual para usuarios ciegos.",
+      "remediation": {
+        "before_snippet": "<ImageView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/img_good\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:contentDescription=\"Logotipo accesible de la aplicación\" />\n",
+        "after_snippet": "<ImageView xmlns:ns0=\"http://schemas.android.com/apk/res/android\" ns0:id=\"@+id/img_good\" ns0:layout_width=\"48dp\" ns0:layout_height=\"48dp\" ns0:contentDescription=\"Logotipo accesible de la aplicación\" />\n",
+        "advice": "Sustituya el texto alternativo por uno que describa objetivamente la función o información de la imagen.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 0.88
+    },
+    {
+      "id": "IA-LNG-02",
+      "principle": "understandable",
+      "criterion_id": "3.1.1",
+      "criterion_title": "Idioma de la página",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Atributo lang ausente en etiqueta <html>",
+      "w3c_technique": "H57",
+      "selector": "html",
+      "line_number": 1,
+      "html_snippet": "<html>",
+      "explanation": "La etiqueta <html> no define el idioma del documento. Los sintetizadores de voz pronunciarán el texto con el acento predeterminado del sistema operativo.",
+      "remediation": {
+        "before_snippet": "<html>",
+        "after_snippet": "<html lang=\"es\">",
+        "advice": "Declare el idioma primario del documento mediante el atributo lang='es' (o el código correspondiente).",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 0.99
+    }
+  ],
+  "disclaimer": "AVISO IMPORTANTE: Esta auditoría automática y asistida por IA es una herramienta de apoyo y no sustituye la evaluación manual exhaustiva realizada por expertos ni las pruebas directas con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla TalkBack, NVDA, switches, etc.)."
+}

@@ -18,6 +18,7 @@ from a11y_agent.analyzer.engine import A11yEngine
 from a11y_agent.analyzer.apk_scanner import APKScanner
 from a11y_agent.assistant.chat import A11yChatAssistant
 from a11y_agent.reporters.html_reporter import render_html_report
+from a11y_agent.reporters import git_publisher
 
 app = FastAPI(
     title="A11y Agent API",
@@ -69,40 +70,49 @@ async def view_public_report(report_id: str):
     if not re.match(r"^rep_[a-zA-Z0-9_-]{8,64}$", report_id):
         raise HTTPException(status_code=400, detail="Identificador de informe inválido o con formato incorrecto.")
 
-    html_file = settings.reports_dir / f"{report_id}.html"
-    if html_file.exists():
-        content = html_file.read_text(encoding="utf-8")
-        return HTMLResponse(
-            content=content,
-            status_code=200,
-            headers={
-                "Content-Type": "text/html; charset=utf-8",
-                "X-Content-Type-Options": "nosniff",
-                "Cache-Control": "public, max-age=3600"
-            }
-        )
+    # 1. Check reports dir or docs reports dir
+    candidate_files = [
+        settings.reports_dir / f"{report_id}.html",
+        settings.docs_reports_dir / f"{report_id}.html"
+    ]
+    for html_file in candidate_files:
+        if html_file.exists():
+            content = html_file.read_text(encoding="utf-8")
+            return HTMLResponse(
+                content=content,
+                status_code=200,
+                headers={
+                    "Content-Type": "text/html; charset=utf-8",
+                    "X-Content-Type-Options": "nosniff",
+                    "Cache-Control": "public, max-age=3600"
+                }
+            )
 
     # Fallback: check if JSON report exists and dynamically render HTML
-    json_file = settings.reports_dir / f"{report_id}.json"
-    if json_file.exists():
-        data = json.loads(json_file.read_text(encoding="utf-8"))
-        report = A11yReport.model_validate(data)
-        html_content = render_html_report(report)
-        html_file.write_text(html_content, encoding="utf-8")
-        return HTMLResponse(
-            content=html_content,
-            status_code=200,
-            headers={
-                "Content-Type": "text/html; charset=utf-8",
-                "X-Content-Type-Options": "nosniff",
-                "Cache-Control": "public, max-age=3600"
-            }
-        )
+    candidate_jsons = [
+        settings.reports_dir / f"{report_id}.json",
+        settings.docs_reports_dir / f"{report_id}.json"
+    ]
+    for json_file in candidate_jsons:
+        if json_file.exists():
+            data = json.loads(json_file.read_text(encoding="utf-8"))
+            report = A11yReport.model_validate(data)
+            html_content = render_html_report(report)
+            (settings.reports_dir / f"{report_id}.html").write_text(html_content, encoding="utf-8")
+            return HTMLResponse(
+                content=html_content,
+                status_code=200,
+                headers={
+                    "Content-Type": "text/html; charset=utf-8",
+                    "X-Content-Type-Options": "nosniff",
+                    "Cache-Control": "public, max-age=3600"
+                }
+            )
 
     raise HTTPException(status_code=404, detail="El informe público solicitado no existe o ha expirado.")
 
 @app.post("/api/scan", response_model=A11yReport)
-async def scan_url(scan_req: ScanRequest, request: Request):
+async def scan_url(scan_req: ScanRequest, request: Request, background_tasks: BackgroundTasks):
     """
     Audit an accessible URL against WCAG guidelines and return full structured report with public URL.
     """
@@ -117,6 +127,10 @@ async def scan_url(scan_req: ScanRequest, request: Request):
             base_public_url=base_url
         )
         REPORTS_CACHE[report.id] = report
+
+        if settings.auto_git_push_reports:
+            background_tasks.add_task(git_publisher.git_push_report, report.id)
+
         return report
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -127,6 +141,7 @@ async def scan_url(scan_req: ScanRequest, request: Request):
 @app.post("/api/scan-apk", response_model=A11yReport)
 async def scan_apk_package(
     request: Request,
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     guidelines: GuidelinesVersion = Form(GuidelinesVersion.WCAG_2_2),
     target_level: WCAGLevel = Form(WCAGLevel.AA)
@@ -169,6 +184,10 @@ async def scan_apk_package(
         )
 
         REPORTS_CACHE[report.id] = report
+
+        if settings.auto_git_push_reports:
+            background_tasks.add_task(git_publisher.git_push_report, report.id)
+
         return report
 
     except HTTPException:
@@ -183,6 +202,37 @@ async def scan_apk_package(
             except Exception:
                 pass
 
+@app.post("/api/publish-git/{report_id}")
+async def trigger_publish_to_git(report_id: str):
+    """
+    Manually triggers publication and git synchronization of a report to GitHub Pages.
+    """
+    if not re.match(r"^rep_[a-zA-Z0-9_-]{8,64}$", report_id):
+        raise HTTPException(status_code=400, detail="Identificador de informe inválido.")
+
+    report = REPORTS_CACHE.get(report_id)
+    if not report:
+        for dir_path in (settings.reports_dir, settings.docs_reports_dir):
+            json_path = dir_path / f"{report_id}.json"
+            if json_path.exists():
+                try:
+                    data = json.loads(json_path.read_text(encoding="utf-8"))
+                    report = A11yReport.model_validate(data)
+                    REPORTS_CACHE[report_id] = report
+                    break
+                except Exception:
+                    pass
+
+    if not report:
+        raise HTTPException(status_code=404, detail="El informe solicitado no existe para sincronización.")
+
+    # 1. Update docs directory
+    git_publisher.publish_report_to_docs(report)
+
+    # 2. Commit and push to git
+    result = git_publisher.git_push_report(report_id)
+    return result
+
 @app.get("/api/report/{report_id}", response_model=A11yReport)
 async def get_report(report_id: str, request: Request):
     """Retrieve an existing report by ID."""
@@ -190,12 +240,14 @@ async def get_report(report_id: str, request: Request):
     if report_id in REPORTS_CACHE:
         report = REPORTS_CACHE[report_id]
     else:
-        # Check disk cache
-        json_file = settings.reports_dir / f"{report_id}.json"
-        if json_file.exists():
-            data = json.loads(json_file.read_text(encoding="utf-8"))
-            report = A11yReport.model_validate(data)
-            REPORTS_CACHE[report_id] = report
+        # Check disk cache (reports or docs)
+        for dir_path in (settings.reports_dir, settings.docs_reports_dir):
+            json_file = dir_path / f"{report_id}.json"
+            if json_file.exists():
+                data = json.loads(json_file.read_text(encoding="utf-8"))
+                report = A11yReport.model_validate(data)
+                REPORTS_CACHE[report_id] = report
+                break
 
     if report:
         if not report.public_url:
