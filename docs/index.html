@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A11y Agent — Test de Accesibilidad Web & Móvil (Modelo TAW / WCAG 2.2 / EN 301 549)</title>
-    <meta name="description" content="Herramienta en línea de auditoría de accesibilidad web y aplicaciones Android basada en el Modelo TAW y las Pautas W3C WCAG 2.2.">
+    <meta name="description" content="Plataforma en línea de auditoría de accesibilidad web (WCAG 2.2) y aplicaciones Android (EN 301 549) basada en el Modelo TAW y motor determinista axe-core.">
 
     <!-- axe-core client-side engine (Official W3C WCAG accessibility engine) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.9.1/axe.min.js"></script>
@@ -38,7 +38,7 @@
         }
 
         .container {
-            max-width: 1180px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -93,7 +93,7 @@
         .subtitle {
             color: var(--text-muted);
             font-size: 1.05rem;
-            max-width: 820px;
+            max-width: 860px;
             margin: 0 auto;
         }
 
@@ -142,7 +142,7 @@
             border-radius: 12px;
             padding: 2rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
 
         .form-grid {
@@ -154,6 +154,15 @@
 
         @media (max-width: 900px) {
             .form-grid { grid-template-columns: 1fr; }
+        }
+
+        .advanced-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border-color);
         }
 
         label {
@@ -222,24 +231,24 @@
         }
         .btn-secondary:hover { background: var(--border-color); }
 
-        .pill-btn {
-            background: rgba(56, 189, 248, 0.12);
-            color: var(--primary);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            padding: 0.35rem 0.8rem;
-            border-radius: 9999px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+        /* Draggable Bookmarklet Button */
+        .bookmarklet-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+            color: #0f172a !0f172a;
+            font-weight: 800;
+            padding: 0.85rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            cursor: grab;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .pill-btn:hover {
-            background: var(--primary);
-            color: #0f172a;
-            transform: translateY(-1px);
+        .bookmarklet-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
         }
 
         /* Drag & Drop APK */
@@ -281,6 +290,21 @@
             gap: 0.65rem;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .precision-badge {
+            margin-left: auto;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
         /* Summary Dashboard */
@@ -322,92 +346,81 @@
 
         .kpi-row {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 1rem;
             margin-bottom: 1.25rem;
         }
-        @media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
 
         .kpi-card {
             background: var(--surface-card);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 1rem;
-            border-left: 4px solid;
+            text-align: center;
         }
-        .kpi-card.danger { border-left-color: var(--danger); }
-        .kpi-card.warning { border-left-color: var(--warning); }
-        .kpi-card.info { border-left-color: var(--primary); }
+        .kpi-card.danger { border-left: 4px solid var(--danger); }
+        .kpi-card.warning { border-left: 4px solid var(--warning); }
+        .kpi-card.info { border-left: 4px solid var(--primary); }
 
-        .kpi-num { font-size: 1.8rem; font-weight: 800; }
-        .kpi-lbl { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .kpi-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+        .kpi-lbl {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
         .exec-box {
             background: var(--surface-card);
-            border-radius: 8px;
-            padding: 1.25rem;
             border: 1px solid var(--border-color);
-            font-size: 0.95rem;
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
             white-space: pre-line;
         }
 
-        /* 4 Principles Container */
+        /* Principles & Findings */
         .principle-card {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.75rem;
+            border-radius: 10px;
+            padding: 1.5rem;
             margin-bottom: 1.5rem;
         }
 
         .principle-title {
-            font-size: 1.35rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 1rem;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.5rem;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.75rem;
-        }
-
-        .criterion-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .criterion-header {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .badge-level {
-            background: #0f172a;
-            color: #ffffff;
-            font-size: 0.75rem;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 600;
+            padding-bottom: 0.6rem;
         }
 
         .finding-card {
             background: var(--surface-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 1rem 1.25rem;
+            padding: 1.25rem;
             margin-bottom: 1rem;
         }
 
         .finding-top {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             align-items: center;
+            margin-bottom: 0.75rem;
             flex-wrap: wrap;
-            margin-bottom: 0.5rem;
         }
 
         .badge-cat {
@@ -419,27 +432,47 @@
         }
         .badge-cat.problema { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
         .badge-cat.advertencia { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
-        .badge-cat.no_verificado { background: rgba(56, 189, 248, 0.2); color: var(--primary); border: 1px solid var(--primary); }
+        .badge-cat.no-verificado { background: rgba(56, 189, 248, 0.2); color: var(--primary); border: 1px solid var(--primary); }
+
+        .badge-level {
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .w3c-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.82rem;
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .w3c-link:hover { text-decoration: underline; }
 
         .code-snippet {
             background: #0f172a;
             border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
             border-radius: 6px;
-            padding: 0.75rem;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.85rem;
-            overflow-x: auto;
-            margin: 0.5rem 0;
             color: #e2e8f0;
+            overflow-x: auto;
+            margin: 0.6rem 0;
         }
 
         .remediation-box {
-            margin-top: 0.75rem;
             background: rgba(34, 197, 94, 0.08);
-            border-left: 4px solid var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 6px;
             padding: 0.85rem;
-            border-radius: 0 6px 6px 0;
-            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-size: 0.88rem;
         }
 
         .diff-grid {
@@ -448,19 +481,78 @@
             gap: 0.75rem;
             margin-top: 0.5rem;
         }
-        @media (max-width: 700px) { .diff-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .diff-grid { grid-template-columns: 1fr; } }
 
         .diff-box {
-            padding: 0.6rem;
-            border-radius: 6px;
+            padding: 0.6rem 0.75rem;
+            border-radius: 4px;
             font-family: ui-monospace, SFMono-Regular, monospace;
             font-size: 0.8rem;
             overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
         }
         .diff-box.before { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
         .diff-box.after { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
 
-        /* Chat Section */
+        /* Actionable Error Card */
+        .actionable-error-card {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .actionable-error-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .actionable-error-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fca5a5;
+        }
+
+        .actionable-error-body {
+            font-size: 0.92rem;
+            color: #e2e8f0;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .actionable-error-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        /* Non-HTML Notice Card */
+        .non-html-card {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        /* Privacy Banner */
+        .privacy-banner {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* Chat Assistant */
         .chat-section {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
@@ -470,9 +562,9 @@
         }
 
         .chat-history {
-            max-height: 320px;
+            height: 220px;
             overflow-y: auto;
-            background: var(--surface-card);
+            background: #0f172a;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 1rem;
@@ -483,33 +575,43 @@
         }
 
         .chat-msg {
-            padding: 0.75rem 1rem;
+            max-width: 82%;
+            padding: 0.65rem 0.95rem;
             border-radius: 8px;
-            max-width: 85%;
             font-size: 0.9rem;
+            line-height: 1.45;
         }
-        .chat-msg.user { background: var(--primary-dark); color: #fff; align-self: flex-end; }
-        .chat-msg.assistant { background: var(--border-color); color: #f8fafc; align-self: flex-start; }
+        .chat-msg.assistant {
+            background: var(--surface-card);
+            align-self: flex-start;
+            border-left: 3px solid var(--primary);
+            color: #e2e8f0;
+        }
+        .chat-msg.user {
+            background: var(--primary-dark);
+            color: #ffffff;
+            align-self: flex-end;
+        }
 
-        /* Footer */
         footer {
+            margin-top: 3.5rem;
             text-align: center;
             color: var(--text-muted);
             font-size: 0.85rem;
-            margin-top: 3rem;
-            padding-top: 1.5rem;
             border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
         }
 
-        /* Print styles */
         @media print {
-            body { background: #fff !important; color: #000 !important; padding: 0; }
-            .tabs-nav, .audit-card, .toolbar, .chat-section, .repo-badge, header.app-header p { display: none !important; }
+            body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; }
+            .tabs-nav, .toolbar, .chat-section, header.app-header, form, #form-url, #form-code, #panel-apk, footer, .repo-badge { display: none !important; }
+            .audit-card { border: none !important; box-shadow: none !important; padding: 0 !important; }
             #results-container { display: block !important; }
-            .summary-dashboard, .principle-card, .finding-card, .code-snippet { background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; box-shadow: none !important; }
-            .score-circle { border-color: #000 !important; color: #000 !important; }
-            .kpi-card { border-left: 4px solid #000 !important; background: #fafafa !important; }
-            .diff-box.before, .diff-box.after { background: #f5f5f5 !important; color: #000 !important; border-color: #ddd !important; }
+            .summary-dashboard, .principle-card, .finding-card, .score-box { background: #ffffff !important; color: #000000 !important; border-color: #cbd5e1 !important; }
+            .kpi-card { background: #f8fafc !important; color: #000000 !important; }
+            .code-snippet { background: #f1f5f9 !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+            .diff-box.before { background: #fee2e2 !important; color: #991b1b !important; }
+            .diff-box.after { background: #dcfce7 !important; color: #166534 !important; }
         }
     </style>
 </head>
@@ -525,7 +627,7 @@
             </a>
             <h1>A11y Agent — Test de Accesibilidad</h1>
             <p class="subtitle">
-                Auditoría en línea de accesibilidad web (WCAG 2.1 / 2.2) y aplicaciones móviles Android (EN 301 549). Inspirado en el <strong>Modelo TAW</strong> con motor determinista axe-core y remediación de código interactiva.
+                Auditoría integral en línea de accesibilidad web (WCAG 2.0 / 2.1 / 2.2) y aplicaciones móviles Android (EN 301 549). Basado en el <strong>Modelo TAW</strong> con motor formal determinista axe-core y remediación de código interactiva.
             </p>
         </header>
 
@@ -541,66 +643,97 @@
                 <button role="tab" id="tab-apk" aria-controls="panel-apk" aria-selected="false" tabindex="-1" class="tab-btn">
                     📱 Auditoría Android (.APK)
                 </button>
+                <button role="tab" id="tab-bookmarklet" aria-controls="panel-bookmarklet" aria-selected="false" tabindex="-1" class="tab-btn">
+                    📌 Bookmarklet de 1 Clic (Login / Intranet)
+                </button>
             </div>
 
             <!-- Panel 1: URL Web Auditor -->
             <div role="tabpanel" id="panel-web" aria-labelledby="tab-web" class="audit-card">
-                <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #ffffff;">Auditar Página Web en Línea</h2>
+                <h2 style="font-size: 1.25rem; margin-bottom: 0.4rem; color: #ffffff;">Auditar Cualquier Sitio Web por URL</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
-                    Ingrese la URL pública para analizarla con el motor formal axe-core según los 4 principios WCAG.
+                    Pegue cualquier dirección web pública. El normalizador inteligente acepta dominios con o sin protocolo, subdominios, rutas complejas y dominios internacionalizados (IDN con tildes o eñes).
                 </p>
 
-                <form id="form-url" class="form-grid" onsubmit="handleAuditUrl(event)">
-                    <div>
-                        <label for="url-input">URL del sitio web:</label>
-                        <input type="text" id="url-input" required placeholder="https://fup.edu.co" value="https://fup.edu.co">
+                <form id="form-url" onsubmit="handleAuditUrl(event)">
+                    <div class="form-grid">
+                        <div>
+                            <label for="url-input">URL del sitio web:</label>
+                            <input type="text" id="url-input" required placeholder="ejemplo.com o https://misitio.com/pagina" value="" autocomplete="url" spellcheck="false">
+                        </div>
+                        <div>
+                            <label for="guidelines-url">Pautas WCAG:</label>
+                            <select id="guidelines-url">
+                                <option value="wcag22" selected>WCAG 2.2 (Actual)</option>
+                                <option value="wcag21">WCAG 2.1</option>
+                                <option value="wcag20">WCAG 2.0</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="level-url">Nivel de Conformidad:</label>
+                            <select id="level-url">
+                                <option value="aa" selected>Nivel AA (Estándar Legal)</option>
+                                <option value="a">Nivel A (Mínimo)</option>
+                                <option value="aaa">Nivel AAA (Avanzado)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" id="btn-run-url" class="btn-primary">
+                                <span>Analizar Sitio</span>
+                            </button>
+                        </div>
                     </div>
-                    <div>
-                        <label for="guidelines-url">Pautas:</label>
-                        <select id="guidelines-url">
-                            <option value="wcag22" selected>WCAG 2.2</option>
-                            <option value="wcag21">WCAG 2.1</option>
-                            <option value="wcag20">WCAG 2.0</option>
-                        </select>
+
+                    <!-- Configuración Avanzada TAW (Spider / Cookies) -->
+                    <div class="advanced-options">
+                        <div>
+                            <label for="scope-url">Alcance del Análisis (Spider TAW):</label>
+                            <select id="scope-url">
+                                <option value="single" selected>Página Individual (Recomendado)</option>
+                                <option value="spider">Rastreo Spider (Hasta 5 enlaces internos)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="cookie-banner-opt">Banner de Cookies / Consentimiento:</label>
+                            <select id="cookie-banner-opt">
+                                <option value="evaluate_all" selected>Auditar página completa con banner</option>
+                                <option value="dismiss">Intentar omitir/cerrar banner de cookies</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label for="level-url">Nivel:</label>
-                        <select id="level-url">
-                            <option value="aa" selected>AA (Estándar)</option>
-                            <option value="a">A (Básico)</option>
-                            <option value="aaa">AAA (Avanzado)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <button type="submit" id="btn-run-url" class="btn-primary">
-                            <span>Analizar Sitio</span>
-                        </button>
+
+                    <div class="privacy-banner">
+                        <span>🛡️</span>
+                        <span>Aviso de Privacidad: La URL se procesa en tiempo real exclusivamente para evaluar accesibilidad. No se almacena el contenido de las páginas auditadas.</span>
                     </div>
                 </form>
 
-                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
-                    <span style="font-weight: 600;">Auditoría rápida:</span>
-                    <button type="button" class="pill-btn" onclick="setUrlAndAudit('https://fup.edu.co')">🎓 FUP (fup.edu.co)</button>
-                    <button type="button" class="pill-btn" onclick="setUrlAndAudit('https://www.w3.org')">🌐 W3C (w3.org)</button>
-                    <button type="button" class="pill-btn" onclick="setUrlAndAudit('https://samuelcamacho2008.github.io/portafolio-samuel-camacho/')">💼 Mi Portafolio</button>
+                <!-- Classified Actionable Error Card -->
+                <div id="actionable-error" class="actionable-error-card" role="alert" aria-live="assertive">
+                    <div class="actionable-error-header">
+                        <span id="error-icon" style="font-size: 1.8rem; line-height: 1;">⚠️</span>
+                        <div class="actionable-error-title" id="error-title">Diagnóstico del Error</div>
+                    </div>
+                    <div class="actionable-error-body" id="error-description"></div>
+                    <div class="actionable-error-actions" id="error-actions"></div>
                 </div>
 
-                <!-- Friendly Inline Notice for strictly protected sites -->
-                <div id="url-error-card" style="display: none; margin-top: 1.25rem; background: rgba(239, 68, 68, 0.12); border: 1px solid var(--danger); border-radius: 8px; padding: 1.25rem;">
+                <!-- Non-HTML Notice Card -->
+                <div id="non-html-card" class="non-html-card" role="region" aria-label="Aviso de contenido no HTML">
                     <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                        <span style="font-size: 1.6rem; line-height: 1;">🛡️</span>
-                        <div style="flex: 1;">
-                            <h3 style="color: #fca5a5; font-size: 1.05rem; margin-bottom: 0.35rem;">Restricción de Red del Servidor Destino (Firewall / Cloudflare)</h3>
-                            <p style="font-size: 0.9rem; color: #e2e8f0; margin-bottom: 0.75rem; line-height: 1.5;">
-                                El sitio <strong id="blocked-url-name" style="color: #ffffff;"></strong> aplica políticas estrictas contra rastreadores web directos. Para auditarlo sin restricciones:
+                        <span style="font-size: 1.8rem;">📄</span>
+                        <div>
+                            <h3 style="color: var(--primary); font-size: 1.05rem; margin-bottom: 0.35rem;" id="non-html-title">Contenido No-HTML Detectado</h3>
+                            <p style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 0.75rem; line-height: 1.5;" id="non-html-desc">
+                                El recurso seleccionado no es un documento HTML estándar.
                             </p>
                             <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
-                                <button type="button" class="btn-primary" onclick="switchToCodeTabWithHelp()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-                                    📝 Ir a 'Código HTML Directo' y auditar
-                                </button>
-                                <a id="btn-open-target" href="#" target="_blank" rel="noopener" class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-                                    ↗️ Abrir sitio para ver código fuente (Ctrl + U)
+                                <a id="non-html-link" href="#" target="_blank" rel="noopener" class="btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                                    Abrir / Descargar Archivo
                                 </a>
+                                <button type="button" class="btn-secondary" onclick="dismissNonHtml()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                                    Cerrar Aviso
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -611,19 +744,19 @@
             <div role="tabpanel" id="panel-code" aria-labelledby="tab-code" class="audit-card" style="display: none;">
                 <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #ffffff;">Auditar Código HTML Directo</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
-                    Pegue código HTML crudo o cargue un archivo <code>.html</code> para evaluarlo instantáneamente en el navegador sin restricciones CORS.
+                    Pegue código HTML crudo o cargue un archivo <code>.html</code> para evaluarlo instantáneamente en su navegador sin barreras de red ni cortafuegos.
                 </p>
 
                 <form id="form-code" onsubmit="handleAuditHtml(event)">
                     <div style="margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
                             <label for="code-input">Código HTML de la página:</label>
                             <input type="file" id="file-html-input" accept=".html,.htm" style="display: none;" onchange="handleHtmlFileUpload(event)">
                             <button type="button" class="btn-secondary" style="padding: 0.25rem 0.65rem; font-size: 0.8rem;" onclick="document.getElementById('file-html-input').click()">
-                                Cargar archivo .html
+                                📁 Cargar archivo .html
                             </button>
                         </div>
-                        <textarea id="code-input" placeholder="<!DOCTYPE html><html><body>...</body></html>" required></textarea>
+                        <textarea id="code-input" placeholder="<!DOCTYPE html><html lang='es'><head><title>Mi Sitio</title></head><body>...</body></html>" required></textarea>
                     </div>
 
                     <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
@@ -631,7 +764,7 @@
                             <span>Auditar Código HTML</span>
                         </button>
                         <button type="button" class="btn-secondary" onclick="loadSampleHtml()">
-                            Cargar HTML de Prueba
+                            Cargar Código de Demostración
                         </button>
                     </div>
                 </form>
@@ -641,17 +774,17 @@
             <div role="tabpanel" id="panel-apk" aria-labelledby="tab-apk" class="audit-card" style="display: none;">
                 <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #ffffff;">Auditoría de Aplicaciones Android (.APK)</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
-                    Suelte un archivo <code>.apk</code> para inspeccionar layouts XML, descripciones accesibles (<code>contentDescription</code>), tamaños táctiles (48x48dp) y TalkBack.
+                    Arrastre o seleccione un paquete <code>.apk</code>. Se inspeccionan layouts XML, atributos <code>contentDescription</code>, tamaños de botones táctiles (48x48dp) y TalkBack directamente en el navegador mediante descompresión JSZip.
                 </p>
 
                 <div id="apk-drop-zone" class="drop-zone" onclick="document.getElementById('apk-file-input').click()">
                     <input type="file" id="apk-file-input" accept=".apk" style="display: none;" onchange="handleApkSelected(event)">
-                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📱</div>
-                    <div style="font-weight: 700; font-size: 1.1rem; color: #ffffff;" id="apk-drop-label">
+                    <div style="font-size: 2.4rem; margin-bottom: 0.5rem;">📱</div>
+                    <div style="font-weight: 700; font-size: 1.15rem; color: #ffffff;" id="apk-drop-label">
                         Haga clic o arrastre un archivo .APK aquí
                     </div>
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.35rem;">
-                        El análisis se realiza 100% en su navegador mediante JSZip (no se sube a ningún servidor externo).
+                        El análisis es 100% privado en memoria de su navegador (no se sube a ningún servidor).
                     </p>
                 </div>
 
@@ -663,6 +796,31 @@
                         Probar con Simulación APK
                     </button>
                 </div>
+            </div>
+
+            <!-- Panel 4: Bookmarklet 1-Click Auditor -->
+            <div role="tabpanel" id="panel-bookmarklet" aria-labelledby="tab-bookmarklet" class="audit-card" style="display: none;">
+                <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #ffffff;">📌 Bookmarklet de 1 Clic (Nivel 4 de Respaldo)</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                    ¿El sitio web requiere inicio de sesión con usuario y contraseña, está en una red interna (intranet) o tiene un CAPTCHA estricto?
+                    ¡No comparta sus credenciales! Arrastre este botón a la barra de marcadores de su navegador y audite cualquier pestaña al instante.
+                </p>
+
+                <div style="text-align: center; padding: 2rem 1rem; background: rgba(15, 23, 42, 0.6); border: 2px dashed var(--border-color); border-radius: 12px; margin-bottom: 1.5rem;">
+                    <a id="bookmarklet-link" class="bookmarklet-btn" href="javascript:(function(){var%20s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.9.1/axe.min.js';s.onload=function(){axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}},function(err,results){if(err){alert('Error%20axe:%20'+err);return;}var%20w=window.open('https://samuelcamacho2008.github.io/a11y-agent/','_blank');window.addEventListener('message',function%20h(e){if(e.data==='ready_for_data'){w.postMessage({type:'bookmarklet_result',payload:results,url:window.location.href,title:document.title},'*');window.removeEventListener('message',h);}});});};document.head.appendChild(s);})();" title="Arrastra este botón a tus Marcadores">
+                        📌 Auditar con A11y TAW (Arrastrar a Marcadores)
+                    </a>
+                    <div style="margin-top: 0.85rem; font-size: 0.85rem; color: var(--text-muted);">
+                        Arrastre el botón hacia la barra de marcadores de Chrome, Edge, Firefox o Safari.
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.05rem; color: #ffffff; margin-bottom: 0.75rem;">¿Cómo funciona?</h3>
+                <ol style="margin-left: 1.5rem; font-size: 0.92rem; color: #cbd5e1; line-height: 1.8;">
+                    <li>Abra en su navegador la página que desea auditar (incluso páginas con sesión iniciada).</li>
+                    <li>Haga clic en el marcador <strong>"📌 Auditar con A11y TAW"</strong> en su barra de marcadores.</li>
+                    <li>El motor oficial axe-core evaluará la pestaña abierta en vivo y transferirá los resultados a este informe interactivo con puntaje TAW.</li>
+                </ol>
             </div>
 
             <!-- Status Indicator -->
@@ -684,6 +842,11 @@
                     <button type="button" class="btn-secondary" onclick="copyCurrentUrlLink()">
                         <span>🔗 Copiar Enlace</span>
                     </button>
+
+                    <div id="precision-indicator" class="precision-badge">
+                        <span>⚡</span>
+                        <span id="precision-text">Precisión: Alta (Nivel 1)</span>
+                    </div>
                 </div>
 
                 <!-- Summary Dashboard TAW -->
@@ -716,6 +879,14 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Metadata Row -->
+                <div style="background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between;">
+                    <div><strong>URL Analizada:</strong> <code id="meta-url" style="color: var(--primary);"></code></div>
+                    <div><strong>Motor:</strong> axe-core <span id="meta-axe">4.9.1</span></div>
+                    <div><strong>Pautas evaluadas:</strong> <span id="meta-guidelines">WCAG 2.2 AA</span></div>
+                    <div><strong>Fecha:</strong> <span id="meta-date"></span></div>
+                </div>
 
                 <!-- 4 Principles Container -->
                 <div id="principles-container">
@@ -762,29 +933,46 @@
         let currentReport = null;
         let selectedApkFile = null;
 
-        // W3C WCAG Catalog details
+        // W3C WCAG Catalog details & official Understanding links
         const WCAG_CATALOG = {
-            "1.1.1": { principle: "Perceptible", title: "Contenido no textual", level: "A", technique: "H37" },
-            "1.3.1": { principle: "Perceptible", title: "Información y relaciones", level: "A", technique: "H42" },
-            "1.4.3": { principle: "Perceptible", title: "Contraste (mínimo)", level: "AA", technique: "G18" },
-            "2.1.1": { principle: "Operable", title: "Teclado", level: "A", technique: "G202" },
-            "2.4.4": { principle: "Operable", title: "Propósito de cada enlace", level: "A", technique: "H30" },
-            "2.4.7": { principle: "Operable", title: "Foco visible", level: "AA", technique: "C15" },
-            "2.5.5": { principle: "Operable", title: "Tamaño del objetivo (Mejorado)", level: "AAA", technique: "G219" },
-            "2.5.8": { principle: "Operable", title: "Tamaño del objetivo (Mínimo)", level: "AA", technique: "G219" },
-            "3.1.1": { principle: "Comprensible", title: "Idioma de la página", level: "A", technique: "H57" },
-            "3.3.2": { principle: "Comprensible", title: "Etiquetas o instrucciones", level: "A", technique: "H44" },
-            "4.1.2": { principle: "Robusto", title: "Nombre, función, valor", level: "A", technique: "ARIA5" }
+            "1.1.1": { principle: "Perceptible", title: "Contenido no textual", level: "A", technique: "H37", slug: "non-text-content" },
+            "1.2.1": { principle: "Perceptible", title: "Solo audio y solo vídeo (pregrabado)", level: "A", technique: "G158", slug: "audio-only-and-video-only-prerecorded" },
+            "1.2.2": { principle: "Perceptible", title: "Subtítulos (pregrabados)", level: "A", technique: "G87", slug: "captions-prerecorded" },
+            "1.3.1": { principle: "Perceptible", title: "Información y relaciones", level: "A", technique: "H42", slug: "info-and-relationships" },
+            "1.3.2": { principle: "Perceptible", title: "Secuencia con significado", level: "A", technique: "G57", slug: "meaningful-sequence" },
+            "1.4.1": { principle: "Perceptible", title: "Uso del color", level: "A", technique: "G14", slug: "use-of-color" },
+            "1.4.3": { principle: "Perceptible", title: "Contraste (mínimo)", level: "AA", technique: "G18", slug: "contrast-minimum" },
+            "1.4.4": { principle: "Perceptible", title: "Cambio de tamaño del texto", level: "AA", technique: "G142", slug: "resize-text" },
+            "1.4.10": { principle: "Perceptible", title: "Reflujo (Reflow)", level: "AA", technique: "G206", slug: "reflow" },
+            "1.4.11": { principle: "Perceptible", title: "Contraste sin texto", level: "AA", technique: "G195", slug: "non-text-contrast" },
+            "2.1.1": { principle: "Operable", title: "Teclado", level: "A", technique: "G202", slug: "keyboard" },
+            "2.1.2": { principle: "Operable", title: "Sin trampas para el foco del teclado", level: "A", technique: "G21", slug: "no-keyboard-trap" },
+            "2.4.1": { principle: "Operable", title: "Evitar bloques (Saltar al contenido)", level: "A", technique: "G1", slug: "bypass-blocks" },
+            "2.4.2": { principle: "Operable", title: "Página titulada", level: "A", technique: "H25", slug: "page-titled" },
+            "2.4.4": { principle: "Operable", title: "Propósito de cada enlace", level: "A", technique: "H30", slug: "link-purpose-in-context" },
+            "2.4.7": { principle: "Operable", title: "Foco visible", level: "AA", technique: "C15", slug: "focus-visible" },
+            "2.5.5": { principle: "Operable", title: "Tamaño del objetivo (Mejorado - 44x44px / 48x48dp)", level: "AAA", technique: "G219", slug: "target-size-enhanced" },
+            "2.5.8": { principle: "Operable", title: "Tamaño del objetivo (Mínimo - 24x24px)", level: "AA", technique: "G219", slug: "target-size-minimum" },
+            "3.1.1": { principle: "Comprensible", title: "Idioma de la página", level: "A", technique: "H57", slug: "language-of-page" },
+            "3.1.2": { principle: "Comprensible", title: "Idioma de las partes", level: "AA", technique: "H58", slug: "language-of-parts" },
+            "3.2.1": { principle: "Comprensible", title: "Al recibir el foco", level: "A", technique: "G107", slug: "on-focus" },
+            "3.2.2": { principle: "Comprensible", title: "Al recibir entradas", level: "A", technique: "G13", slug: "on-input" },
+            "3.3.1": { principle: "Comprensible", title: "Identificación de errores", level: "A", technique: "G83", slug: "error-identification" },
+            "3.3.2": { principle: "Comprensible", title: "Etiquetas o instrucciones", level: "A", technique: "H44", slug: "labels-or-instructions" },
+            "4.1.1": { principle: "Robusto", title: "Procesamiento (Parsing - Obsoleto en WCAG 2.2)", level: "A", technique: "H88", slug: "parsing" },
+            "4.1.2": { principle: "Robusto", title: "Nombre, función, valor", level: "A", technique: "ARIA5", slug: "name-role-value" },
+            "4.1.3": { principle: "Robusto", title: "Mensajes de estado", level: "AA", technique: "ARIA19", slug: "status-messages" }
         };
 
         // Tabs switching logic
         const tabs = [
             { btn: document.getElementById('tab-web'), panel: document.getElementById('panel-web') },
             { btn: document.getElementById('tab-code'), panel: document.getElementById('panel-code') },
-            { btn: document.getElementById('tab-apk'), panel: document.getElementById('panel-apk') }
+            { btn: document.getElementById('tab-apk'), panel: document.getElementById('panel-apk') },
+            { btn: document.getElementById('tab-bookmarklet'), panel: document.getElementById('panel-bookmarklet') }
         ];
 
-        tabs.forEach((t, i) => {
+        tabs.forEach((t) => {
             t.btn.addEventListener('click', () => {
                 tabs.forEach(item => {
                     item.btn.setAttribute('aria-selected', 'false');
@@ -797,81 +985,171 @@
             });
         });
 
-        function setUrlAndAudit(url) {
-            document.getElementById('url-input').value = url;
-            const form = document.getElementById('form-url');
-            if (form) {
-                if (form.requestSubmit) form.requestSubmit();
-                else form.dispatchEvent(new Event('submit', { cancelable: true }));
+        // Bookmarklet postMessage Listener
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'bookmarklet_result') {
+                const { payload, url, title } = event.data;
+                processAxeResultsDirectly(payload, url || 'Página Externa (Bookmarklet)', 'web', 'Nivel 4: Bookmarklet en Pestaña Activa');
             }
-        }
-
-        function showInlineAlert(url) {
-            const card = document.getElementById('url-error-card');
-            if (card) {
-                document.getElementById('blocked-url-name').textContent = url;
-                document.getElementById('btn-open-target').href = url;
-                card.style.display = 'block';
-            }
-        }
-
-        function hideInlineAlert() {
-            const card = document.getElementById('url-error-card');
-            if (card) card.style.display = 'none';
-        }
-
-        function switchToCodeTabWithHelp() {
-            const tabCode = document.getElementById('tab-code');
-            if (tabCode) tabCode.click();
+        });
+        if (window.opener) {
+            window.opener.postMessage('ready_for_data', '*');
         }
 
         // =========================================================================
-        // 1. AUDITORÍA WEB POR URL (axe-core + multi-proxy de alta resiliencia)
+        // NORMALIZACIÓN DE ENTRADA Y VALIDACIÓN SSRF
+        // =========================================================================
+        function normalizeAndValidateUrl(rawInput) {
+            if (!rawInput || typeof rawInput !== 'string') {
+                throw { code: 'INVALID_URL', title: 'URL Vacía', message: 'Por favor ingrese una dirección web válida.' };
+            }
+
+            let trimmed = rawInput.trim();
+
+            // Si no tiene esquema, prepender https://
+            if (!/^https?:\/\//i.test(trimmed)) {
+                trimmed = 'https://' + trimmed;
+            }
+
+            let parsed;
+            try {
+                parsed = new URL(trimmed);
+            } catch (err) {
+                throw {
+                    code: 'MALFORMED_URL',
+                    title: 'Formato de URL no válido',
+                    message: `La dirección '${rawInput}' no es una URL reconocible. Compruebe la sintaxis (ej: midominio.com).`
+                };
+            }
+
+            // Solo http y https
+            if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                throw {
+                    code: 'DISALLOWED_PROTOCOL',
+                    title: 'Protocolo no permitido',
+                    message: `Solo se admiten enlaces bajo protocolo HTTP o HTTPS (se detectó '${parsed.protocol}').`
+                };
+            }
+
+            // Validación SSRF en cliente
+            const host = parsed.hostname.toLowerCase();
+            const isPrivate = (
+                host === 'localhost' ||
+                host === '127.0.0.1' ||
+                host === '0.0.0.0' ||
+                host === '::1' ||
+                host.endsWith('.local') ||
+                host.endsWith('.internal') ||
+                host.startsWith('10.') ||
+                host.startsWith('192.168.') ||
+                host.startsWith('169.254.') || // Link-local / Cloud metadata
+                /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host)
+            );
+
+            if (isPrivate) {
+                throw {
+                    code: 'SSRF_BLOCKED',
+                    title: 'Dirección de Red Interna / Privada',
+                    message: `Por motivos de seguridad, no es posible auditar hosts locales o IPs privadas (${host}) a través del servicio en la nube.`,
+                    actionTip: 'Utilice la pestaña "📌 Bookmarklet de 1 Clic" directamente en la pestaña de su red local, o copie el HTML en "Código HTML Directo".'
+                };
+            }
+
+            // Detección de recursos no-HTML basados en extensión
+            const pathLower = parsed.pathname.toLowerCase();
+            if (pathLower.endsWith('.pdf')) {
+                return { url: parsed.href, isNonHtml: true, type: 'PDF (Documento Portátil)' };
+            }
+            if (pathLower.endsWith('.jpg') || pathLower.endsWith('.jpeg') || pathLower.endsWith('.png') || pathLower.endsWith('.gif') || pathLower.endsWith('.svg') || pathLower.endsWith('.webp')) {
+                return { url: parsed.href, isNonHtml: true, type: 'Imagen Gráfica' };
+            }
+            if (pathLower.endsWith('.json') || pathLower.endsWith('.xml') || pathLower.endsWith('.zip')) {
+                return { url: parsed.href, isNonHtml: true, type: 'Archivo Binario / Datos' };
+            }
+
+            return { url: parsed.href, isNonHtml: false };
+        }
+
+        // =========================================================================
+        // 1. AUDITORÍA WEB POR URL (CADENA DE RESPALDO MULTI-NIVEL)
         // =========================================================================
         async function handleAuditUrl(e) {
             e.preventDefault();
-            let url = document.getElementById('url-input').value.trim();
-            if (!url) return;
+            clearErrors();
+            dismissNonHtml();
 
-            if (!/^https?:\/\//i.test(url)) {
-                url = 'https://' + url;
-                document.getElementById('url-input').value = url;
+            const rawInput = document.getElementById('url-input').value;
+            let norm;
+
+            try {
+                norm = normalizeAndValidateUrl(rawInput);
+            } catch (err) {
+                renderActionableError(err);
+                return;
             }
 
-            hideInlineAlert();
-            setLoading(true, "Conectando con " + url + "...");
+            if (norm.isNonHtml) {
+                showNonHtmlAdvisory(norm.url, norm.type);
+                return;
+            }
+
+            const targetUrl = norm.url;
+            document.getElementById('url-input').value = targetUrl;
+
+            setLoading(true, `Conectando con ${targetUrl}...`);
+
+            // Pipeline de descarga
             let html = "";
+            let finalAnalyzedUrl = targetUrl;
+            let precisionLevel = "Nivel 2: Estructura DOM y ARIA (Multi-Proxy Anti-Bot)";
 
-            // Estrategia 1: Proxy Jina Reader (Soporte completo CORS + elusión Cloudflare)
+            // Estrategia 1: Proxy Jina Reader de Alta Disponibilidad (Evasión de Cloudflare, soporte CORS nativo)
             try {
-                setLoading(true, "Descargando estructura accesible vía proxy de alta disponibilidad...");
+                setLoading(true, "Descargando estructura del sitio web...");
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000);
+                const timeoutId = setTimeout(() => controller.abort(), 14000);
 
-                const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
+                const jinaRes = await fetch(`https://r.jina.ai/${targetUrl}`, {
                     headers: { 'X-Return-Format': 'html' },
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
 
                 if (jinaRes.ok) {
+                    const contentType = jinaRes.headers.get('content-type') || '';
+                    if (contentType.includes('application/pdf')) {
+                        setLoading(false, "");
+                        showNonHtmlAdvisory(targetUrl, 'PDF');
+                        return;
+                    }
+
                     const text = await jinaRes.text();
                     if (text && text.includes('<') && (text.includes('<html') || text.includes('<!DOCTYPE') || text.includes('<body') || text.includes('<head') || text.includes('<div') || text.includes('<main'))) {
                         const firstTag = text.search(/<(html|!doctype|head|body|div|main)/i);
                         html = firstTag >= 0 ? text.substring(firstTag) : text;
                     }
+                } else if (jinaRes.status === 403 || jinaRes.status === 401) {
+                    throw { code: 'WAF_BLOCKED', status: jinaRes.status };
+                } else if (jinaRes.status === 404) {
+                    throw { code: 'HTTP_404', status: 404 };
+                } else if (jinaRes.status === 429) {
+                    throw { code: 'HTTP_429', status: 429 };
                 }
             } catch (err) {
-                console.warn("Estrategia 1 (Jina) aviso:", err);
+                console.warn("Estrategia 1 aviso:", err);
+                if (err.code) {
+                    handleSpecificNetworkError(err, targetUrl);
+                    return;
+                }
             }
 
-            // Estrategia 2: Proxy CodeTabs
+            // Estrategia 2: Respaldo CodeTabs
             if (!html) {
                 try {
                     setLoading(true, "Consultando servidor de respaldo CodeTabs...");
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 7000);
-                    const ctRes = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`, {
+                    const ctRes = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`, {
                         signal: controller.signal
                     });
                     clearTimeout(timeoutId);
@@ -879,27 +1157,25 @@
                         const text = await ctRes.text();
                         if (text && text.length > 200) html = text;
                     }
-                } catch (err) {
-                    console.warn("Estrategia 2 (CodeTabs) aviso:", err);
-                }
+                } catch (_) {}
             }
 
-            // Estrategia 3: Conexión directa (si el sitio permite CORS)
+            // Estrategia 3: Conexión Directa (si CORS está habilitado)
             if (!html) {
                 try {
                     setLoading(true, "Intentando conexión directa...");
-                    const directRes = await fetch(url, { mode: 'cors' });
+                    const directRes = await fetch(targetUrl, { mode: 'cors' });
                     if (directRes.ok) html = await directRes.text();
                 } catch (_) {}
             }
 
-            // Estrategia 4: Proxy AllOrigins
+            // Estrategia 4: Respaldo AllOrigins
             if (!html) {
                 try {
                     setLoading(true, "Consultando servidor de respaldo AllOrigins...");
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 7000);
-                    const aoRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, {
+                    const aoRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`, {
                         signal: controller.signal
                     });
                     clearTimeout(timeoutId);
@@ -912,12 +1188,113 @@
 
             if (!html) {
                 setLoading(false, "");
-                showInlineAlert(url);
+                renderActionableError({
+                    code: 'AUTH_OR_WAF_BLOCKED',
+                    title: 'Restricción de Acceso o Cortafuegos Anti-Bot (WAF)',
+                    message: `El servidor de '${targetUrl}' bloquea peticiones automáticas de navegadores externos o requiere autenticación previa.`,
+                    actionTip: 'Puede auditar esta página sin restricciones mediante el Bookmarklet de 1 Clic o pegando el HTML.'
+                });
                 return;
             }
 
-            setLoading(true, "Ejecutando motor formal axe-core según WCAG 2.2...");
-            await runAuditOnHtml(html, url, "web");
+            setLoading(true, "Ejecutando motor formal determinista axe-core según WCAG 2.2...");
+            await runAuditOnHtml(html, finalAnalyzedUrl, "web", precisionLevel);
+        }
+
+        // =========================================================================
+        // MANEJO DE ERRORES CLASIFICADOS Y ACCIONABLES
+        // =========================================================================
+        function handleSpecificNetworkError(err, targetUrl) {
+            setLoading(false, "");
+            let errorObj = {
+                code: err.code || 'UNKNOWN',
+                title: 'Error de Lectura de URL',
+                message: `No se pudo obtener el contenido de '${targetUrl}'.`
+            };
+
+            if (err.code === 'WAF_BLOCKED' || err.status === 403 || err.status === 401) {
+                errorObj = {
+                    code: 'WAF_BLOCKED',
+                    title: '403/401: Bloqueo de Cortafuegos Anti-Bot o Requiere Acceso',
+                    message: `El sitio web '${targetUrl}' cuenta con un sistema de protección (Cloudflare / WAF / Akamai) o requiere iniciar sesión.`,
+                    actionTip: 'Use el "📌 Bookmarklet de 1 Clic" en la pestaña donde ya está abierta la página, o pegue el código en "Código HTML Directo".'
+                };
+            } else if (err.code === 'HTTP_404') {
+                errorObj = {
+                    code: 'HTTP_404',
+                    title: '404: Página No Encontrada',
+                    message: `La dirección especificada '${targetUrl}' devolvió un error 404 (No encontrada). Compruebe que la ruta sea exacta.`,
+                    actionTip: 'Verifique si la URL tiene errores tipográficos o pruebe ingresando al dominio raíz.'
+                };
+            } else if (err.code === 'HTTP_429') {
+                errorObj = {
+                    code: 'HTTP_429',
+                    title: '429: Límite de Peticiones Alcanzado',
+                    message: `El servidor destino ha limitado temporalmente las peticiones concurrentes para evitar saturación.`,
+                    actionTip: 'Espere unos segundos y reintente, o utilice el Bookmarklet.'
+                };
+            }
+
+            renderActionableError(errorObj);
+        }
+
+        function renderActionableError(err) {
+            setLoading(false, "");
+            const card = document.getElementById('actionable-error');
+            const titleEl = document.getElementById('error-title');
+            const descEl = document.getElementById('error-description');
+            const actionsEl = document.getElementById('error-actions');
+
+            titleEl.textContent = err.title || 'Error en la Auditoría';
+            descEl.innerHTML = `
+                <p style="margin-bottom: 0.5rem;">${err.message || 'Se produjo una anomalía durante la comunicación con el sitio.'}</p>
+                ${err.actionTip ? `<p style="color: #fef08a; font-size: 0.88rem;"><strong>💡 Acción Recomendada:</strong> ${err.actionTip}</p>` : ''}
+            `;
+
+            actionsEl.innerHTML = `
+                <button type="button" class="btn-primary" onclick="handleAuditUrl(event)" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                    🔄 Reintentar
+                </button>
+                <button type="button" class="btn-secondary" onclick="switchToCodeTab()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                    📝 Usar 'Código HTML Directo'
+                </button>
+                <button type="button" class="btn-secondary" onclick="switchToBookmarkletTab()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                    📌 Ver Bookmarklet de 1 Clic
+                </button>
+            `;
+
+            card.style.display = 'block';
+            card.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearErrors() {
+            const card = document.getElementById('actionable-error');
+            if (card) card.style.display = 'none';
+        }
+
+        function showNonHtmlAdvisory(url, typeName) {
+            setLoading(false, "");
+            const card = document.getElementById('non-html-card');
+            document.getElementById('non-html-title').textContent = `Recurso No-HTML Detectado (${typeName})`;
+            document.getElementById('non-html-desc').innerHTML = `
+                La dirección ingresada apunta a un recurso digital de tipo <strong>${typeName}</strong>.<br>
+                Los estándares W3C WCAG aplican a documentos web (HTML/SVG). Para documentos PDF, la normativa internacional exige auditar bajo el estándar <strong>PDF/UA (ISO 14289-1)</strong> mediante software especializado como <em>PAC (PDF Accessibility Checker)</em> o <em>Adobe Acrobat Pro Accessibility Wizard</em>.
+            `;
+            document.getElementById('non-html-link').href = url;
+            card.style.display = 'block';
+        }
+
+        function dismissNonHtml() {
+            const card = document.getElementById('non-html-card');
+            if (card) card.style.display = 'none';
+        }
+
+        function switchToCodeTab() {
+            document.getElementById('tab-code').click();
+        }
+
+        function switchToBookmarkletTab() {
+            document.getElementById('tab-bookmarklet').click();
         }
 
         // =========================================================================
@@ -925,11 +1302,14 @@
         // =========================================================================
         async function handleAuditHtml(e) {
             e.preventDefault();
+            clearErrors();
+            dismissNonHtml();
+
             const html = document.getElementById('code-input').value.trim();
             if (!html) return;
 
             setLoading(true, "Analizando código HTML en el navegador con axe-core...");
-            await runAuditOnHtml(html, "Código HTML Directo", "web");
+            await runAuditOnHtml(html, "Código HTML Directo", "web", "Nivel 3: Código HTML Directo (100% Determinista)");
         }
 
         function handleHtmlFileUpload(e) {
@@ -946,165 +1326,35 @@
             document.getElementById('code-input').value = `<!DOCTYPE html>
 <html lang="es">
 <head>
-    <title>Página de Ejemplo con Barreras de Accesibilidad</title>
+    <title>Página de Demostración con Barreras de Accesibilidad</title>
 </head>
 <body>
     <header>
-        <!-- Problema: Imagen sin alt (WCAG 1.1.1) -->
-        <img src="logo.png" id="main-logo">
+        <!-- Problema: Imagen sin atributo alt (WCAG 1.1.1) -->
+        <img src="banner.png">
         <h1>Tienda Accesible de Ejemplo</h1>
     </header>
 
     <main>
-        <!-- Advertencia: Enlace ambiguo (WCAG 2.4.4) -->
+        <!-- Advertencia: Enlace ambiguo fuera de contexto (WCAG 2.4.4) -->
         <p>Conozca nuestras ofertas exclusivas del mes. <a href="/ofertas" class="btn">haz clic aquí</a></p>
 
-        <!-- Problema: Campo sin label (WCAG 3.3.2) -->
+        <!-- Problema: Campo sin label ni aria-label (WCAG 3.3.2) -->
         <form>
             <input type="text" id="username" placeholder="Nombre de usuario">
-            <!-- Problema: Botón pequeño < 24dp (WCAG 2.5.8) -->
+            <!-- Problema: Botón táctil menor a 24x24px (WCAG 2.5.8) -->
             <button type="submit" style="width: 20px; height: 20px;">OK</button>
         </form>
 
-        <!-- Problema: Salto erróneo de encabezado h1 a h4 -->
-        <h4>Sección sin jerarquía adecuada</h4>
+        <!-- Salto erróneo de jerarquía de encabezados -->
+        <h4>Sección sin nivel jerárquico lógico</h4>
     </main>
 </body>
 </html>`;
         }
 
         // =========================================================================
-        // EJECUCIÓN AXE-CORE CLIENT-SIDE + HEURÍSTICAS SEMÁNTICAS
-        // =========================================================================
-        async function runAuditOnHtml(htmlContent, resourceName, targetType) {
-            // Strip scripts to prevent third-party analytics/trackers from running or interfering
-            let safeHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-
-            // Inject <base> tag for resolving relative links/assets
-            if (resourceName && resourceName.startsWith('http')) {
-                if (!safeHtml.includes('<base ') && !safeHtml.includes('<base>')) {
-                    safeHtml = safeHtml.replace(/<head[^>]*>/i, `$&<base href="${resourceName}">`);
-                }
-            }
-
-            // Load HTML into isolated iframe
-            const iframe = document.getElementById('audit-sandbox');
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDoc.open();
-            iframeDoc.write(safeHtml);
-            iframeDoc.close();
-
-            await new Promise(r => setTimeout(r, 250));
-
-            // Execute axe-core inside the iframe
-            let axeResults = { violations: [] };
-            try {
-                if (window.axe) {
-                    axeResults = await window.axe.run(iframeDoc, {
-                        runOnly: {
-                            type: 'tag',
-                            values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
-                        }
-                    });
-                }
-            } catch (err) {
-                console.warn("Axe run warning:", err);
-            }
-
-            // Custom semantic heuristics (TAW style)
-            const rawFindings = [];
-            let counter = 1;
-
-            // 1. Process axe findings
-            axeResults.violations.forEach(v => {
-                const critId = mapAxeToCriterion(v.tags);
-                const critMeta = WCAG_CATALOG[critId] || { principle: "Perceptible", title: v.help, level: "A", technique: "G1" };
-
-                v.nodes.forEach(node => {
-                    const snippet = node.html || "";
-                    const targetSel = node.target ? node.target.join(' ') : 'elemento';
-
-                    rawFindings.push({
-                        id: `P-${counter++}`,
-                        principle: critMeta.principle,
-                        criterion_id: critId,
-                        criterion_title: critMeta.title,
-                        level: critMeta.level,
-                        category: "Problema",
-                        check_name: v.help,
-                        technique: critMeta.technique,
-                        selector: targetSel,
-                        snippet: snippet,
-                        explanation: v.description,
-                        remediation: generateWebRemediation(snippet, critId),
-                        impact: v.impact === 'critical' ? 'crítico' : (v.impact === 'serious' ? 'alto' : 'medio')
-                    });
-                });
-            });
-
-            // 2. Extra TAW heuristics on DOM
-            // Img with generic alt
-            const imgs = iframeDoc.querySelectorAll('img');
-            imgs.forEach(img => {
-                const alt = (img.getAttribute('alt') || '').toLowerCase().trim();
-                const src = img.getAttribute('src') || '';
-                if (alt === 'imagen' || alt === 'foto' || alt === 'logo' || alt.endsWith('.jpg') || alt.endsWith('.png')) {
-                    rawFindings.push({
-                        id: `A-${counter++}`,
-                        principle: "Perceptible",
-                        criterion_id: "1.1.1",
-                        criterion_title: "Contenido no textual",
-                        level: "A",
-                        category: "Advertencia",
-                        check_name: "Texto alternativo genérico o sospechoso",
-                        technique: "H37",
-                        selector: `img[src="${src}"]`,
-                        snippet: img.outerHTML,
-                        explanation: `El texto alt "${alt}" no describe el propósito funcional de la imagen.`,
-                        remediation: {
-                            before: img.outerHTML,
-                            after: img.outerHTML.replace(/alt=".*?"/, 'alt="Descripción clara y representativa del contenido"'),
-                            advice: "Sustituya la palabra genérica por una frase concisa que comunique el mensaje de la imagen."
-                        },
-                        impact: "alto"
-                    });
-                }
-            });
-
-            // Ambiguous links
-            const links = iframeDoc.querySelectorAll('a');
-            links.forEach(a => {
-                const txt = a.textContent.toLowerCase().trim();
-                if (txt === 'clic aquí' || txt === 'haz clic aquí' || txt === 'leer más' || txt === 'más info') {
-                    rawFindings.push({
-                        id: `A-${counter++}`,
-                        principle: "Operable",
-                        criterion_id: "2.4.4",
-                        criterion_title: "Propósito de cada enlace",
-                        level: "A",
-                        category: "Advertencia",
-                        check_name: "Enlace con texto ambiguo fuera de contexto",
-                        technique: "H30",
-                        selector: `a[href="${a.getAttribute('href')}"]`,
-                        snippet: a.outerHTML,
-                        explanation: `El enlace "${txt}" no comunica su destino si el usuario navega fuera de contexto con lector de pantalla.`,
-                        remediation: {
-                            before: a.outerHTML,
-                            after: a.outerHTML.replace(`>${a.textContent}<`, `>Consulte nuestro catálogo de ofertas<`),
-                            advice: "Incorpore el propósito del enlace en el propio texto o añada aria-label descriptivo."
-                        },
-                        impact: "medio"
-                    });
-                }
-            });
-
-            // Build consolidated TAW report
-            buildAndDisplayReport(rawFindings, resourceName, targetType);
-            setLoading(false, "");
-        }
-
-        // =========================================================================
-        // 3. AUDITORÍA DE APLICACIONES ANDROID (.APK) EN EL NAVEGADOR (JSZip)
+        // 3. AUDITORÍA DE APLICACIONES ANDROID (.APK)
         // =========================================================================
         function handleApkSelected(e) {
             const file = e.target.files[0];
@@ -1114,7 +1364,6 @@
             document.getElementById('btn-run-apk').disabled = false;
         }
 
-        // Drag & Drop handlers
         const dropZone = document.getElementById('apk-drop-zone');
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
         dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -1137,19 +1386,16 @@
                 const findings = [];
                 let counter = 1;
 
-                // Search layout xml files
                 const layoutFiles = Object.keys(zip.files).filter(name => name.startsWith("res/layout") && name.endsWith(".xml"));
 
                 for (const path of layoutFiles) {
                     try {
                         const content = await zip.files[path].async("string");
-                        // Inspect XML layouts for accessibility flaws
                         inspectXmlLayout(content, path, findings, counter);
                     } catch (_) {}
                 }
 
                 if (findings.length === 0) {
-                    // Inject sample verified checks if APK was obfuscated or compliant
                     findings.push({
                         id: `APK-111-001`,
                         principle: "Perceptible",
@@ -1171,7 +1417,7 @@
                     });
                 }
 
-                buildAndDisplayReport(findings, selectedApkFile.name, "apk");
+                buildAndDisplayReport(findings, selectedApkFile.name, "apk", "Nivel 3: Descompresión Estática de APK");
                 setLoading(false, "");
 
             } catch (err) {
@@ -1241,11 +1487,10 @@
                 }
             ];
 
-            buildAndDisplayReport(findings, "MiAppComercio.apk (Simulación)", "apk");
+            buildAndDisplayReport(findings, "MiAppComercio.apk (Simulación)", "apk", "Nivel 3: Simulación de Layouts Android");
         }
 
         function inspectXmlLayout(xmlText, filePath, findings, counter) {
-            // Check missing contentDescription in ImageButton / ImageView
             const imgBtnMatches = xmlText.match(/<ImageButton[\s\S]*?>/gi) || [];
             imgBtnMatches.forEach(tag => {
                 if (!tag.includes("contentDescription") && !tag.includes('importantForAccessibility="no"')) {
@@ -1271,7 +1516,6 @@
                 }
             });
 
-            // Check EditText missing hint
             const editMatches = xmlText.match(/<EditText[\s\S]*?>/gi) || [];
             editMatches.forEach(tag => {
                 if (!tag.includes("hint") && !tag.includes("labelFor")) {
@@ -1299,20 +1543,226 @@
         }
 
         // =========================================================================
-        // 4. GENERACIÓN DE REPORTE Y RENDERIZADO TAW
+        // EJECUCIÓN AXE-CORE CLIENT-SIDE + HEURÍSTICAS TAW
         // =========================================================================
-        function buildAndDisplayReport(findings, targetName, targetType) {
-            // Deduplicate
+        function getCumulativeAxeTags(guidelinesVer, level) {
+            const tags = ['wcag2a'];
+            if (level === 'aa' || level === 'aaa') tags.push('wcag2aa');
+            if (level === 'aaa') tags.push('wcag2aaa');
+
+            if (guidelinesVer === 'wcag21' || guidelinesVer === 'wcag22') {
+                tags.push('wcag21a');
+                if (level === 'aa' || level === 'aaa') tags.push('wcag21aa');
+                if (level === 'aaa') tags.push('wcag21aaa');
+            }
+
+            if (guidelinesVer === 'wcag22') {
+                if (level === 'aa' || level === 'aaa') tags.push('wcag22aa');
+            }
+
+            return Array.from(new Set(tags));
+        }
+
+        async function runAuditOnHtml(htmlContent, resourceName, targetType, precisionTitle) {
+            const safeHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+            let htmlWithBase = safeHtml;
+            if (resourceName && resourceName.startsWith('http')) {
+                if (!htmlWithBase.includes('<base ') && !htmlWithBase.includes('<base>')) {
+                    htmlWithBase = htmlWithBase.replace(/<head[^>]*>/i, `$&<base href="${resourceName}">`);
+                }
+            }
+
+            const iframe = document.getElementById('audit-sandbox');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(htmlWithBase);
+            iframeDoc.close();
+
+            await new Promise(r => setTimeout(r, 250));
+
+            const guidelinesVer = document.getElementById('guidelines-url')?.value || 'wcag22';
+            const targetLevel = document.getElementById('level-url')?.value || 'aa';
+            const runTags = getCumulativeAxeTags(guidelinesVer, targetLevel);
+
+            let axeResults = { violations: [] };
+            try {
+                if (window.axe) {
+                    axeResults = await window.axe.run(iframeDoc, {
+                        runOnly: {
+                            type: 'tag',
+                            values: runTags
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn("Axe run warning:", err);
+            }
+
+            processAxeResultsDirectly(axeResults, resourceName, targetType, precisionTitle);
+        }
+
+        function processAxeResultsDirectly(axeResults, resourceName, targetType, precisionTitle) {
+            const rawFindings = [];
+            let counter = 1;
+
+            const guidelinesVer = document.getElementById('guidelines-url')?.value || 'wcag22';
+
+            (axeResults.violations || []).forEach(v => {
+                // En WCAG 2.2, el criterio 4.1.1 (Parsing) está explícitamente obsoleto
+                if (guidelinesVer === 'wcag22' && (v.id === 'parsing' || v.tags?.includes('wcag411'))) {
+                    return;
+                }
+
+                const critId = mapAxeToCriterion(v.tags);
+                const critMeta = WCAG_CATALOG[critId] || { principle: "Perceptible", title: v.help, level: "A", technique: "G1", slug: "non-text-content" };
+
+                v.nodes.forEach(node => {
+                    const snippet = node.html || "";
+                    const targetSel = node.target ? node.target.join(' ') : 'elemento';
+
+                    rawFindings.push({
+                        id: `P-${counter++}`,
+                        principle: critMeta.principle,
+                        criterion_id: critId,
+                        criterion_title: critMeta.title,
+                        level: critMeta.level,
+                        category: "Problema",
+                        check_name: v.help,
+                        technique: critMeta.technique,
+                        slug: critMeta.slug,
+                        selector: targetSel,
+                        snippet: snippet,
+                        explanation: v.description,
+                        remediation: generateWebRemediation(snippet, critId),
+                        impact: v.impact === 'critical' ? 'crítico' : (v.impact === 'serious' ? 'alto' : 'medio')
+                    });
+                });
+            });
+
+            // Comprobaciones heurísticas semánticas complementarias (TAW)
+            const iframe = document.getElementById('audit-sandbox');
+            const iframeDoc = iframe?.contentDocument || document;
+
+            const imgs = iframeDoc.querySelectorAll('img');
+            imgs.forEach(img => {
+                const alt = (img.getAttribute('alt') || '').toLowerCase().trim();
+                const src = img.getAttribute('src') || '';
+                if (alt === 'imagen' || alt === 'foto' || alt === 'logo' || alt.endsWith('.jpg') || alt.endsWith('.png')) {
+                    rawFindings.push({
+                        id: `A-${counter++}`,
+                        principle: "Perceptible",
+                        criterion_id: "1.1.1",
+                        criterion_title: "Contenido no textual",
+                        level: "A",
+                        category: "Advertencia",
+                        check_name: "Texto alternativo genérico o sospechoso",
+                        technique: "H37",
+                        slug: "non-text-content",
+                        selector: `img[src="${src}"]`,
+                        snippet: img.outerHTML,
+                        explanation: `El texto alternativo "${alt}" no describe el propósito funcional de la imagen.`,
+                        remediation: {
+                            before: img.outerHTML,
+                            after: img.outerHTML.replace(/alt=".*?"/, 'alt="Descripción clara y representativa del contenido"'),
+                            advice: "Sustituya la palabra genérica por una frase concisa que comunique el mensaje de la imagen."
+                        },
+                        impact: "alto"
+                    });
+                }
+            });
+
+            const links = iframeDoc.querySelectorAll('a');
+            links.forEach(a => {
+                const txt = a.textContent.toLowerCase().trim();
+                if (txt === 'clic aquí' || txt === 'haz clic aquí' || txt === 'leer más' || txt === 'más info') {
+                    rawFindings.push({
+                        id: `A-${counter++}`,
+                        principle: "Operable",
+                        criterion_id: "2.4.4",
+                        criterion_title: "Propósito de cada enlace",
+                        level: "A",
+                        category: "Advertencia",
+                        check_name: "Enlace con texto ambiguo fuera de contexto",
+                        technique: "H30",
+                        slug: "link-purpose-in-context",
+                        selector: `a[href="${a.getAttribute('href')}"]`,
+                        snippet: a.outerHTML,
+                        explanation: `El enlace "${txt}" no comunica su destino si el usuario navega fuera de contexto con lector de pantalla.`,
+                        remediation: {
+                            before: a.outerHTML,
+                            after: a.outerHTML.replace(`>${a.textContent}<`, `>Consulte nuestro catálogo de ofertas<`),
+                            advice: "Incorpore el propósito del enlace en el propio texto o añada aria-label descriptivo."
+                        },
+                        impact: "medio"
+                    });
+                }
+            });
+
+            // Criterios W3C "No Verificados" (requieren verificación humana obligatoria; nunca se marcan como aprobados)
+            rawFindings.push({
+                id: `NV-${counter++}`,
+                principle: "Perceptible",
+                criterion_id: "1.2.2",
+                criterion_title: "Subtítulos (pregrabados)",
+                level: "A",
+                category: "No verificado",
+                check_name: "Verificación humana de subtítulos en medios audiovisuales",
+                technique: "G87",
+                slug: "captions-prerecorded",
+                selector: "Contenido multimedia / Video",
+                snippet: "Verificación de pistas de subtítulos sincronizados",
+                explanation: "Las herramientas automáticas no pueden validar la exactitud fonética y sincronización de los subtítulos de vídeo.",
+                remediation: {
+                    before: "Video sin validar",
+                    after: "<track kind='captions' src='subtitulos_es.vtt' srclang='es' label='Español' default>",
+                    advice: "Revise manualmente los videos del sitio y asegure subtítulos sincronizados con el audio hablado."
+                },
+                impact: "medio"
+            });
+
+            rawFindings.push({
+                id: `NV-${counter++}`,
+                principle: "Comprensible",
+                criterion_id: "3.1.2",
+                criterion_title: "Idioma de las partes",
+                level: "AA",
+                category: "No verificado",
+                check_name: "Verificación de cambios de idioma en párrafos o citas",
+                technique: "H58",
+                slug: "language-of-parts",
+                selector: "Citas textuales / Frases en idioma extranjero",
+                snippet: "Texto en idioma diferente al principal",
+                explanation: "Compruebe si existen frases o citas en otro idioma que requieran el atributo xml:lang o lang específico.",
+                remediation: {
+                    before: "<p>The quick brown fox jumps over the lazy dog</p>",
+                    after: "<p lang='en'>The quick brown fox jumps over the lazy dog</p>",
+                    advice: "Indique el atributo lang='en' en las secciones que cambien de idioma para el sintetizador de voz."
+                },
+                impact: "medio"
+            });
+
+            buildAndDisplayReport(rawFindings, resourceName, targetType, precisionTitle);
+            setLoading(false, "");
+        }
+
+        // =========================================================================
+        // 4. GENERACIÓN DE REPORTE TAW Y METADATOS
+        // =========================================================================
+        function buildAndDisplayReport(findings, targetName, targetType, precisionTitle) {
             const totalProblems = findings.filter(f => f.category === 'Problema').length;
             const totalWarnings = findings.filter(f => f.category === 'Advertencia').length;
             const totalUnverified = findings.filter(f => f.category === 'No verificado').length;
 
-            // Score calculation
             let penalty = 0;
             findings.forEach(f => {
-                if (f.impact === 'crítico') penalty += 12;
-                else if (f.impact === 'alto') penalty += 8;
-                else penalty += 4;
+                if (f.category === 'Problema') {
+                    if (f.impact === 'crítico') penalty += 14;
+                    else if (f.impact === 'alto') penalty += 9;
+                    else penalty += 5;
+                } else if (f.category === 'Advertencia') {
+                    penalty += 2;
+                }
             });
             const score = Math.max(0, Math.min(100, 100 - penalty));
 
@@ -1325,10 +1775,10 @@
                 totalWarnings,
                 totalUnverified,
                 findings,
+                precisionTitle: precisionTitle || "Nivel 2: Estructura DOM y ARIA",
                 timestamp: new Date().toISOString()
             };
 
-            // Display Score & KPIs
             const scoreEl = document.getElementById('score-circle');
             scoreEl.textContent = score;
             const scoreColor = score >= 80 ? 'var(--success)' : (score >= 50 ? 'var(--warning)' : 'var(--danger)');
@@ -1339,15 +1789,24 @@
             document.getElementById('kpi-warnings').textContent = totalWarnings;
             document.getElementById('kpi-unverified').textContent = totalUnverified;
 
-            // Executive summary text
-            const execSummary = `1. Diagnóstico: El recurso '${targetName}' (${targetType.toUpperCase()}) obtuvo un puntaje TAW de ${score}/100.
-2. Barreras Críticas: Se detectaron ${totalProblems} problemas automáticos que bloquean a personas con lectores de pantalla.
-3. Observaciones Preventivas: Se registraron ${totalWarnings} advertencias que requieren verificación semántica.
-4. Estado de Conformidad: ${score >= 80 ? 'Nivel de accesibilidad sobresaliente.' : 'Requiere remediación antes de certificar cumplimiento WCAG.'}
-5. Plan de Acción: Aplique las propuestas de código corregido (Antes / Después) detalladas a continuación.`;
+            // Metadatos
+            document.getElementById('meta-url').textContent = targetName;
+            document.getElementById('meta-date').textContent = new Date().toLocaleString('es-ES');
+            document.getElementById('precision-text').textContent = currentReport.precisionTitle;
+
+            const guidelinesVer = document.getElementById('guidelines-url')?.value.toUpperCase() || 'WCAG 2.2';
+            const levelVal = document.getElementById('level-url')?.value.toUpperCase() || 'AA';
+            document.getElementById('meta-guidelines').textContent = `${guidelinesVer} Nivel ${levelVal}`;
+
+            // Resumen ejecutivo
+            const execSummary = `1. Diagnóstico: '${targetName}' obtuvo un puntaje TAW de ${score}/100.
+2. Fallos Críticos (Problemas): Se encontraron ${totalProblems} barreras automáticas que impiden la navegación con tecnologías asistivas.
+3. Observaciones (Advertencias): Se registraron ${totalWarnings} elementos que requieren inspección visual o semántica.
+4. Criterios Humanos (No verificados): ${totalUnverified} comprobaciones que no pueden ser resueltas por software automático.
+5. Plan de Remediación: Implemente las correcciones detalladas por principio W3C a continuación.`;
             document.getElementById('exec-summary-text').textContent = execSummary;
 
-            // Group by 4 Principles
+            // Agrupación por los 4 Principios
             const principlesMap = {
                 "Perceptible": [],
                 "Operable": [],
@@ -1370,15 +1829,19 @@
 
                 let listHtml = '';
                 if (pFindings.length === 0) {
-                    listHtml = '<div style="color: var(--success); padding: 0.5rem 0;">&#10003; No se detectaron fallos en este principio.</div>';
+                    listHtml = '<div style="color: var(--success); padding: 0.5rem 0;">&#10003; No se detectaron fallos automáticos en este principio.</div>';
                 } else {
-                    listHtml = pFindings.map(f => `
+                    listHtml = pFindings.map(f => {
+                        const understandingUrl = `https://www.w3.org/WAI/WCAG22/Understanding/${f.slug || 'non-text-content'}.html`;
+                        return `
                         <div class="finding-card">
                             <div class="finding-top">
-                                <span class="badge-cat ${f.category.toLowerCase()}">${f.category}</span>
+                                <span class="badge-cat ${f.category.toLowerCase().replace(' ', '-')}">${f.category}</span>
                                 <span class="badge-level">Criterio ${f.criterion_id} (${f.level})</span>
                                 <strong style="color: #ffffff;">${f.check_name}</strong>
-                                <span style="margin-left: auto; font-size: 0.8rem; color: var(--text-muted);">${f.technique ? 'Técnica ' + f.technique : ''}</span>
+                                <a href="${understandingUrl}" target="_blank" rel="noopener" class="w3c-link" title="Consultar guía Understanding de W3C">
+                                    <span>Guía W3C</span> ↗
+                                </a>
                             </div>
                             <div style="font-size: 0.9rem; margin-bottom: 0.5rem; color: #cbd5e1;">${f.explanation}</div>
                             <div style="font-size: 0.8rem; color: var(--text-muted);">Ubicación: <code>${escapeHtml(f.selector)}</code></div>
@@ -1393,7 +1856,7 @@
                                 </div>
                             ` : ''}
                         </div>
-                    `).join('');
+                    `}).join('');
                 }
 
                 card.innerHTML = `
@@ -1406,13 +1869,12 @@
                 principlesView.appendChild(card);
             }
 
-            // Reveal results
             document.getElementById('results-container').style.display = 'block';
             document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
         }
 
         // =========================================================================
-        // 5. CHAT ASISTENTE DE ACCESIBILIDAD
+        // 5. CHAT ASISTENTE
         // =========================================================================
         function handleChatSubmit(e) {
             e.preventDefault();
@@ -1422,14 +1884,12 @@
 
             const chatBox = document.getElementById('chat-box');
 
-            // Append user msg
             const userEl = document.createElement('div');
             userEl.className = 'chat-msg user';
             userEl.textContent = msg;
             chatBox.appendChild(userEl);
             input.value = '';
 
-            // Assistant reply
             const botEl = document.createElement('div');
             botEl.className = 'chat-msg assistant';
             botEl.textContent = generateAssistantReply(msg);
@@ -1440,20 +1900,20 @@
         function generateAssistantReply(query) {
             const q = query.toLowerCase();
             if (q.includes('alt') || q.includes('imagen') || q.includes('1.1.1')) {
-                return "Para el Criterio 1.1.1 (Contenido no textual): Si la imagen aporta información, use 'alt' descriptivo (ej: alt='Gráfica de ventas anuales'). Si es decorativa, use alt='' en web o android:importantForAccessibility='no' en Android.";
+                return "Para el Criterio 1.1.1 (Contenido no textual): Si la imagen es informativa, proporcione un texto alternativo conciso que describa su función o significado. Si es puramente decorativa, use alt='' en Web o android:importantForAccessibility='no' en Android.";
             } else if (q.includes('botón') || q.includes('tactil') || q.includes('48dp') || q.includes('2.5.8') || q.includes('2.5.5')) {
-                return "Para los Criterios 2.5.5 y 2.5.8 (Tamaño del objetivo): Los controles interactivos deben tener al menos 48x48dp en Android o 44x44px en Web para que personas con temblores o dedos grandes puedan pulsarlos sin error.";
+                return "Para los Criterios 2.5.5 (AAA) y 2.5.8 (AA): Los controles táctiles deben tener al menos 48x48dp en Android o 24x24px (idealmente 44x44px) en Web para evitar toques accidentales por personas con dificultades motrices.";
             } else if (q.includes('enlace') || q.includes('clic') || q.includes('2.4.4')) {
-                return "Para el Criterio 2.4.4: Evite frases como 'haz clic aquí' o 'leer más'. Describa el destino real, por ejemplo: 'Descargar reporte financiero en PDF'.";
+                return "Para el Criterio 2.4.4: Evite expresiones genéricas como 'haz clic aquí' o 'más información'. Describa el destino exacto (ejemplo: 'Descargar informe anual en PDF').";
             } else if (q.includes('hint') || q.includes('label') || q.includes('3.3.2')) {
-                return "Para el Criterio 3.3.2: En Web asocie siempre un <label for='id'> con su <input id='id'>. En Android configure 'android:hint' o vincule con 'android:labelFor' para que TalkBack informe el dato a rellenar.";
+                return "Para el Criterio 3.3.2: Asocie siempre etiquetas explícitas <label for='...'> con el id del campo correspondiente o use android:hint en aplicaciones móviles.";
             } else {
-                return "He revisado el hallazgo. En accesibilidad la regla de oro es proveer nombre accesible a todo control, contraste mínimo de 4.5:1 y permitir navegación 100% por teclado o lector de pantalla.";
+                return "He revisado el hallazgo. En accesibilidad universal las claves son: suministrar nombres accesibles a todos los controles, garantizar navegación 100% por teclado y mantener un ratio de contraste de al menos 4.5:1.";
             }
         }
 
         // =========================================================================
-        // 6. EXPORTACIONES (HTML, JSON, LINK)
+        // 6. EXPORTACIONES
         // =========================================================================
         function downloadReportHtml() {
             if (!currentReport) return;
@@ -1475,7 +1935,7 @@
 
         function copyCurrentUrlLink() {
             navigator.clipboard.writeText(window.location.href);
-            alert("¡Enlace de la aplicación copiado al portapapeles!");
+            alert("¡Enlace permanente de la plataforma copiado al portapapeles!");
         }
 
         function setLoading(isLoading, message) {
@@ -1496,8 +1956,11 @@
             if (tags.includes("wcag131")) return "1.3.1";
             if (tags.includes("wcag143")) return "1.4.3";
             if (tags.includes("wcag211")) return "2.1.1";
+            if (tags.includes("wcag241")) return "2.4.1";
+            if (tags.includes("wcag242")) return "2.4.2";
             if (tags.includes("wcag244")) return "2.4.4";
             if (tags.includes("wcag247")) return "2.4.7";
+            if (tags.includes("wcag258")) return "2.5.8";
             if (tags.includes("wcag311")) return "3.1.1";
             if (tags.includes("wcag332")) return "3.3.2";
             if (tags.includes("wcag412")) return "4.1.2";

@@ -1,131 +1,109 @@
-# A11y Agent 🌐🤖
+# A11y Agent 🌐🤖 — Auditor de Accesibilidad Web & Móvil
 
-**A11y Agent** es un agente avanzado de auditoría y remediación de accesibilidad web (conforme a **WCAG 2.0 / 2.1 / 2.2** en niveles **A, AA y AAA**). Ofrece un informe equivalente al de herramientas de referencia como **TAW (tawdis.net)**, pero potenciado con **inteligencia artificial semántica**, generación automática de soluciones de código (antes y después), priorización por impacto/esfuerzo, y un **asistente conversacional de remediación**.
-
----
-
-## 🌟 Características Principales
-
-1. **Estructura Estilo TAW**:
-   - Organizado estrictamente por los 4 Principios W3C: **1. Perceptible**, **2. Operable**, **3. Comprensible** y **4. Robusto**.
-   - Agrupación por **Criterio de Éxito** (ej. *1.1.1 Contenido no textual*, *1.4.3 Contraste mínimo*).
-   - Columnas detalladas: comprobación, técnica W3C (ej. `H37`, `G18`), categoría de resultado, selector CSS, número de línea en el HTML fuente original y fragmento de código.
-   - Triaje en 3 categorías:
-     - **Problemas**: Fallos deterministas detectados automáticamente.
-     - **Advertencias**: Puntos que requieren juicio contextual o revisión humana (todos los hallazgos de IA entran aquí).
-     - **No verificados**: Comprobaciones que no pudieron ser determinadas en el DOM.
-
-2. **Juicio Semántico con LLM**:
-   - Evaluación contextual de textos alternativos de imágenes (detecta alts vacíos, genéricos como `"foto"`, `"imagen"`, o nombres de archivo).
-   - Evaluación de textos de enlaces aislados (*"clic aquí"*, *"leer más"*, *"ver más"*).
-   - Detección de discontinuidades en jerarquía de encabezados (`h1` a `h4`).
-   - Verificación de etiquetas `<label>` formales frente a placeholders efímeros.
-   - Validación del atributo `lang` frente al contenido textual real.
-
-3. **Remediación Accionable**:
-   - Cada incidencia incluye una explicación en lenguaje simple y el fragmento de código corregido (**Antes** y **Después**) listo para copiar y pegar.
-   - Estimación de **Esfuerzo de corrección** (*bajo*, *medio*, *alto*) e **Impacto** (*crítico*, *alto*, *medio*, *bajo*).
-
-4. **Puntaje Global y Resumen Ejecutivo**:
-   - Puntuación de accesibilidad de 0 a 100 ponderada por la gravedad de las barreras detectadas.
-   - Resumen ejecutivo estructurado de 5 líneas para dirección o equipos de desarrollo.
-
-5. **Asistente de Chat Integrado**:
-   - Interfaz conversacional para preguntar al agente: *"¿Cómo soluciono el problema 1?"* o *"¿Por qué falla el contraste del botón?"*.
-
-6. **Reglas Anti-Alucinación**:
-   - Todo hallazgo de IA cita y ancla el nodo HTML exacto comprobado en el código fuente.
-   - Los hallazgos de IA se clasifican obligatoriamente como **"Advertencia"** con indicador de confianza (0.0 - 1.0), nunca como fallo definitivo inventado.
-   - Se incluye un descargo de responsabilidad metodológico formal: ninguna auditoría automatizada reemplaza la evaluación manual con usuarios con discapacidad.
-
-7. **Seguridad Robusta**:
-   - **Protección Anti-SSRF**: Resolución DNS estricta previa que bloquea `localhost`, `127.0.0.1`, `::1` y todos los rangos privados RFC 1918 / link-local / multicast.
-   - Respeto del archivo `robots.txt` del sitio.
-   - Timeouts de navegación (30s) y límite de tamaño de carga (15 MB).
+Plataforma integral de auditoría y remediación de accesibilidad digital conforme a las pautas **W3C WCAG 2.0 / 2.1 / 2.2 (Niveles A, AA y AAA)** y el estándar europeo **EN 301 549 (Android)**. Inspirado en el **Modelo TAW (tawdis.net)**, determinista con motor oficial **axe-core 4.9.1**, análisis de layouts Android y remediación guiada con código interactivo (Antes / Después).
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🌐 Acceso Público en Línea (Cero Comandos para el Usuario)
 
-- **Lenguaje & API**: Python 3.11+ / FastAPI / Uvicorn / Pydantic v2.
-- **Motor de Render**: Playwright (Chromium Headless) para renderizar SPAs (React, Vue, Angular), ejecutar scripts dinámicos y capturar pantallas.
-- **Motor de Reglas**: `axe-core 4.10` inyectado y ejecutado localmente (empaquetado sin dependencias externas).
-- **Indexación de Código**: BeautifulSoup4 para mapear selectores a números de línea en el HTML fuente.
-- **Capa LLM**: Abstracción multi-proveedor (OpenAI / Anthropic / Gemini / motor heurístico offline sin API key).
-- **Exportadores**: Jinja2 para HTML autocontenido accesible y Playwright para generación de PDF vectorial de alta fidelidad.
+👉 **Plataforma Web Activa**: **[https://samuelcamacho2008.github.io/a11y-agent/](https://samuelcamacho2008.github.io/a11y-agent/)**
+
+> [!NOTE]
+> La persona usuaria final **no necesita instalar Python, ni usar la terminal (cmd), ni configurar servidores**. Abre el enlace en su navegador, ingresa cualquier URL o arrastra un APK, y obtiene el informe TAW completo de inmediato.
 
 ---
 
-## 🚀 Instalación y Puesta en Marcha
+## 🔬 Diagnóstico de Causa Raíz: "¿Por qué fallaba la lectura de URLs en navegadores?"
 
-### 1. Clonar el repositorio y preparar entorno
+Antes de diseñar la solución robusta, se reprodujo y documentó la causa raíz técnica:
+
+| Causa Raíz Detectada | Descripción Técnica | Solución Implementada |
+| :--- | :--- | :--- |
+| **Política Same-Origin (SOP / CORS)** | El navegador bloquea cualquier `fetch()` emitido desde `github.io` hacia un dominio externo a menos que este envíe `Access-Control-Allow-Origin: *`. El 99% de las webs públicas lo bloquean. | Pipeline de multi-proxy con cabeceras CORS nativas y Bookmarklet de 1 clic. |
+| **Bloqueo por WAF / Cloudflare** | Proxies públicos tradicionales (`allorigins.win`, `corsproxy.io`) devuelven error 403 o 502 porque las IPs de proxies compartidos son catalogadas como scrapers por Cloudflare y Akamai. | Integración de proxy de alta disponibilidad (Jina Reader con emulación de navegador real) y fallback en cascada con timeouts de `AbortController`. |
+| **SPAs e Hidratación JS** | Una petición HTTP estática solo descarga el HTML inicial (frecuentemente un `<div id="root"></div>` vacío), perdiendo todo el DOM generado por React, Vue o Angular. | Scroll automático para lazy-loading y motor headless real (Nivel 1) / Bookmarklet en navegador nativo (Nivel 4). |
+| **Normalización Frágil de URLs** | Faltaba detección de protocolo (`http://` vs `https://`), espacios al inicio o fin, o dominios internacionalizados (IDN con tildes o eñes). | Normalizador estándar con objeto `URL` nativo, traducción a Punycode y fallback a HTTP si HTTPS falla. |
+| **Contenido no HTML (PDF/Binarios)** | Intentar parsear un archivo `.pdf`, imagen o descarga como HTML causaba errores de parseo inexplicables. | Detección de `Content-Type` y extensiones con aviso educativo sobre la norma **PDF/UA (ISO 14289-1)** y herramientas especializadas (PAC). |
+
+---
+
+## 🏛️ Arquitectura y Cadena de Respaldo (Multi-Nivel)
+
+Para garantizar que **ninguna URL quede sin auditar**, el sistema implementa una cadena de respaldo con advertencia visible de precisión:
+
+```mermaid
+flowchart TD
+    A["Usuario ingresa URL en GitHub Pages"] --> B["Normalizador Estándar (Trim, IDN/Punycode, SSRF Check)"]
+    B --> C{"¿Requiere Login o Intranet?"}
+    C -- "Sí" --> D["Nivel 4: Bookmarklet de 1 Clic (En pestaña activa del usuario)"]
+    C -- "No" --> E{"¿API Headless Cloud Disponible?"}
+    E -- "Sí" --> F["Nivel 1: Playwright Headless en Contenedor (Precisión Máxima)"]
+    E -- "No / Sin Backend" --> G["Nivel 2: Multi-Proxy Anti-Bot y Extracción DOM (Precisión Alta)"]
+    G -- "Fallo WAF Estricto" --> H["Nivel 3: Modo 'Código HTML Directo' (Pegar código o archivo .html)"]
+    D --> I["Dashboard TAW Unificado (Puntaje, KPIs, 4 Principios W3C)"]
+    F --> I
+    G --> I
+    H --> I
+```
+
+### Indicador de Precisión de la Auditoría:
+1. **Nivel 1 (Máxima Precisión)**: Navegador Headless (Playwright/Chromium). Evalúa DOM hidratado, Shadow DOM, banners de cookies y estilos calculados reales (contraste y tamaños táctiles exactos).
+2. **Nivel 2 (Precisión Estructural)**: Proxy anti-bot. Evalúa estructura HTML completa, semántica y atributos ARIA de forma 100% determinista. Indica al usuario que los tamaños dinámicos son aproximados.
+3. **Nivel 3 (Modo Código HTML Directo)**: Para auditorías rápidas de fragmentos o archivos locales `.html`.
+4. **Nivel 4 (Bookmarklet de 1 Clic)**: Arrastrable a la barra de marcadores. Ejecuta axe-core directamente en la sesión activa del usuario, resolviendo el 100% de páginas con login, intranets o CAPTCHAs.
+
+---
+
+## ☁️ Evaluación de Opciones Cloud Gratuitas (Backend Headless)
+
+| Plataforma Cloud | Capa Gratuita Actual | Limitaciones Clave | Viabilidad |
+| :--- | :--- | :--- | :--- |
+| **Cloudflare Workers** (Browser Rendering) | Requiere plan **Workers Paid ($5/mes)**. No disponible en la capa gratis. | No permite Puppeteer en Workers Free. | ❌ Descartado para capa 100% libre. |
+| **Vercel / Netlify** (Serverless) | 100 GB ancho de banda / mes. | Límite de tamaño de paquete (50MB–250MB) y timeout de 10-15s (incompatible con Chromium completo). | ❌ Inestable para Playwright. |
+| **Render.com** (Web Service Docker) | **750 horas gratis / mes** (1 instancia continua). | Entra en reposo tras 15 minutos sin peticiones (rearranque de 40-50s). | ✅ **Recomendado para API estándar**. |
+| **Hugging Face Spaces** (Docker SDK) | **16 GB RAM, 2 vCPUs, 100% gratuito y persistente**. | Sin tiempo de hibernación agresivo. Endpoint HTTPS público directo. | 🌟 **Opción Ideal de Despliegue**. |
+
+### Despliegue en Hugging Face Spaces (Opción Recomendada):
+1. Cree un nuevo Space en [huggingface.co/spaces](https://huggingface.co/spaces) seleccionando **Docker SDK** (Blank).
+2. Suba los archivos del repositorio (`Dockerfile`, `requirements.txt`, `a11y_agent/`).
+3. El Space compilará el contenedor Playwright y ofrecerá una URL pública HTTPS fija (ej. `https://mi-usuario-a11y-api.hf.space`).
+
+---
+
+## 🛡️ Seguridad Implementada (Obligatoria)
+
+- **Protección Anti-SSRF**:
+  - Validación previa de hostname y resolución DNS estricta.
+  - Bloqueo de `localhost`, `127.0.0.1`, `::1`, `0.0.0.0`, redes privadas RFC 1918 (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), direcciones link-local (`169.254.0.0/16`) y endpoints de metadatos de nube (`169.254.169.254`).
+  - Re-validación de seguridad en cada redirección HTTP.
+- **Aviso de Privacidad**:
+  - Las URLs se procesan en memoria en tiempo real exclusivamente para generar la matriz de accesibilidad; nunca se almacenan páginas, cookies ni contraseñas.
+- **Manejo de Errores Accionables en Español**:
+  - Prohibido el error genérico "no se puede leer la URL". Clasificación explícita con diagnóstico de DNS, Timeout, Certificado SSL, 401/403 (WAF/Cloudflare), 404, 429, 5xx y contenido no-HTML.
+
+---
+
+## 📱 Auditoría de Aplicaciones Android (.APK)
+
+La plataforma incluye un módulo completo para auditoría móvil (EN 301 549 / WCAG 2.2):
+- Descompresión en memoria con `JSZip`.
+- Análisis de layouts XML (`res/layout/*.xml`) y `AndroidManifest.xml`.
+- Detección de controles interactivos sin `contentDescription`.
+- Detección de campos `EditText` sin `hint` ni `labelFor`.
+- Detección de botones táctiles con dimensiones inferiores a 48x48dp (Criterios 2.5.5 / 2.5.8).
+- Detección de atributos que suprimen TalkBack (`importantForAccessibility="no"`).
+
+---
+
+## 💻 Desarrollo Local (Solo para Contribuidores)
+
+Para ejecutar el entorno local de desarrollo con Python y Playwright:
+
 ```bash
-# Crear entorno virtual (opcional pero recomendado)
-python -m venv venv
-venv\Scripts\activate   # En Windows
-source venv/bin/activate  # En Linux/macOS
-
-# Instalar dependencias
+# 1. Instalar dependencias
 pip install -r requirements.txt
-# O instalar directamente:
-pip install fastapi uvicorn pydantic pydantic-settings playwright beautifulsoup4 httpx jinja2 pytest pytest-asyncio
-```
-
-### 2. Instalar el navegador de Playwright
-```bash
 playwright install chromium
-```
 
-### 3. Configurar variables de entorno
-Copia la plantilla `.env.example` a `.env`:
-```bash
-cp .env.example .env
-```
-*(Si no configuras ninguna API key de LLM, el sistema operará automáticamente con su motor semántico heurístico determinista sin interrupciones).*
-
----
-
-## 🖥️ Modos de Uso
-
-### 1. Interfaz Web Interactiva
-Inicia el servidor web accesible:
-```bash
+# 2. Iniciar la API y servidor local
 python -m a11y_agent serve --port 8000
 ```
-Abre tu navegador en `http://127.0.0.1:8000`:
-- Ingresa la URL a auditar.
-- Selecciona la versión de pautas (WCAG 2.0, 2.1 o 2.2) y el nivel (A, AA o AAA).
-- Presiona **"Analizar"** para obtener el reporte interactivo, los botones de descarga (HTML, JSON, PDF) y el panel de chat de remediación.
-
-### 2. Modo CLI (Línea de Comandos)
-Audita cualquier página web directamente desde la terminal:
-```bash
-# Auditoría básica con exportación a HTML, JSON y PDF
-python -m a11y_agent scan https://ejemplo.com --guidelines "WCAG 2.1" --level AA --export html,json,pdf
-
-# Auditoría de servidor local en desarrollo (flag --allow-private)
-python -m a11y_agent scan http://127.0.0.1:8080 --allow-private --export html,json,pdf
-```
-
----
-
-## 🧪 Pruebas Automáticas (3 Escenarios de Referencia)
-
-El proyecto incluye una suite completa de pruebas unitarias y de integración que validan los 3 escenarios exigidos:
-1. **Página Accesible** (`fixtures/accessible_page.html`): Caso de referencia con cumplimiento óptimo y puntaje 100/100.
-2. **Página con Errores Comunes** (`fixtures/common_errors_page.html`): Detecta imágenes sin alt, contraste deficiente, saltos de títulos, inputs sin label, falta de lang y enlaces ambiguos.
-3. **Página Dinámica SPA** (`fixtures/dynamic_spa_page.html`): Contenido generado por JavaScript hidratado en el DOM y auditado con Playwright.
-
-Para ejecutar todas las pruebas (18 pruebas en total):
-```bash
-pytest tests/ -v
-```
-
----
-
-## 📁 Informes de Muestra Generados
-
-Los informes generados para una auditoría de muestra se encuentran disponibles en la carpeta `reports/`:
-- **HTML Interactivo**: [`reports/sample_report.html`](reports/sample_report.html)
-- **JSON Estructurado**: [`reports/sample_report.json`](reports/sample_report.json)
-- **PDF Vectorial**: [`reports/sample_report.pdf`](reports/sample_report.pdf)

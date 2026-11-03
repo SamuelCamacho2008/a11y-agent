@@ -15,7 +15,7 @@ from a11y_agent.analyzer.line_locator import find_line_number
 AXE_SCRIPT_PATH = Path(__file__).resolve().parent / "vendor" / "axe.min.js"
 
 def get_axe_tags(guidelines: GuidelinesVersion, target_level: WCAGLevel) -> List[str]:
-    """Map guidelines and level to corresponding axe-core tags."""
+    """Map guidelines and level to corresponding axe-core tags cumulatively."""
     tags = ["wcag2a"]
     if target_level in (WCAGLevel.AA, WCAGLevel.AAA):
         tags.append("wcag2aa")
@@ -98,14 +98,9 @@ def generate_heuristic_remediation(rule_id: str, snippet: str, failure_summary: 
         after = '<html lang="es">'
         advice = "Declare el idioma principal del documento usando el atributo lang (ej. lang='es')."
 
-    elif rule_id == "document-title":
-        effort = EffortLevel.BAJO
-        after = "<title>Título Descriptivo y Único de la Página | Organización</title>"
-        advice = "Agregue una etiqueta <title> en el <head> que describa el contenido de la página."
-
     return Remediation(
-        before_snippet=before,
-        after_snippet=after,
+        before=before,
+        after=after,
         advice=advice,
         effort=effort
     )
@@ -118,7 +113,7 @@ async def run_axe_core(
 ) -> List[Finding]:
     """
     Inject axe-core into the Playwright page, execute against the requested WCAG level,
-    and parse the output into standardized Finding models.
+    and parse the output into standardized Finding models. Handles WCAG 2.2 obsolete rules.
     """
     if not AXE_SCRIPT_PATH.exists():
         raise FileNotFoundError(f"No se encontró el script de axe-core en {AXE_SCRIPT_PATH}")
@@ -150,6 +145,11 @@ async def run_axe_core(
         rule_id = v.get("id", "rule")
         rule_tags = v.get("tags", [])
         criterion_id, technique, check_name = infer_wcag_criterion(rule_id, rule_tags)
+
+        # En WCAG 2.2, el criterio 4.1.1 (Parsing) fue eliminado por obsoleto por el W3C
+        if guidelines == GuidelinesVersion.WCAG_2_2 and (rule_id == "parsing" or criterion_id == "4.1.1"):
+            continue
+
         criterion_meta = get_criterion_details(criterion_id)
         impact = map_axe_impact(v.get("impact", "moderate"))
 
@@ -188,6 +188,10 @@ async def run_axe_core(
         rule_id = inc.get("id", "rule")
         rule_tags = inc.get("tags", [])
         criterion_id, technique, check_name = infer_wcag_criterion(rule_id, rule_tags)
+
+        if guidelines == GuidelinesVersion.WCAG_2_2 and (rule_id == "parsing" or criterion_id == "4.1.1"):
+            continue
+
         criterion_meta = get_criterion_details(criterion_id)
         impact = map_axe_impact(inc.get("impact", "minor"))
 
@@ -219,5 +223,30 @@ async def run_axe_core(
             )
             findings.append(finding)
             finding_counter += 1
+
+    # Criterios W3C No Verificados (manuales)
+    findings.append(Finding(
+        id=f"NV-{finding_counter:03d}",
+        principle=Principle.PERCEPTIBLE,
+        criterion_id="1.2.2",
+        criterion_title="Subtítulos (pregrabados)",
+        level=WCAGLevel.A,
+        category=Category.NO_VERIFICADO,
+        origin=FindingOrigin.HEURISTICA,
+        check_name="Verificación de subtítulos en medios sincronizados",
+        w3c_technique="G87",
+        selector="Video / Multimedia",
+        line_number=None,
+        html_snippet="<video> ... </video>",
+        explanation="Las herramientas automáticas no pueden evaluar la exactitud de los subtítulos de video. Requiere inspección humana.",
+        remediation=Remediation(
+            before="<video src='video.mp4'></video>",
+            after="<video src='video.mp4'><track kind='captions' src='sub.vtt' srclang='es' label='Español'></video>",
+            advice="Asegure subtítulos sincronizados con el audio hablado.",
+            effort=EffortLevel.MEDIO
+        ),
+        impact=ImpactLevel.MEDIO,
+        confidence=0.5
+    ))
 
     return findings

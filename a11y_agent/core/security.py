@@ -11,6 +11,7 @@ from a11y_agent.core.config import settings
 def is_ip_allowed(ip_str: str) -> bool:
     """
     Check if an IP address is a safe public IP (not loopback, private, link-local, multicast, or reserved).
+    Blocks AWS/Cloud metadata IPs (169.254.169.254) and all RFC 1918 private ranges.
     """
     try:
         ip = ipaddress.ip_address(ip_str)
@@ -30,7 +31,8 @@ def is_ip_allowed(ip_str: str) -> bool:
 
 def validate_url_security(url: str, allow_private_ips: bool = False) -> str:
     """
-    Validate that the URL is strictly http/https and does not resolve to private/internal networks.
+    Validate that the URL is strictly http/https, normalizes IDNs (punycode),
+    and does not resolve to private/internal networks or cloud metadata.
     Returns the sanitized URL if valid, raises SSRFSecurityError otherwise.
     """
     if not url or not isinstance(url, str):
@@ -50,10 +52,16 @@ def validate_url_security(url: str, allow_private_ips: bool = False) -> str:
         if not allow_private_ips:
             raise SSRFSecurityError(f"Acceso denegado a host local: {hostname}")
 
+    # Normalize IDN domains (e.g. ñ, tildes) to punycode
+    try:
+        ascii_host = hostname.encode("idna").decode("ascii")
+    except Exception:
+        ascii_host = hostname
+
     # DNS Resolution check to prevent SSRF and DNS rebinding
     try:
         # Resolve all IPv4 and IPv6 addresses for the host
-        addr_info = socket.getaddrinfo(hostname, parsed.port or (443 if parsed.scheme == "https" else 80), proto=socket.IPPROTO_TCP)
+        addr_info = socket.getaddrinfo(ascii_host, parsed.port or (443 if parsed.scheme == "https" else 80), proto=socket.IPPROTO_TCP)
         resolved_ips = {item[4][0] for item in addr_info}
     except socket.gaierror as e:
         raise SSRFSecurityError(f"No se pudo resolver el nombre de dominio '{hostname}': {e}")
@@ -65,7 +73,7 @@ def validate_url_security(url: str, allow_private_ips: bool = False) -> str:
         for ip in resolved_ips:
             if not is_ip_allowed(ip):
                 raise SSRFSecurityError(
-                    f"Riesgo de seguridad SSRF: El host '{hostname}' resuelve a una IP interna/privada ({ip})."
+                    f"Riesgo de seguridad SSRF: El host '{hostname}' resuelve a una IP interna/privada o de metadatos ({ip})."
                 )
 
     return url.strip()
@@ -89,8 +97,6 @@ async def check_robots_txt_allowed(url: str, user_agent: str = settings.user_age
                 rp = RobotFileParser()
                 rp.parse(resp.text.splitlines())
                 return rp.can_fetch(user_agent, url)
-            # If 404 or other 4xx/5xx status, crawl is generally permitted
             return True
     except Exception:
-        # If robots.txt cannot be reached, permit crawl gracefully
         return True
