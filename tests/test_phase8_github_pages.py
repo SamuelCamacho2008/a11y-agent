@@ -57,10 +57,11 @@ def test_publish_report_to_docs_creates_files(dummy_report):
     assert html_file.exists()
     assert json_file.exists()
 
-    # Verify portal index.html exists
-    portal_html = settings.docs_dir / "index.html"
+    # Verify portal.html exists and does not overwrite interactive index.html
+    portal_html = settings.docs_dir / "portal.html"
     assert portal_html.exists()
     assert "A11y Agent" in portal_html.read_text(encoding="utf-8")
+    assert (settings.docs_dir / "index.html").exists()
 
     # Verify reports.json manifest has the entry
     manifest_file = settings.docs_dir / "reports.json"

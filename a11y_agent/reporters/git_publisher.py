@@ -418,8 +418,8 @@ def update_docs_manifest(report: A11yReport) -> Path:
     return manifest_path
 
 def generate_portal_html() -> Path:
-    """Ensure `docs/index.html` portal exists and is up to date."""
-    portal_path = settings.docs_dir / "index.html"
+    """Ensure `docs/portal.html` public directory portal exists without overwriting main app `docs/index.html`."""
+    portal_path = settings.docs_dir / "portal.html"
     portal_path.parent.mkdir(parents=True, exist_ok=True)
     portal_path.write_text(PORTAL_HTML_TEMPLATE, encoding="utf-8")
     return portal_path

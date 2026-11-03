@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -7,9 +7,15 @@
     <meta name="description" content="Plataforma en línea de auditoría de accesibilidad web (WCAG 2.2) y aplicaciones Android (EN 301 549) basada en el Modelo TAW y motor determinista axe-core.">
 
     <!-- axe-core client-side engine (Official W3C WCAG accessibility engine) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.9.1/axe.min.js"></script>
-    <!-- JSZip for decompiling & inspecting Android APKs in the browser -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.9.1/axe.min.js"
+            integrity="sha384-uRREz/ppJZIpDhIttoybaVPSlxS7NFe1tCOkH3QVl+H3eM2aL90a140yzYKYh8TA"
+            crossorigin="anonymous"></script>
+    <!-- JSZip for decompiling & inspecting Android APKs in the browser with SRI -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+            integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG"
+            crossorigin="anonymous"></script>
+    <!-- Configuración del entorno (Diferencia Local vs Producción GitHub Pages) -->
+    <script src="config.js?v=1.2.0"></script>
 
     <style>
         :root {
@@ -1135,6 +1141,36 @@
             let finalAnalyzedUrl = targetUrl;
             let precisionLevel = "Nivel 2: Estructura DOM y ARIA (Multi-Proxy Anti-Bot)";
 
+            // Estrategia 0: Cloud Backend Headless Browser (Nivel 1: Máxima Precisión)
+            if (window.A11Y_CONFIG && window.A11Y_CONFIG.apiEndpoint) {
+                try {
+                    setLoading(true, "Consultando motor en la nube con Playwright Headless (Nivel 1)...");
+                    const backendTimeout = window.A11Y_CONFIG.backendTimeoutMs || 8000;
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), backendTimeout);
+
+                    const cloudRes = await fetch(`${window.A11Y_CONFIG.apiEndpoint}/api/scan`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            url: targetUrl,
+                            guidelines: (document.getElementById('guidelines-url')?.value === 'wcag22') ? 'WCAG 2.2' : 'WCAG 2.1',
+                            target_level: (document.getElementById('level-url')?.value || 'AA').toUpperCase()
+                        }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (cloudRes.ok) {
+                        const cloudReport = await cloudRes.json();
+                        renderCloudBackendReport(cloudReport, targetUrl);
+                        return;
+                    }
+                } catch (cloudErr) {
+                    console.info("Backend cloud no disponible o en reposo, recurriendo a Nivel 2 en cliente:", cloudErr);
+                }
+            }
+
             // Estrategia 1: Proxy Jina Reader de Alta Disponibilidad (Evasión de Cloudflare, soporte CORS nativo)
             try {
                 setLoading(true, "Descargando estructura del sitio web...");
@@ -1231,6 +1267,42 @@
 
             setLoading(true, "Ejecutando motor formal determinista axe-core según WCAG 2.2...");
             await runAuditOnHtml(html, finalAnalyzedUrl, "web", precisionLevel);
+        }
+
+        function renderCloudBackendReport(cloudReport, targetUrl) {
+            let findings = [];
+            if (cloudReport.raw_findings && cloudReport.raw_findings.length > 0) {
+                findings = cloudReport.raw_findings.map((f, idx) => ({
+                    id: f.id || `P-${idx + 1}`,
+                    principle: f.principle ? (f.principle.charAt(0).toUpperCase() + f.principle.slice(1)) : 'Perceptible',
+                    criterion_id: f.criterion_id,
+                    criterion_title: f.criterion_title,
+                    level: f.level || 'AA',
+                    category: f.category || 'Problema',
+                    check_name: f.check_name,
+                    technique: f.w3c_technique || 'G1',
+                    slug: 'rule',
+                    selector: f.selector || 'elemento',
+                    snippet: f.html_snippet || '',
+                    explanation: f.explanation || '',
+                    remediation: f.remediation ? {
+                        before: f.remediation.before_snippet || '',
+                        after: f.remediation.after_snippet || '',
+                        advice: f.remediation.advice || ''
+                    } : null,
+                    impact: f.impact || 'medio'
+                }));
+            }
+            buildAndDisplayReport(
+                findings,
+                targetUrl,
+                cloudReport.metadata?.target_type || "web",
+                "Nivel 1: Renderizado Completo Headless (API Playwright Cloud)"
+            );
+            if (cloudReport.metadata?.public_url) {
+                currentReport.publicUrl = cloudReport.metadata.public_url;
+            }
+            setLoading(false, "");
         }
 
         // =========================================================================

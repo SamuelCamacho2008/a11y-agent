@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'docs/**'
   workflow_dispatch:
 
 permissions:
@@ -26,6 +24,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Ensure .nojekyll exists
+        run: touch ./docs/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
