@@ -222,6 +222,26 @@
         }
         .btn-secondary:hover { background: var(--border-color); }
 
+        .pill-btn {
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            padding: 0.35rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .pill-btn:hover {
+            background: var(--primary);
+            color: #0f172a;
+            transform: translateY(-1px);
+        }
+
         /* Drag & Drop APK */
         .drop-zone {
             border: 2px dashed var(--border-color);
@@ -533,7 +553,7 @@
                 <form id="form-url" class="form-grid" onsubmit="handleAuditUrl(event)">
                     <div>
                         <label for="url-input">URL del sitio web:</label>
-                        <input type="url" id="url-input" required placeholder="https://ejemplo.com" value="https://example.com">
+                        <input type="text" id="url-input" required placeholder="https://fup.edu.co" value="https://fup.edu.co">
                     </div>
                     <div>
                         <label for="guidelines-url">Pautas:</label>
@@ -557,6 +577,34 @@
                         </button>
                     </div>
                 </form>
+
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
+                    <span style="font-weight: 600;">Auditoría rápida:</span>
+                    <button type="button" class="pill-btn" onclick="setUrlAndAudit('https://fup.edu.co')">🎓 FUP (fup.edu.co)</button>
+                    <button type="button" class="pill-btn" onclick="setUrlAndAudit('https://www.w3.org')">🌐 W3C (w3.org)</button>
+                    <button type="button" class="pill-btn" onclick="setUrlAndAudit('https://samuelcamacho2008.github.io/portafolio-samuel-camacho/')">💼 Mi Portafolio</button>
+                </div>
+
+                <!-- Friendly Inline Notice for strictly protected sites -->
+                <div id="url-error-card" style="display: none; margin-top: 1.25rem; background: rgba(239, 68, 68, 0.12); border: 1px solid var(--danger); border-radius: 8px; padding: 1.25rem;">
+                    <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <span style="font-size: 1.6rem; line-height: 1;">🛡️</span>
+                        <div style="flex: 1;">
+                            <h3 style="color: #fca5a5; font-size: 1.05rem; margin-bottom: 0.35rem;">Restricción de Red del Servidor Destino (Firewall / Cloudflare)</h3>
+                            <p style="font-size: 0.9rem; color: #e2e8f0; margin-bottom: 0.75rem; line-height: 1.5;">
+                                El sitio <strong id="blocked-url-name" style="color: #ffffff;"></strong> aplica políticas estrictas contra rastreadores web directos. Para auditarlo sin restricciones:
+                            </p>
+                            <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+                                <button type="button" class="btn-primary" onclick="switchToCodeTabWithHelp()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                                    📝 Ir a 'Código HTML Directo' y auditar
+                                </button>
+                                <a id="btn-open-target" href="#" target="_blank" rel="noopener" class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                                    ↗️ Abrir sitio para ver código fuente (Ctrl + U)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Panel 2: Direct HTML Code Auditor -->
@@ -749,46 +797,127 @@
             });
         });
 
+        function setUrlAndAudit(url) {
+            document.getElementById('url-input').value = url;
+            const form = document.getElementById('form-url');
+            if (form) {
+                if (form.requestSubmit) form.requestSubmit();
+                else form.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
+        }
+
+        function showInlineAlert(url) {
+            const card = document.getElementById('url-error-card');
+            if (card) {
+                document.getElementById('blocked-url-name').textContent = url;
+                document.getElementById('btn-open-target').href = url;
+                card.style.display = 'block';
+            }
+        }
+
+        function hideInlineAlert() {
+            const card = document.getElementById('url-error-card');
+            if (card) card.style.display = 'none';
+        }
+
+        function switchToCodeTabWithHelp() {
+            const tabCode = document.getElementById('tab-code');
+            if (tabCode) tabCode.click();
+        }
+
         // =========================================================================
-        // 1. AUDITORÍA WEB POR URL (axe-core + proxy CORS)
+        // 1. AUDITORÍA WEB POR URL (axe-core + multi-proxy de alta resiliencia)
         // =========================================================================
         async function handleAuditUrl(e) {
             e.preventDefault();
-            const url = document.getElementById('url-input').value.trim();
+            let url = document.getElementById('url-input').value.trim();
             if (!url) return;
 
-            setLoading(true, "Descargando contenido de la página web...");
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+                document.getElementById('url-input').value = url;
+            }
+
+            hideInlineAlert();
+            setLoading(true, "Conectando con " + url + "...");
             let html = "";
 
+            // Estrategia 1: Proxy Jina Reader (Soporte completo CORS + elusión Cloudflare)
             try {
-                // Try fetching directly first (if same origin or CORS enabled)
+                setLoading(true, "Descargando estructura accesible vía proxy de alta disponibilidad...");
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+                const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
+                    headers: { 'X-Return-Format': 'html' },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (jinaRes.ok) {
+                    const text = await jinaRes.text();
+                    if (text && text.includes('<') && (text.includes('<html') || text.includes('<!DOCTYPE') || text.includes('<body') || text.includes('<head') || text.includes('<div') || text.includes('<main'))) {
+                        const firstTag = text.search(/<(html|!doctype|head|body|div|main)/i);
+                        html = firstTag >= 0 ? text.substring(firstTag) : text;
+                    }
+                }
+            } catch (err) {
+                console.warn("Estrategia 1 (Jina) aviso:", err);
+            }
+
+            // Estrategia 2: Proxy CodeTabs
+            if (!html) {
                 try {
+                    setLoading(true, "Consultando servidor de respaldo CodeTabs...");
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 7000);
+                    const ctRes = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`, {
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    if (ctRes.ok) {
+                        const text = await ctRes.text();
+                        if (text && text.length > 200) html = text;
+                    }
+                } catch (err) {
+                    console.warn("Estrategia 2 (CodeTabs) aviso:", err);
+                }
+            }
+
+            // Estrategia 3: Conexión directa (si el sitio permite CORS)
+            if (!html) {
+                try {
+                    setLoading(true, "Intentando conexión directa...");
                     const directRes = await fetch(url, { mode: 'cors' });
                     if (directRes.ok) html = await directRes.text();
                 } catch (_) {}
-
-                // Fallback via high-availability CORS proxies
-                if (!html) {
-                    setLoading(true, "Consultando a través del proxy CORS seguro...");
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    const res = await fetch(proxyUrl);
-                    if (res.ok) {
-                        const data = await res.json();
-                        html = data.contents;
-                    }
-                }
-
-                if (!html) {
-                    throw new Error("No se pudo descargar el HTML debido a políticas de seguridad del sitio.");
-                }
-
-                setLoading(true, "Ejecutando motor de reglas axe-core y evaluación semántica...");
-                await runAuditOnHtml(html, url, "web");
-
-            } catch (err) {
-                setLoading(false, "");
-                alert("Aviso al descargar la URL: " + err.message + "\n\nTip: Puede usar la pestaña 'Código HTML Directo' pegando el HTML de la página para auditarla sin restricciones de red.");
             }
+
+            // Estrategia 4: Proxy AllOrigins
+            if (!html) {
+                try {
+                    setLoading(true, "Consultando servidor de respaldo AllOrigins...");
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 7000);
+                    const aoRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, {
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    if (aoRes.ok) {
+                        const data = await aoRes.json();
+                        if (data && data.contents) html = data.contents;
+                    }
+                } catch (_) {}
+            }
+
+            if (!html) {
+                setLoading(false, "");
+                showInlineAlert(url);
+                return;
+            }
+
+            setLoading(true, "Ejecutando motor formal axe-core según WCAG 2.2...");
+            await runAuditOnHtml(html, url, "web");
         }
 
         // =========================================================================
@@ -848,14 +977,24 @@
         // EJECUCIÓN AXE-CORE CLIENT-SIDE + HEURÍSTICAS SEMÁNTICAS
         // =========================================================================
         async function runAuditOnHtml(htmlContent, resourceName, targetType) {
+            // Strip scripts to prevent third-party analytics/trackers from running or interfering
+            let safeHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+            // Inject <base> tag for resolving relative links/assets
+            if (resourceName && resourceName.startsWith('http')) {
+                if (!safeHtml.includes('<base ') && !safeHtml.includes('<base>')) {
+                    safeHtml = safeHtml.replace(/<head[^>]*>/i, `$&<base href="${resourceName}">`);
+                }
+            }
+
             // Load HTML into isolated iframe
             const iframe = document.getElementById('audit-sandbox');
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             iframeDoc.open();
-            iframeDoc.write(htmlContent);
+            iframeDoc.write(safeHtml);
             iframeDoc.close();
 
-            await new Promise(r => setTimeout(r, 200));
+            await new Promise(r => setTimeout(r, 250));
 
             // Execute axe-core inside the iframe
             let axeResults = { violations: [] };
