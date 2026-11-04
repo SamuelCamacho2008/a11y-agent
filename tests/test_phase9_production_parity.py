@@ -40,8 +40,8 @@ def test_subresource_integrity_and_config_in_html():
             f"JSZip SRI hash missing in {html_file}"
         )
 
-        # Verify config.js script load
-        assert 'src="config.js?v=1.2.0"' in content, f"config.js missing in {html_file}"
+        # Verify config.js script load (relative path)
+        assert 'config.js?v=1.2.0"' in content, f"config.js missing in {html_file}"
 
 def test_no_insecure_mixed_content_http():
     """Verify no active mixed-content http:// resources are referenced in production index.html."""

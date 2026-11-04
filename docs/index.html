@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A11y Agent — Test de Accesibilidad Web & Móvil (Modelo TAW / WCAG 2.2 / EN 301 549)</title>
     <meta name="description" content="Plataforma en línea de auditoría de accesibilidad web (WCAG 2.2) y aplicaciones Android (EN 301 549) basada en el Modelo TAW y motor determinista axe-core.">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
 
     <!-- axe-core client-side engine (Official W3C WCAG accessibility engine) -->
@@ -17,7 +17,7 @@
             integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG"
             crossorigin="anonymous"></script>
     <!-- Configuración del entorno (Diferencia Local vs Producción GitHub Pages) -->
-    <script src="config.js?v=1.2.0"></script>
+    <script src="./config.js?v=1.2.0"></script>
 
     <style>
         :root {
@@ -1113,6 +1113,135 @@
         // =========================================================================
         // 1. AUDITORÍA WEB POR URL (CADENA DE RESPALDO MULTI-NIVEL)
         // =========================================================================
+
+        function createAuditSandboxIframe() {
+            const oldIframe = document.getElementById('audit-sandbox');
+            if (oldIframe) {
+                oldIframe.remove();
+            }
+
+            const iframe = document.createElement('iframe');
+            iframe.id = 'audit-sandbox';
+            // CRÍTICO: Asignar permisos sandbox ANTES de insertar en el DOM
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
+            iframe.style.position = 'absolute';
+            iframe.style.width = '1024px';
+            iframe.style.height = '768px';
+            iframe.style.top = '-9999px';
+            iframe.style.left = '-9999px';
+            iframe.style.opacity = '0';
+            iframe.style.pointerEvents = 'none';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
+            return iframe;
+        }
+
+        async function fetchHtmlWithCorsFallback(targetUrl) {
+            const encodedUrl = encodeURIComponent(targetUrl);
+            const proxies = [
+                {
+                    name: 'AllOrigins API',
+                    run: async () => {
+                        const ctrl = new AbortController();
+                        const tid = setTimeout(() => ctrl.abort(), 9000);
+                        try {
+                            const res = await fetch(`https://api.allorigins.win/get?url=${encodedUrl}`, { signal: ctrl.signal });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            const data = await res.json();
+                            if (data && data.contents && data.contents.length > 50) return data.contents;
+                            throw new Error('Respuesta vacía de AllOrigins');
+                        } finally {
+                            clearTimeout(tid);
+                        }
+                    }
+                },
+                {
+                    name: 'Jina Reader (Bypass Anti-Bot)',
+                    run: async () => {
+                        const ctrl = new AbortController();
+                        const tid = setTimeout(() => ctrl.abort(), 10000);
+                        try {
+                            const res = await fetch(`https://r.jina.ai/${encodeURI(targetUrl)}`, {
+                                headers: { 'X-Return-Format': 'html' },
+                                signal: ctrl.signal
+                            });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            const text = await res.text();
+                            if (text && text.includes('<')) {
+                                const firstTag = text.search(/<(html|!doctype|head|body|div|main|p|header)/i);
+                                return firstTag >= 0 ? text.substring(firstTag) : text;
+                            }
+                            throw new Error('Respuesta no HTML');
+                        } finally {
+                            clearTimeout(tid);
+                        }
+                    }
+                },
+                {
+                    name: 'CodeTabs Proxy',
+                    run: async () => {
+                        const ctrl = new AbortController();
+                        const tid = setTimeout(() => ctrl.abort(), 7000);
+                        try {
+                            const res = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, { signal: ctrl.signal });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            const text = await res.text();
+                            if (text && text.length > 50) return text;
+                            throw new Error('Respuesta vacía');
+                        } finally {
+                            clearTimeout(tid);
+                        }
+                    }
+                },
+                {
+                    name: 'AllOrigins Raw',
+                    run: async () => {
+                        const ctrl = new AbortController();
+                        const tid = setTimeout(() => ctrl.abort(), 7000);
+                        try {
+                            const res = await fetch(`https://api.allorigins.win/raw?url=${encodedUrl}`, { signal: ctrl.signal });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            const text = await res.text();
+                            if (text && text.length > 50) return text;
+                            throw new Error('Respuesta vacía');
+                        } finally {
+                            clearTimeout(tid);
+                        }
+                    }
+                },
+                {
+                    name: 'Directo (CORS)',
+                    run: async () => {
+                        const ctrl = new AbortController();
+                        const tid = setTimeout(() => ctrl.abort(), 5000);
+                        try {
+                            const res = await fetch(targetUrl, { mode: 'cors', signal: ctrl.signal });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            return await res.text();
+                        } finally {
+                            clearTimeout(tid);
+                        }
+                    }
+                }
+            ];
+
+            let lastErr = null;
+            for (const proxy of proxies) {
+                try {
+                    setLoading(true, `Descargando sitio vía ${proxy.name}...`);
+                    const content = await proxy.run();
+                    if (content && content.includes('<')) {
+                        return content;
+                    }
+                } catch (e) {
+                    console.warn(`Proxy ${proxy.name} no respondió:`, e);
+                    lastErr = e;
+                }
+            }
+
+            throw lastErr || new Error("No se pudo obtener el contenido mediante los proxies CORS disponibles.");
+        }
+
         async function handleAuditUrl(e) {
             e.preventDefault();
             clearErrors();
@@ -1138,12 +1267,7 @@
 
             setLoading(true, `Conectando con ${targetUrl}...`);
 
-            // Pipeline de descarga
-            let html = "";
-            let finalAnalyzedUrl = targetUrl;
-            let precisionLevel = "Nivel 2: Estructura DOM y ARIA (Multi-Proxy Anti-Bot)";
-
-            // Estrategia 0: Cloud Backend Headless Browser (Nivel 1: Máxima Precisión)
+            // Estrategia 0: Cloud Backend Headless Browser si está configurado
             if (window.A11Y_CONFIG && window.A11Y_CONFIG.apiEndpoint) {
                 try {
                     setLoading(true, "Consultando motor en la nube con Playwright Headless (Nivel 1)...");
@@ -1169,127 +1293,27 @@
                         return;
                     }
                 } catch (cloudErr) {
-                    console.info("Backend cloud no disponible o en reposo, recurriendo a Nivel 2 en cliente:", cloudErr);
+                    console.info("Backend cloud en reposo o no disponible, recurriendo a proxy CORS en cliente:", cloudErr);
                 }
             }
 
-            // Pipeline de descarga resiliente con multi-proxy CORS
+            // Descarga de HTML vía proxy CORS con fallback
             let html = "";
-            let finalAnalyzedUrl = targetUrl;
-            let precisionLevel = "Nivel 2: Estructura DOM y ARIA (Multi-Proxy Anti-Bot)";
-            let lastNetworkError = null;
-
-            // Estrategia 1: Proxy Jina Reader de Alta Disponibilidad (Evasión de Cloudflare, soporte CORS nativo)
             try {
-                setLoading(true, "Descargando estructura del sitio web...");
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-                const jinaRes = await fetch(`https://r.jina.ai/${encodeURI(targetUrl)}`, {
-                    headers: { 'X-Return-Format': 'html' },
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-
-                if (jinaRes.ok) {
-                    const contentType = jinaRes.headers.get('content-type') || '';
-                    if (contentType.includes('application/pdf')) {
-                        setLoading(false, "");
-                        showNonHtmlAdvisory(targetUrl, 'PDF');
-                        return;
-                    }
-
-                    const text = await jinaRes.text();
-                    if (text && text.includes('<') && (text.includes('<html') || text.includes('<!DOCTYPE') || text.includes('<body') || text.includes('<head') || text.includes('<div') || text.includes('<main') || text.includes('<p'))) {
-                        const firstTag = text.search(/<(html|!doctype|head|body|div|main|p|header)/i);
-                        html = firstTag >= 0 ? text.substring(firstTag) : text;
-                    }
-                } else if (jinaRes.status === 403 || jinaRes.status === 401) {
-                    lastNetworkError = { code: 'WAF_BLOCKED', status: jinaRes.status };
-                } else if (jinaRes.status === 404) {
-                    lastNetworkError = { code: 'HTTP_404', status: 404 };
-                } else if (jinaRes.status === 429) {
-                    lastNetworkError = { code: 'HTTP_429', status: 429 };
-                }
+                html = await fetchHtmlWithCorsFallback(targetUrl);
             } catch (err) {
-                console.warn("Estrategia 1 (Jina) aviso:", err);
-                lastNetworkError = err;
-            }
-
-            // Estrategia 2: Respaldo CodeTabs con encodeURIComponent
-            if (!html) {
-                try {
-                    setLoading(true, "Consultando servidor de respaldo CodeTabs...");
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 7000);
-                    const ctRes = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`, {
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                    if (ctRes.ok) {
-                        const text = await ctRes.text();
-                        if (text && text.length > 200) html = text;
-                    }
-                } catch (_) {}
-            }
-
-            // Estrategia 3: Conexión Directa (si CORS está habilitado en destino)
-            if (!html) {
-                try {
-                    setLoading(true, "Intentando conexión directa...");
-                    const directRes = await fetch(targetUrl, { mode: 'cors' });
-                    if (directRes.ok) html = await directRes.text();
-                } catch (_) {}
-            }
-
-            // Estrategia 4: Respaldo AllOrigins (modo raw y JSON)
-            if (!html) {
-                try {
-                    setLoading(true, "Consultando servidor de respaldo AllOrigins...");
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 7000);
-                    const aoRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`, {
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                    if (aoRes.ok) {
-                        const rawText = await aoRes.text();
-                        if (rawText && rawText.length > 100) html = rawText;
-                    }
-                } catch (_) {}
-            }
-            if (!html) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000);
-                    const aoJsonRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`, {
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                    if (aoJsonRes.ok) {
-                        const data = await aoJsonRes.json();
-                        if (data && data.contents) html = data.contents;
-                    }
-                } catch (_) {}
-            }
-
-            if (!html) {
                 setLoading(false, "");
-                if (lastNetworkError && lastNetworkError.code) {
-                    handleSpecificNetworkError(lastNetworkError, targetUrl);
-                } else {
-                    renderActionableError({
-                        code: 'AUTH_OR_WAF_BLOCKED',
-                        title: 'Restricción de Acceso o Cortafuegos Anti-Bot (WAF)',
-                        message: `El servidor de '${targetUrl}' bloquea peticiones automáticas de navegadores externos o requiere autenticación previa.`,
-                        actionTip: 'Puede auditar esta página sin restricciones mediante el Bookmarklet de 1 Clic o pegando el HTML.'
-                    });
-                }
+                renderActionableError({
+                    code: 'CORS_PROXY_FAILED',
+                    title: 'Restricción de Acceso o Fallo de Red (CORS)',
+                    message: `No se pudo obtener el contenido HTML de '${targetUrl}'. Los servidores proxy no recibieron respuesta del sitio o el cortafuegos bloquea peticiones automáticas.`,
+                    actionTip: 'Puede auditar esta página sin restricciones mediante el "📌 Bookmarklet de 1 Clic" en la pestaña donde ya está abierta, o pegando el código en "Código HTML Directo".'
+                });
                 return;
             }
 
-            setLoading(true, "Ejecutando motor formal determinista axe-core según WCAG 2.2...");
-            await runAuditOnHtml(html, finalAnalyzedUrl, "web", precisionLevel);
+            setLoading(true, "Inyectando DOM y ejecutando motor formal axe-core...");
+            await runAuditOnHtml(html, targetUrl, "web", "Nivel 2: Estructura DOM y ARIA (Multi-Proxy Anti-Bot)");
         }
 
         function renderCloudBackendReport(cloudReport, targetUrl) {
@@ -1690,26 +1714,6 @@
             return Array.from(new Set(tags));
         }
 
-        function getAuditIframe() {
-            let iframe = document.getElementById('audit-sandbox');
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.id = 'audit-sandbox';
-                document.body.appendChild(iframe);
-            }
-            // Asegurar permisos de sandbox para ejecutar scripts y acceder al DOM
-            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
-            iframe.style.position = 'absolute';
-            iframe.style.width = '1024px';
-            iframe.style.height = '768px';
-            iframe.style.top = '-9999px';
-            iframe.style.left = '-9999px';
-            iframe.style.opacity = '0';
-            iframe.style.pointerEvents = 'none';
-            iframe.style.border = '0';
-            return iframe;
-        }
-
         async function runAuditOnHtml(htmlContent, resourceName, targetType, precisionTitle) {
             // Eliminar scripts directos para evitar efectos secundarios en la página auditada
             const safeHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
@@ -1721,14 +1725,35 @@
                 }
             }
 
-            const iframe = getAuditIframe();
+            const iframe = createAuditSandboxIframe();
+
+            // Esperar evento onload tras escribir en el documento del iframe
+            await new Promise((resolve) => {
+                let resolved = false;
+                const finish = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve();
+                    }
+                };
+
+                iframe.onload = finish;
+                setTimeout(finish, 800); // Fallback timeout por si el frame no emite onload
+
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    iframeDoc.open();
+                    iframeDoc.write(htmlWithBase);
+                    iframeDoc.close();
+                } catch (e) {
+                    console.warn("Fallo al escribir en documento, utilizando srcdoc:", e);
+                    iframe.srcdoc = htmlWithBase;
+                }
+            });
+
+            await new Promise(r => setTimeout(r, 200));
+
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDoc.open();
-            iframeDoc.write(htmlWithBase);
-            iframeDoc.close();
-
-            await new Promise(r => setTimeout(r, 300));
-
             const guidelinesVer = document.getElementById('guidelines-url')?.value || 'wcag22';
             const targetLevel = document.getElementById('level-url')?.value || 'aa';
             const runTags = getCumulativeAxeTags(guidelinesVer, targetLevel);
