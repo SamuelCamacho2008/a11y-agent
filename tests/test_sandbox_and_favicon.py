@@ -51,7 +51,7 @@ def test_axe_core_execution_with_onload_and_srcdoc():
         assert "iframe.onload = finish" in content
         assert "iframe.addEventListener('load', finish)" in content
         assert "const targetDoc = iframe.contentDocument || iframe.contentWindow.document;" in content
-        assert "window.axe.run(targetDoc," in content
+        assert "iframe.contentWindow.axe.run(iframe.contentDocument" in content
         # Verify debug console logs
         assert "Nodos evaluados en el DOM:" in content
         assert "Muestra del body:" in content
