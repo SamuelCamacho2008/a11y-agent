@@ -702,10 +702,10 @@
                     <!-- Configuración Avanzada TAW (Spider / Cookies) -->
                     <div class="advanced-options">
                         <div>
-                            <label for="scope-url">Alcance del Análisis (Spider TAW):</label>
+                            <label for="scope-url">Alcance del análisis:</label>
                             <select id="scope-url">
                                 <option value="single" selected>Página Individual (Recomendado)</option>
-                                <option value="spider">Rastreo Spider (Hasta 5 enlaces internos)</option>
+                                <option value="spider" disabled>Rastreo Spider (no disponible todavía)</option>
                             </select>
                         </div>
                         <div>
@@ -834,7 +834,7 @@
                 <ol style="margin-left: 1.5rem; font-size: 0.92rem; color: #cbd5e1; line-height: 1.8;">
                     <li>Abra en su navegador la página que desea auditar (incluso páginas con sesión iniciada).</li>
                     <li>Haga clic en el marcador <strong>"📌 Auditar con A11y TAW"</strong> en su barra de marcadores.</li>
-                    <li>El motor oficial axe-core evaluará la pestaña abierta en vivo y transferirá los resultados a este informe interactivo con puntaje TAW.</li>
+                    <li>El motor axe-core evaluará la pestaña abierta y mostrará los hallazgos detectados junto con un indicador interno del agente; no es una puntuación oficial de TAW.</li>
                 </ol>
             </div>
 
@@ -868,8 +868,8 @@
                 <section class="summary-dashboard">
                     <div class="score-box">
                         <div id="score-circle" class="score-circle">--</div>
-                        <strong style="font-size: 1.05rem;">Puntaje TAW</strong>
-                        <small style="color: var(--text-muted);">Escala 0 a 100</small>
+                        <strong style="font-size: 1.05rem;">Indicador interno del agente</strong>
+                        <small style="color: var(--text-muted);">Escala estimada 0 a 100; no es conformidad WCAG ni puntaje oficial TAW</small>
                     </div>
 
                     <div>
@@ -1295,7 +1295,8 @@
                         body: JSON.stringify({
                             url: targetUrl,
                             guidelines: (document.getElementById('guidelines-url')?.value === 'wcag22') ? 'WCAG 2.2' : 'WCAG 2.1',
-                            target_level: (document.getElementById('level-url')?.value || 'AA').toUpperCase()
+                            target_level: (document.getElementById('level-url')?.value || 'AA').toUpperCase(),
+                            dismiss_cookies: document.getElementById('cookie-banner-opt')?.value === 'dismiss'
                         }),
                         signal: controller.signal
                     });
@@ -1342,12 +1343,22 @@
         }
 
         function renderCloudBackendReport(cloudReport, targetUrl) {
-            let findings = [];
-            if (cloudReport.raw_findings && cloudReport.raw_findings.length > 0) {
-                findings = cloudReport.raw_findings.map((f, idx) => ({
-                    id: f.id || `P-${idx + 1}`,
-                    principle: f.principle ? (f.principle.charAt(0).toUpperCase() + f.principle.slice(1)) : 'Perceptible',
-                    criterion_id: f.criterion_id,
+            const apiFindings = Array.isArray(cloudReport.all_findings)
+                ? cloudReport.all_findings
+                : (Array.isArray(cloudReport.raw_findings) ? cloudReport.raw_findings : null);
+            if (!apiFindings) {
+                renderActionableError({
+                    code: 'INVALID_AUDIT_RESPONSE',
+                    title: 'Respuesta incompleta del motor de análisis',
+                    message: 'El servidor no devolvió la lista de hallazgos del análisis; no se mostrará un informe vacío como si la página estuviera libre de barreras.',
+                    actionTip: 'Espere unos segundos y vuelva a ejecutar el análisis. Si el error persiste, contacte al administrador del servicio.'
+                });
+                return;
+            }
+            const findings = apiFindings.map((f, idx) => ({
+                    id: f.id || `P-${idx + 1}`,
+                    principle: f.principle ? (f.principle.charAt(0).toUpperCase() + f.principle.slice(1)) : 'Perceptible',
+                    criterion_id: f.criterion_id,
                     criterion_title: f.criterion_title,
                     level: f.level || 'AA',
                     category: f.category || 'Problema',
@@ -1364,12 +1375,12 @@
                     } : null,
                     impact: f.impact || 'medio'
                 }));
-            }
-            buildAndDisplayReport(
-                findings,
-                targetUrl,
-                cloudReport.metadata?.target_type || "web",
-                "Nivel 1: Renderizado Completo Headless (API Playwright Cloud)"
+            buildAndDisplayReport(
+                findings,
+                targetUrl,
+                cloudReport.metadata?.target_type || "web",
+                "Nivel 1: Renderizado Completo Headless (API Playwright Cloud)",
+                cloudReport.summary
             );
             if (cloudReport.metadata?.public_url) {
                 currentReport.publicUrl = cloudReport.metadata.public_url;
@@ -1921,7 +1932,7 @@
                 });
             });
 
-            // Comprobaciones heurísticas semánticas complementarias (TAW)
+            // Comprobaciones heurísticas semánticas complementarias del agente
             const iframe = document.getElementById('audit-sandbox');
             const iframeDoc = iframe?.contentDocument || document;
 
@@ -1980,48 +1991,28 @@
                 }
             });
 
-            // Criterios W3C "No Verificados" (requieren verificación humana obligatoria; nunca se marcan como aprobados)
-            rawFindings.push({
-                id: `NV-${counter++}`,
-                principle: "Perceptible",
-                criterion_id: "1.2.2",
-                criterion_title: "Subtítulos (pregrabados)",
-                level: "A",
-                category: "No verificado",
-                check_name: "Verificación humana de subtítulos en medios audiovisuales",
-                technique: "G87",
-                slug: "captions-prerecorded",
-                selector: "Contenido multimedia / Video",
-                snippet: "Verificación de pistas de subtítulos sincronizados",
-                explanation: "Las herramientas automáticas no pueden validar la exactitud fonética y sincronización de los subtítulos de vídeo.",
-                remediation: {
-                    before: "Video sin validar",
-                    after: "<track kind='captions' src='subtitulos_es.vtt' srclang='es' label='Español' default>",
-                    advice: "Revise manualmente los videos del sitio y asegure subtítulos sincronizados con el audio hablado."
-                },
-                impact: "medio"
-            });
-
-            rawFindings.push({
-                id: `NV-${counter++}`,
-                principle: "Comprensible",
-                criterion_id: "3.1.2",
-                criterion_title: "Idioma de las partes",
-                level: "AA",
-                category: "No verificado",
-                check_name: "Verificación de cambios de idioma en párrafos o citas",
-                technique: "H58",
-                slug: "language-of-parts",
-                selector: "Citas textuales / Frases en idioma extranjero",
-                snippet: "Texto en idioma diferente al principal",
-                explanation: "Compruebe si existen frases o citas en otro idioma que requieran el atributo xml:lang o lang específico.",
-                remediation: {
-                    before: "<p>The quick brown fox jumps over the lazy dog</p>",
-                    after: "<p lang='en'>The quick brown fox jumps over the lazy dog</p>",
-                    advice: "Indique el atributo lang='en' en las secciones que cambien de idioma para el sintetizador de voz."
-                },
-                impact: "medio"
-            });
+            if (iframeDoc.querySelector('video')) {
+                rawFindings.push({
+                    id: `NV-${counter++}`,
+                    principle: "Perceptible",
+                    criterion_id: "1.2.2",
+                    criterion_title: "Subtítulos (pregrabados)",
+                    level: "A",
+                    category: "No verificado",
+                    check_name: "Verificación humana de subtítulos en video",
+                    technique: "G87",
+                    slug: "captions-prerecorded",
+                    selector: "video",
+                    snippet: iframeDoc.querySelector('video').outerHTML,
+                    explanation: "La presencia de video requiere revisar manualmente si contiene audio sincronizado y subtítulos exactos.",
+                    remediation: {
+                        before: iframeDoc.querySelector('video').outerHTML,
+                        after: "<video><track kind='captions' src='subtitulos_es.vtt' srclang='es' label='Español'></video>",
+                        advice: "Revise el contenido del video y proporcione subtítulos sincronizados cuando haya audio hablado."
+                    },
+                    impact: "medio"
+                });
+            }
 
             buildAndDisplayReport(rawFindings, resourceName, targetType, precisionTitle);
             setLoading(false, "");
@@ -2030,22 +2021,24 @@
         // =========================================================================
         // 4. GENERACIÓN DE REPORTE TAW Y METADATOS
         // =========================================================================
-        function buildAndDisplayReport(findings, targetName, targetType, precisionTitle) {
-            const totalProblems = findings.filter(f => f.category === 'Problema').length;
-            const totalWarnings = findings.filter(f => f.category === 'Advertencia').length;
-            const totalUnverified = findings.filter(f => f.category === 'No verificado').length;
-
-            let penalty = 0;
-            findings.forEach(f => {
-                if (f.category === 'Problema') {
-                    if (f.impact === 'crítico') penalty += 14;
-                    else if (f.impact === 'alto') penalty += 9;
-                    else penalty += 5;
-                } else if (f.category === 'Advertencia') {
-                    penalty += 2;
-                }
-            });
-            const score = Math.max(0, Math.min(100, 100 - penalty));
+        function buildAndDisplayReport(findings, targetName, targetType, precisionTitle, apiSummary = null) {
+            const totalProblems = apiSummary?.total_problems ?? findings.filter(f => f.category === 'Problema').length;
+            const totalWarnings = apiSummary?.total_warnings ?? findings.filter(f => f.category === 'Advertencia').length;
+            const totalUnverified = apiSummary?.total_unverified ?? findings.filter(f => f.category === 'No verificado').length;
+
+            const penalties = {
+                'Problema': { 'crítico': 15, 'alto': 10, 'medio': 5, 'bajo': 2 },
+                'Advertencia': { 'crítico': 5, 'alto': 3, 'medio': 1.5, 'bajo': 0.5 },
+                'No verificado': { 'crítico': 1, 'alto': 0.5, 'medio': 0.2, 'bajo': 0.5 }
+            };
+            let penalty = 0;
+            findings.forEach(f => {
+                penalty += penalties[f.category]?.[f.impact] ?? 0;
+            });
+            const calculatedScore = findings.length === 0
+                ? 100
+                : Math.min(99, Math.max(0, Math.floor(100 - penalty)));
+            const score = Number.isFinite(apiSummary?.score) ? apiSummary.score : calculatedScore;
 
             currentReport = {
                 id: "rep_" + Math.random().toString(16).substring(2, 10),
@@ -2080,7 +2073,7 @@
             document.getElementById('meta-guidelines').textContent = `${guidelinesVer} Nivel ${levelVal}`;
 
             // Resumen ejecutivo
-            const execSummary = `1. Diagnóstico: '${targetName}' obtuvo un puntaje TAW de ${score}/100.
+            const execSummary = `1. Diagnóstico: '${targetName}' obtuvo un indicador interno del agente de ${score}/100; no equivale a una certificación ni al puntaje de TAW.
 2. Fallos Críticos (Problemas): Se encontraron ${totalProblems} barreras automáticas que impiden la navegación con tecnologías asistivas.
 3. Observaciones (Advertencias): Se registraron ${totalWarnings} elementos que requieren inspección visual o semántica.
 4. Criterios Humanos (No verificados): ${totalUnverified} comprobaciones que no pueden ser resueltas por software automático.

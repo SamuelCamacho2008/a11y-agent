@@ -2,6 +2,8 @@
 
 Plataforma integral de auditoría y remediación de accesibilidad digital conforme a las pautas **W3C WCAG 2.0 / 2.1 / 2.2 (Niveles A, AA y AAA)** y el estándar europeo **EN 301 549 (Android)**. Inspirado en el **Modelo TAW (tawdis.net)**, determinista con motor oficial **axe-core 4.9.1**, análisis de layouts Android y remediación guiada con código interactivo (Antes / Después).
 
+El indicador de 0 a 100 es una métrica heurística interna del agente: no es una certificación WCAG ni una puntuación oficial de TAW. Los motores pueden detectar y clasificar hallazgos de forma distinta; los resultados automáticos deben complementarse con revisión manual.
+
 ---
 
 ## 🌐 Acceso Público
@@ -40,7 +42,7 @@ flowchart TD
     E -- "Sí" --> F["Nivel 1: Playwright Headless en Contenedor (Precisión Máxima)"]
     E -- "No / Sin Backend" --> G["Nivel 2: Multi-Proxy Anti-Bot y Extracción DOM (Precisión Alta)"]
     G -- "Fallo WAF Estricto" --> H["Nivel 3: Modo 'Código HTML Directo' (Pegar código o archivo .html)"]
-    D --> I["Dashboard TAW Unificado (Puntaje, KPIs, 4 Principios W3C)"]
+    D --> I["Dashboard de auditoría (indicador interno, KPIs, 4 Principios W3C)"]
     F --> I
     G --> I
     H --> I

@@ -1,8 +1,9 @@
 """Unit tests for Phase 5: FastAPI endpoints and Chat Assistant."""
 
 import pytest
+from unittest.mock import AsyncMock
 from httpx import AsyncClient, ASGITransport
-from a11y_agent.api.main import app, REPORTS_CACHE
+from a11y_agent.api.main import app, REPORTS_CACHE, engine
 from a11y_agent.models.schema import (
     A11yReport, ReportMetadata, ReportSummary, Finding, Category,
     Principle, WCAGLevel, GuidelinesVersion, FindingOrigin, Remediation, EffortLevel, ImpactLevel
@@ -94,3 +95,22 @@ async def test_get_report_endpoint(sample_report):
         data = resp.json()
         assert data["id"] == sample_report.id
         assert data["summary"]["score"] == 75
+
+@pytest.mark.asyncio
+async def test_scan_route_passes_cookie_dismissal_preference(sample_report, monkeypatch):
+    mock_run_audit = AsyncMock(return_value=sample_report)
+    monkeypatch.setattr(engine, "run_audit", mock_run_audit)
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post(
+            "/api/scan",
+            json={
+                "url": "https://example.com",
+                "dismiss_cookies": True,
+                "export_formats": []
+            }
+        )
+
+    assert response.status_code == 200
+    assert mock_run_audit.await_args.kwargs["dismiss_cookies"] is True

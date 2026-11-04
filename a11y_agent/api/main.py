@@ -45,6 +45,7 @@ class ScanRequest(BaseModel):
     guidelines: GuidelinesVersion = Field(default=GuidelinesVersion.WCAG_2_1)
     target_level: WCAGLevel = Field(default=WCAGLevel.AA)
     allow_private_ips: bool = Field(default=False)
+    dismiss_cookies: bool = Field(default=False)
     export_formats: List[str] = Field(default=["html", "json", "pdf"])
 
 @app.get("/api/health")
@@ -123,6 +124,7 @@ async def scan_url(scan_req: ScanRequest, request: Request, background_tasks: Ba
             guidelines=scan_req.guidelines,
             target_level=scan_req.target_level,
             allow_private_ips=scan_req.allow_private_ips,
+            dismiss_cookies=scan_req.dismiss_cookies,
             export_formats=scan_req.export_formats,
             base_public_url=base_url
         )

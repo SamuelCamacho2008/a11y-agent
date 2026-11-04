@@ -31,6 +31,7 @@ class A11yEngine:
         guidelines: GuidelinesVersion = GuidelinesVersion.WCAG_2_1,
         target_level: WCAGLevel = WCAGLevel.AA,
         allow_private_ips: bool = False,
+        dismiss_cookies: bool = False,
         export_formats: Optional[List[str]] = None,
         base_public_url: Optional[str] = None
     ) -> A11yReport:
@@ -54,7 +55,8 @@ class A11yEngine:
                 url=url,
                 report_id=report_id,
                 allow_private_ips=allow_private_ips,
-                page_instance=page
+                page_instance=page,
+                dismiss_cookies=dismiss_cookies
             )
 
             # 3: Run axe-core automated rules on the live page

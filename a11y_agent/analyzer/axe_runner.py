@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+from bs4 import BeautifulSoup
 from playwright.async_api import Page
 
 from a11y_agent.models.schema import (
@@ -183,7 +184,7 @@ async def run_axe_core(
             findings.append(finding)
             finding_counter += 1
 
-    # Process Incomplete (Categoría: Advertencia)
+    # Axe incomplete results need human review; they are not confirmed violations.
     for inc in axe_results_raw.get("incomplete", []):
         rule_id = inc.get("id", "rule")
         rule_tags = inc.get("tags", [])
@@ -204,12 +205,12 @@ async def run_axe_core(
             remediation = generate_heuristic_remediation(rule_id, snippet, inc.get("help", ""))
 
             finding = Finding(
-                id=f"A-{finding_counter:03d}",
+                id=f"NV-{finding_counter:03d}",
                 principle=criterion_meta["principle"],
                 criterion_id=criterion_id,
                 criterion_title=criterion_meta["title"],
                 level=criterion_meta["level"],
-                category=Category.ADVERTENCIA,
+                category=Category.NO_VERIFICADO,
                 origin=FindingOrigin.REGLA,
                 check_name=f"[Revisión requerida] {check_name}",
                 w3c_technique=technique,
@@ -224,29 +225,30 @@ async def run_axe_core(
             findings.append(finding)
             finding_counter += 1
 
-    # Criterios W3C No Verificados (manuales)
-    findings.append(Finding(
-        id=f"NV-{finding_counter:03d}",
-        principle=Principle.PERCEPTIBLE,
-        criterion_id="1.2.2",
-        criterion_title="Subtítulos (pregrabados)",
-        level=WCAGLevel.A,
-        category=Category.NO_VERIFICADO,
-        origin=FindingOrigin.REGLA,
-        check_name="Verificación de subtítulos en medios sincronizados",
-        w3c_technique="G87",
-        selector="Video / Multimedia",
-        line_number=None,
-        html_snippet="<video> ... </video>",
-        explanation="Las herramientas automáticas no pueden evaluar la exactitud de los subtítulos de video. Requiere inspección humana.",
-        remediation=Remediation(
-            before_snippet="<video src='video.mp4'></video>",
-            after_snippet="<video src='video.mp4'><track kind='captions' src='sub.vtt' srclang='es' label='Español'></video>",
-            advice="Asegure subtítulos sincronizados con el audio hablado.",
-            effort=EffortLevel.MEDIO
-        ),
-        impact=ImpactLevel.MEDIO,
-        confidence=0.5
-    ))
+    # Only request a caption review when the page actually contains a video.
+    if BeautifulSoup(raw_html, "html.parser").find("video"):
+        findings.append(Finding(
+            id=f"NV-{finding_counter:03d}",
+            principle=Principle.PERCEPTIBLE,
+            criterion_id="1.2.2",
+            criterion_title="Subtítulos (pregrabados)",
+            level=WCAGLevel.A,
+            category=Category.NO_VERIFICADO,
+            origin=FindingOrigin.REGLA,
+            check_name="Verificación de subtítulos en medios sincronizados",
+            w3c_technique="G87",
+            selector="video",
+            line_number=find_line_number(raw_html, "<video", "video"),
+            html_snippet="<video> ... </video>",
+            explanation="La presencia de video requiere revisar manualmente si contiene audio sincronizado y subtítulos exactos.",
+            remediation=Remediation(
+                before_snippet="<video src='video.mp4'></video>",
+                after_snippet="<video src='video.mp4'><track kind='captions' src='sub.vtt' srclang='es' label='Español'></video>",
+                advice="Revise el contenido del video y proporcione subtítulos sincronizados cuando haya audio hablado.",
+                effort=EffortLevel.MEDIO
+            ),
+            impact=ImpactLevel.MEDIO,
+            confidence=0.5
+        ))
 
     return findings

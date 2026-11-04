@@ -98,6 +98,15 @@ def test_tabs_wai_aria_accessibility_pattern():
     assert 'id="panel-coverage"' not in content
     assert 'Mapa de Cobertura' not in content
 
+def test_cloud_report_uses_api_findings_and_does_not_claim_taw_score():
+    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+        content = html_file.read_text(encoding="utf-8")
+        assert "Array.isArray(cloudReport.all_findings)" in content
+        assert "cloudReport.summary" in content
+        assert "dismiss_cookies:" in content
+        assert "Rastreo Spider (no disponible todavía)" in content
+        assert "Puntaje TAW" not in content
+
 def test_deploy_workflow_configuration():
     """Verify GitHub Actions Pages deployment workflow."""
     workflow = REPO_ROOT / ".github" / "workflows" / "deploy-pages.yml"

@@ -39,7 +39,7 @@ def deduplicate_findings(findings: List[Finding]) -> List[Finding]:
 
 def calculate_score(findings: List[Finding]) -> Tuple[int, Dict[str, int]]:
     """
-    Calculate global accessibility score (0-100) based on severity weights.
+    Calculate an internal heuristic indicator (0-100), not a conformance percentage.
     Returns (score, impact_breakdown).
     """
     score = 100.0
@@ -65,7 +65,7 @@ def calculate_score(findings: List[Finding]) -> Tuple[int, Dict[str, int]]:
         (Category.NO_VERIFICADO, ImpactLevel.CRITICO): 1.0,
         (Category.NO_VERIFICADO, ImpactLevel.ALTO): 0.5,
         (Category.NO_VERIFICADO, ImpactLevel.MEDIO): 0.2,
-        (Category.NO_VERIFICADO, ImpactLevel.BAJO): 0.0,
+        (Category.NO_VERIFICADO, ImpactLevel.BAJO): 0.5,
     }
 
     for f in findings:
@@ -73,7 +73,7 @@ def calculate_score(findings: List[Finding]) -> Tuple[int, Dict[str, int]]:
         penalty = penalty_map.get((f.category, f.impact), 2.0)
         score -= penalty
 
-    final_score = max(0, min(100, int(round(score))))
+    final_score = max(0, min(100, int(score)))
     return final_score, impact_counts
 
 def generate_executive_summary(
@@ -89,9 +89,9 @@ def generate_executive_summary(
     level_status = "satisfactorio" if score >= 85 and total_problems == 0 else "con barreras significativas"
     entity = "La aplicación móvil Android" if target_type == "apk" else "La página"
     name_clause = f" ({target_name})" if target_name and target_type == "apk" else ""
-    line1 = f"1. Estado General: {entity}{name_clause} obtiene un puntaje global de accesibilidad de {score}/100, evaluada bajo nivel {target_level.value} ({level_status})."
+    line1 = f"1. Estado General: {entity}{name_clause} obtiene un indicador interno del agente de {score}/100, evaluada bajo nivel {target_level.value} ({level_status}). No equivale a una certificación ni al puntaje de TAW."
     line2 = f"2. Barreras Críticas: Se detectaron {total_problems} problemas deterministas y {total_warnings} advertencias que requieren revisión experta."
-    line3 = f"3. Distribución de Impacto: {impact_counts.get('crítico', 0)} barreras de impacto crítico y {impact_counts.get('alto', 0)} de impacto alto impiden la interacción de usuarios con discapacidad."
+    line3 = f"3. Distribución de Impacto: {impact_counts.get('crítico', 0)} hallazgos de impacto crítico y {impact_counts.get('alto', 0)} de impacto alto requieren priorización."
     line4 = f"4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en etiquetado accesible, contraste y adaptabilidad para tecnologías de asistencia."
     line5 = f"5. Plan de Acción: Se recomienda priorizar los fallos clasificados como Problemas Críticos aplicando las soluciones de código antes/después incluidas en este informe."
     return "\n".join([line1, line2, line3, line4, line5])

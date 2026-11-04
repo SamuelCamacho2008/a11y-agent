@@ -93,7 +93,7 @@ class ReportMetadata(BaseModel):
     screenshot_path: Optional[str] = None
 
 class ReportSummary(BaseModel):
-    score: int = Field(..., ge=0, le=100, description="Puntaje global de accesibilidad (0-100)")
+    score: int = Field(..., ge=0, le=100, description="Indicador interno heurístico (0-100); no es un porcentaje de conformidad ni una puntuación oficial de TAW")
     executive_summary: str = Field(..., description="Resumen ejecutivo conciso de 5 líneas")
     total_problems: int = 0
     total_warnings: int = 0

@@ -418,7 +418,8 @@ HTML_REPORT_TEMPLATE = """<!DOCTYPE html>
             <div class="score-circle {% if report.summary.score >= 80 %}score-high{% elif report.summary.score >= 50 %}score-mid{% else %}score-low{% endif %}">
                 {{ report.summary.score }}
             </div>
-            <strong>Puntaje Global</strong>
+            <strong>Indicador interno del agente</strong>
+            <small>No es un porcentaje de conformidad ni un puntaje oficial de TAW.</small>
             <small style="color: var(--text-muted);">Escala 0 a 100</small>
         </div>
 

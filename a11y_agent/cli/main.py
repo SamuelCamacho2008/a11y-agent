@@ -56,7 +56,7 @@ async def run_cli_scan(args):
         print(f" AUDITORÍA COMPLETADA EXITOSAMENTE (ID: {report.id})")
         print(f" Tiempo de ejecución: {report.metadata.execution_time_seconds}s")
         print("-------------------------------------------------------")
-        print(f" Puntaje Global: {report.summary.score} / 100")
+        print(f" Indicador interno: {report.summary.score} / 100")
         print(f" Problemas (Fallos automáticos): {report.summary.total_problems}")
         print(f" Advertencias (Revisión/IA):    {report.summary.total_warnings}")
         print(f" No verificados:                 {report.summary.total_unverified}")

@@ -1,6 +1,8 @@
 """Unit tests for Phase 2: axe-core runner, line locator, and WCAG rules mapping."""
 
 import pytest
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 from playwright.async_api import async_playwright
 from a11y_agent.analyzer.line_locator import find_line_number
 from a11y_agent.analyzer.axe_runner import get_axe_tags, run_axe_core
@@ -87,3 +89,46 @@ async def test_axe_runner_execution():
     assert label_finding is not None
     assert label_finding.category == Category.PROBLEMA
     assert label_finding.principle == Principle.UNDERSTANDABLE
+
+@pytest.mark.asyncio
+async def test_axe_incomplete_is_unverified_and_caption_check_requires_video():
+    axe_results = {
+        "violations": [],
+        "incomplete": [{
+            "id": "color-contrast",
+            "tags": ["wcag2aa", "wcag143"],
+            "impact": "moderate",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "nodes": [{
+                "html": "<p>Texto</p>",
+                "target": ["p"],
+                "failureSummary": "Review the contrast."
+            }]
+        }]
+    }
+
+    page_without_video = SimpleNamespace(
+        evaluate=AsyncMock(side_effect=[None, axe_results])
+    )
+    findings = await run_axe_core(
+        page=page_without_video,
+        raw_html="<html><body><p>Texto</p></body></html>",
+        guidelines=GuidelinesVersion.WCAG_2_1,
+        target_level=WCAGLevel.AA
+    )
+
+    contrast_finding = next(f for f in findings if f.criterion_id == "1.4.3")
+    assert contrast_finding.category == Category.NO_VERIFICADO
+    assert not any(f.criterion_id == "1.2.2" for f in findings)
+
+    page_with_video = SimpleNamespace(
+        evaluate=AsyncMock(side_effect=[None, {"violations": [], "incomplete": []}])
+    )
+    findings_with_video = await run_axe_core(
+        page=page_with_video,
+        raw_html="<html><body><video src='clip.mp4'></video></body></html>",
+        guidelines=GuidelinesVersion.WCAG_2_1,
+        target_level=WCAGLevel.AA
+    )
+    caption_finding = next(f for f in findings_with_video if f.criterion_id == "1.2.2")
+    assert caption_finding.category == Category.NO_VERIFICADO

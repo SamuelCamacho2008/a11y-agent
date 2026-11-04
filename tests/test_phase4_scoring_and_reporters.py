@@ -83,6 +83,28 @@ def test_calculate_score_and_deduplication():
     assert 0 <= score <= 100
     assert breakdown["crítico"] == 1
     assert breakdown["medio"] == 1
+    assert score < 100
+
+def test_score_is_100_only_when_there_are_no_findings():
+    finding = Finding(
+        id="NV-01",
+        principle=Principle.PERCEPTIBLE,
+        criterion_id="1.2.2",
+        criterion_title="Subtítulos (pregrabados)",
+        level=WCAGLevel.A,
+        category=Category.NO_VERIFICADO,
+        origin=FindingOrigin.REGLA,
+        check_name="Revisión manual de subtítulos",
+        w3c_technique="G87",
+        selector="video",
+        html_snippet="<video></video>",
+        explanation="Requiere revisión humana.",
+        impact=ImpactLevel.BAJO,
+        confidence=0.5
+    )
+
+    assert calculate_score([])[0] == 100
+    assert calculate_score([finding])[0] == 99
 
 def test_build_a11y_report_structure():
     f1 = Finding(
