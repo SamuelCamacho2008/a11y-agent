@@ -4,12 +4,12 @@ Plataforma integral de auditoría y remediación de accesibilidad digital confor
 
 ---
 
-## 🌐 Acceso Público en Línea (Cero Comandos para el Usuario)
+## 🌐 Acceso Público
 
 👉 **Plataforma Web Activa**: **[https://samuelcamacho2008.github.io/a11y-agent/](https://samuelcamacho2008.github.io/a11y-agent/)**
 
 > [!NOTE]
-> La persona usuaria final **no necesita instalar Python, ni usar la terminal (cmd), ni configurar servidores**. Abre el enlace en su navegador, ingresa cualquier URL o arrastra un APK, y obtiene el informe TAW completo de inmediato.
+> GitHub Pages publica la interfaz, pero no ejecuta la API Python ni Playwright. Para que el análisis de URL funcione, primero debe desplegarse el servicio de Render descrito abajo. Una vez configurado, la persona usuaria final no necesita instalar Python ni usar la terminal. Sitios con login, CAPTCHA o bloqueos anti-bot pueden requerir el bookmarklet o código HTML.
 
 ---
 
@@ -54,19 +54,17 @@ flowchart TD
 
 ---
 
-## ☁️ Evaluación de Opciones Cloud Gratuitas (Backend Headless)
+## ☁️ Despliegue del backend en Render
 
-| Plataforma Cloud | Capa Gratuita Actual | Limitaciones Clave | Viabilidad |
-| :--- | :--- | :--- | :--- |
-| **Cloudflare Workers** (Browser Rendering) | Requiere plan **Workers Paid ($5/mes)**. No disponible en la capa gratis. | No permite Puppeteer en Workers Free. | ❌ Descartado para capa 100% libre. |
-| **Vercel / Netlify** (Serverless) | 100 GB ancho de banda / mes. | Límite de tamaño de paquete (50MB–250MB) y timeout de 10-15s (incompatible con Chromium completo). | ❌ Inestable para Playwright. |
-| **Render.com** (Web Service Docker) | **750 horas gratis / mes** (1 instancia continua). | Entra en reposo tras 15 minutos sin peticiones (rearranque de 40-50s). | ✅ **Recomendado para API estándar**. |
-| **Hugging Face Spaces** (Docker SDK) | **16 GB RAM, 2 vCPUs, 100% gratuito y persistente**. | Sin tiempo de hibernación agresivo. Endpoint HTTPS público directo. | 🌟 **Opción Ideal de Despliegue**. |
+GitHub Pages no puede ejecutar el motor Playwright. El archivo `render.yaml` define el servicio Docker de la API y su health check.
 
-### Despliegue en Hugging Face Spaces (Opción Recomendada):
-1. Cree un nuevo Space en [huggingface.co/spaces](https://huggingface.co/spaces) seleccionando **Docker SDK** (Blank).
-2. Suba los archivos del repositorio (`Dockerfile`, `requirements.txt`, `a11y_agent/`).
-3. El Space compilará el contenedor Playwright y ofrecerá una URL pública HTTPS fija (ej. `https://mi-usuario-a11y-api.hf.space`).
+1. Inicie sesión en [Render](https://render.com/) y cree un **Blueprint** nuevo conectado a este repositorio de GitHub.
+2. Seleccione la rama `main` y aplique la configuración detectada en `render.yaml`. Render construirá el contenedor y asignará una URL HTTPS al servicio.
+3. Abra `https://<URL-DEL-SERVICIO>/api/health`. Debe responder con JSON que incluya `"status":"healthy"`. El plan gratuito puede tardar en despertar después de un periodo sin uso.
+4. Si Render asignó una URL distinta de `https://a11y-agent-api-samuelcamacho2008.onrender.com`, reemplace el endpoint en **ambos** archivos, `config.js` y `docs/config.js`, por la URL que Render muestra (sin `/api/health` al final).
+5. Guarde y suba esos cambios a `main`. GitHub Actions volverá a publicar Pages; luego pruebe una auditoría de URL desde el sitio público.
+
+Si el health check no responde con `"healthy"`, la interfaz todavía no puede analizar URLs con el motor completo. La URL pública y la API son servicios separados y ambos deben estar desplegados.
 
 ---
 

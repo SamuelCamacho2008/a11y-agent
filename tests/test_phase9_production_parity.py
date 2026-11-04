@@ -24,6 +24,16 @@ def test_config_js_exists_and_configured():
         assert "enableClientFallback" in content
         assert "isProduction" in content
 
+def test_render_backend_configuration_matches_frontend():
+    """Keep the Render API service and both frontend configs aligned."""
+    render_config = (REPO_ROOT / "render.yaml").read_text(encoding="utf-8")
+    expected_endpoint = "https://a11y-agent-api-samuelcamacho2008.onrender.com"
+
+    assert "name: a11y-agent-api-samuelcamacho2008" in render_config
+    assert "healthCheckPath: /api/health" in render_config
+    for config_path in [REPO_ROOT / "config.js", DOCS_DIR / "config.js"]:
+        assert expected_endpoint in config_path.read_text(encoding="utf-8")
+
 def test_subresource_integrity_and_config_in_html():
     """Verify docs/index.html and root index.html have SRI hashes and load config.js."""
     for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
@@ -41,7 +51,7 @@ def test_subresource_integrity_and_config_in_html():
         )
 
         # Verify config.js script load (relative path)
-        assert 'config.js?v=1.2.0"' in content, f"config.js missing in {html_file}"
+        assert 'config.js?v=1.2.1"' in content, f"config.js missing in {html_file}"
 
 def test_no_insecure_mixed_content_http():
     """Verify no active mixed-content http:// resources are referenced in production index.html."""

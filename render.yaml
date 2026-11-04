@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: a11y-agent-api-samuelcamacho2008
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
