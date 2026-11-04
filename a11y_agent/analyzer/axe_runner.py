@@ -99,8 +99,8 @@ def generate_heuristic_remediation(rule_id: str, snippet: str, failure_summary: 
         advice = "Declare el idioma principal del documento usando el atributo lang (ej. lang='es')."
 
     return Remediation(
-        before=before,
-        after=after,
+        before_snippet=before,
+        after_snippet=after,
         advice=advice,
         effort=effort
     )
@@ -232,7 +232,7 @@ async def run_axe_core(
         criterion_title="Subtítulos (pregrabados)",
         level=WCAGLevel.A,
         category=Category.NO_VERIFICADO,
-        origin=FindingOrigin.HEURISTICA,
+        origin=FindingOrigin.REGLA,
         check_name="Verificación de subtítulos en medios sincronizados",
         w3c_technique="G87",
         selector="Video / Multimedia",
@@ -240,8 +240,8 @@ async def run_axe_core(
         html_snippet="<video> ... </video>",
         explanation="Las herramientas automáticas no pueden evaluar la exactitud de los subtítulos de video. Requiere inspección humana.",
         remediation=Remediation(
-            before="<video src='video.mp4'></video>",
-            after="<video src='video.mp4'><track kind='captions' src='sub.vtt' srclang='es' label='Español'></video>",
+            before_snippet="<video src='video.mp4'></video>",
+            after_snippet="<video src='video.mp4'><track kind='captions' src='sub.vtt' srclang='es' label='Español'></video>",
             advice="Asegure subtítulos sincronizados con el audio hablado.",
             effort=EffortLevel.MEDIO
         ),
