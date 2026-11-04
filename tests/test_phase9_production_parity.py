@@ -34,6 +34,18 @@ def test_render_backend_configuration_matches_frontend():
     for config_path in [REPO_ROOT / "config.js", DOCS_DIR / "config.js"]:
         assert expected_endpoint in config_path.read_text(encoding="utf-8")
 
+def test_playwright_version_matches_docker_image():
+    """Keep Playwright's Python package aligned with the bundled Chromium version."""
+    dockerfile = (REPO_ROOT / "Dockerfile").read_text(encoding="utf-8")
+    requirements = (REPO_ROOT / "requirements.txt").read_text(encoding="utf-8")
+
+    image_match = re.search(r"playwright/python:v([0-9.]+)-jammy", dockerfile)
+    package_match = re.search(r"^playwright==([0-9.]+)$", requirements, re.MULTILINE)
+
+    assert image_match, "Playwright Docker image version is missing"
+    assert package_match, "Playwright dependency must be pinned to an exact version"
+    assert package_match.group(1) == image_match.group(1)
+
 def test_subresource_integrity_and_config_in_html():
     """Verify docs/index.html and root index.html have SRI hashes and load config.js."""
     for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
