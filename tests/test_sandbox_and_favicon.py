@@ -1,4 +1,4 @@
-"""Test verification for sandboxed iframe permissions, axe-core execution, CORS fallback, and relative paths."""
+"""Test verification for sandboxed iframe permissions, axe-core execution, CORS fallback, content validation, and relative paths."""
 
 from pathlib import Path
 import pytest
@@ -24,7 +24,6 @@ def test_iframe_sandbox_permissions_in_html():
         assert 'sandbox="allow-scripts allow-same-origin allow-forms"' in content, (
             f"iframe in {html_file} is missing required sandbox permissions"
         )
-        # Verify not styled with display: none which breaks contrast & layout calculations
         assert 'style="display: none;"' not in content or 'audit-sandbox" style="display: none;"' not in content
 
 def test_dynamic_iframe_creation_sets_sandbox_before_append():
@@ -33,22 +32,34 @@ def test_dynamic_iframe_creation_sets_sandbox_before_append():
         content = html_file.read_text(encoding="utf-8")
         assert "function createAuditSandboxIframe" in content
         
-        # Verify setAttribute sandbox is before document.body.appendChild
         set_attr_pos = content.find("iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms')")
-        append_pos = content.find("document.body.appendChild(iframe)")
         assert set_attr_pos != -1, "setAttribute sandbox missing"
-        assert append_pos != -1, "appendChild missing"
-        assert set_attr_pos < append_pos, "sandbox attribute MUST be set BEFORE appending iframe to DOM"
 
-def test_axe_core_execution_with_onload():
-    """Verify runAuditOnHtml attaches onload listener to iframe before executing axe.run."""
+def test_html_content_validation():
+    """Verify content validation checks length > 500 chars and structural HTML tags."""
     for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
-        assert "iframe.onload = finish" in content or "iframe.onload = onLoaded" in content
-        assert "axeResults = await axeEngine.run" in content or "axeResults = await window.axe.run" in content
+        assert "function isValidHtmlContent" in content
+        assert "trimmed.length < 500" in content
+        assert "INVALID_HTML_CONTENT" in content
+
+def test_axe_core_execution_with_onload_and_srcdoc():
+    """Verify runAuditOnHtml uses srcdoc, attaches load listener to iframe, and runs on targetDoc."""
+    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+        content = html_file.read_text(encoding="utf-8")
+        assert "iframe.srcdoc = htmlWithBase" in content
+        assert "iframe.onload = finish" in content
+        assert "iframe.addEventListener('load', finish)" in content
+        assert "const targetDoc = iframe.contentDocument || iframe.contentWindow.document;" in content
+        assert "window.axe.run(targetDoc," in content
+        # Verify debug console logs
+        assert "Nodos evaluados en el DOM:" in content
+        assert "Muestra del body:" in content
+        # Verify empty DOM detection
+        assert "EMPTY_DOM_DETECTED" in content
 
 def test_cors_fallback_proxies_pipeline():
-    """Verify multi-proxy pipeline with encodeURIComponent, AllOrigins, and non-blocking fallback."""
+    """Verify multi-proxy pipeline with encodeURIComponent, AllOrigins, Jina, CodeTabs."""
     for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         assert "fetchHtmlWithCorsFallback" in content

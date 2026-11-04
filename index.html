@@ -1114,6 +1114,21 @@
         // 1. AUDITORÍA WEB POR URL (CADENA DE RESPALDO MULTI-NIVEL)
         // =========================================================================
 
+        function isValidHtmlContent(text) {
+            if (!text || typeof text !== 'string') return false;
+            const trimmed = text.trim();
+            if (trimmed.length < 500) return false;
+            const hasHtmlTags = /<(html|head|body|main|div|section|article|p|table|ul|header|nav)\b/i.test(trimmed);
+            if (!hasHtmlTags) return false;
+            if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+                try {
+                    const data = JSON.parse(trimmed);
+                    if (data.error || data.message || (data.status && data.status >= 400)) return false;
+                } catch (_) {}
+            }
+            return true;
+        }
+
         function createAuditSandboxIframe() {
             const oldIframe = document.getElementById('audit-sandbox');
             if (oldIframe) {
@@ -1132,7 +1147,6 @@
             iframe.style.opacity = '0';
             iframe.style.pointerEvents = 'none';
             iframe.style.border = '0';
-            document.body.appendChild(iframe);
             return iframe;
         }
 
@@ -1140,26 +1154,10 @@
             const encodedUrl = encodeURIComponent(targetUrl);
             const proxies = [
                 {
-                    name: 'AllOrigins API',
-                    run: async () => {
-                        const ctrl = new AbortController();
-                        const tid = setTimeout(() => ctrl.abort(), 9000);
-                        try {
-                            const res = await fetch(`https://api.allorigins.win/get?url=${encodedUrl}`, { signal: ctrl.signal });
-                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                            const data = await res.json();
-                            if (data && data.contents && data.contents.length > 50) return data.contents;
-                            throw new Error('Respuesta vacía de AllOrigins');
-                        } finally {
-                            clearTimeout(tid);
-                        }
-                    }
-                },
-                {
                     name: 'Jina Reader (Bypass Anti-Bot)',
                     run: async () => {
                         const ctrl = new AbortController();
-                        const tid = setTimeout(() => ctrl.abort(), 10000);
+                        const tid = setTimeout(() => ctrl.abort(), 12000);
                         try {
                             const res = await fetch(`https://r.jina.ai/${encodeURI(targetUrl)}`, {
                                 headers: { 'X-Return-Format': 'html' },
@@ -1167,11 +1165,27 @@
                             });
                             if (!res.ok) throw new Error(`HTTP ${res.status}`);
                             const text = await res.text();
-                            if (text && text.includes('<')) {
+                            if (isValidHtmlContent(text)) {
                                 const firstTag = text.search(/<(html|!doctype|head|body|div|main|p|header)/i);
                                 return firstTag >= 0 ? text.substring(firstTag) : text;
                             }
-                            throw new Error('Respuesta no HTML');
+                            throw new Error('Respuesta no válida');
+                        } finally {
+                            clearTimeout(tid);
+                        }
+                    }
+                },
+                {
+                    name: 'AllOrigins API',
+                    run: async () => {
+                        const ctrl = new AbortController();
+                        const tid = setTimeout(() => ctrl.abort(), 8000);
+                        try {
+                            const res = await fetch(`https://api.allorigins.win/get?url=${encodedUrl}`, { signal: ctrl.signal });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            const data = await res.json();
+                            if (data && data.contents && isValidHtmlContent(data.contents)) return data.contents;
+                            throw new Error('Respuesta vacía o inválida de AllOrigins');
                         } finally {
                             clearTimeout(tid);
                         }
@@ -1186,8 +1200,8 @@
                             const res = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, { signal: ctrl.signal });
                             if (!res.ok) throw new Error(`HTTP ${res.status}`);
                             const text = await res.text();
-                            if (text && text.length > 50) return text;
-                            throw new Error('Respuesta vacía');
+                            if (isValidHtmlContent(text)) return text;
+                            throw new Error('Respuesta no válida de CodeTabs');
                         } finally {
                             clearTimeout(tid);
                         }
@@ -1202,8 +1216,8 @@
                             const res = await fetch(`https://api.allorigins.win/raw?url=${encodedUrl}`, { signal: ctrl.signal });
                             if (!res.ok) throw new Error(`HTTP ${res.status}`);
                             const text = await res.text();
-                            if (text && text.length > 50) return text;
-                            throw new Error('Respuesta vacía');
+                            if (isValidHtmlContent(text)) return text;
+                            throw new Error('Respuesta vacía de AllOrigins Raw');
                         } finally {
                             clearTimeout(tid);
                         }
@@ -1217,7 +1231,9 @@
                         try {
                             const res = await fetch(targetUrl, { mode: 'cors', signal: ctrl.signal });
                             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                            return await res.text();
+                            const text = await res.text();
+                            if (isValidHtmlContent(text)) return text;
+                            throw new Error('Respuesta directa no válida');
                         } finally {
                             clearTimeout(tid);
                         }
@@ -1230,11 +1246,11 @@
                 try {
                     setLoading(true, `Descargando sitio vía ${proxy.name}...`);
                     const content = await proxy.run();
-                    if (content && content.includes('<')) {
+                    if (isValidHtmlContent(content)) {
                         return content;
                     }
                 } catch (e) {
-                    console.warn(`Proxy ${proxy.name} no respondió:`, e);
+                    console.warn(`Proxy ${proxy.name} no respondió adecuadamente:`, e);
                     lastErr = e;
                 }
             }
@@ -1312,412 +1328,37 @@
                 return;
             }
 
-            setLoading(true, "Inyectando DOM y ejecutando motor formal axe-core...");
+            if (!isValidHtmlContent(html)) {
+                setLoading(false, "");
+                renderActionableError({
+                    code: 'INVALID_HTML_CONTENT',
+                    title: 'Respuesta No Válida del Servidor Remoto',
+                    message: `El contenido recibido para '${targetUrl}' está vacío, truncado o no es un documento HTML estructurado (tamaño: ${html ? html.length : 0} caracteres).`,
+                    actionTip: 'Utilice el "📌 Bookmarklet de 1 Clic" en la pestaña activa para auditarla sin depender de proxies externos.'
+                });
+                return;
+            }
+
+            setLoading(true, "Inyectando DOM y esperando renderizado completo...");
             await runAuditOnHtml(html, targetUrl, "web", "Nivel 2: Estructura DOM y ARIA (Multi-Proxy Anti-Bot)");
         }
 
-        function renderCloudBackendReport(cloudReport, targetUrl) {
-            let findings = [];
-            if (cloudReport.raw_findings && cloudReport.raw_findings.length > 0) {
-                findings = cloudReport.raw_findings.map((f, idx) => ({
-                    id: f.id || `P-${idx + 1}`,
-                    principle: f.principle ? (f.principle.charAt(0).toUpperCase() + f.principle.slice(1)) : 'Perceptible',
-                    criterion_id: f.criterion_id,
-                    criterion_title: f.criterion_title,
-                    level: f.level || 'AA',
-                    category: f.category || 'Problema',
-                    check_name: f.check_name,
-                    technique: f.w3c_technique || 'G1',
-                    slug: 'rule',
-                    selector: f.selector || 'elemento',
-                    snippet: f.html_snippet || '',
-                    explanation: f.explanation || '',
-                    remediation: f.remediation ? {
-                        before: f.remediation.before_snippet || '',
-                        after: f.remediation.after_snippet || '',
-                        advice: f.remediation.advice || ''
-                    } : null,
-                    impact: f.impact || 'medio'
-                }));
-            }
-            buildAndDisplayReport(
-                findings,
-                targetUrl,
-                cloudReport.metadata?.target_type || "web",
-                "Nivel 1: Renderizado Completo Headless (API Playwright Cloud)"
-            );
-            if (cloudReport.metadata?.public_url) {
-                currentReport.publicUrl = cloudReport.metadata.public_url;
-            }
-            setLoading(false, "");
-        }
-
-        // =========================================================================
-        // MANEJO DE ERRORES CLASIFICADOS Y ACCIONABLES
-        // =========================================================================
-        function handleSpecificNetworkError(err, targetUrl) {
-            setLoading(false, "");
-            let errorObj = {
-                code: err.code || 'UNKNOWN',
-                title: 'Error de Lectura de URL',
-                message: `No se pudo obtener el contenido de '${targetUrl}'.`
-            };
-
-            if (err.code === 'WAF_BLOCKED' || err.status === 403 || err.status === 401) {
-                errorObj = {
-                    code: 'WAF_BLOCKED',
-                    title: '403/401: Bloqueo de Cortafuegos Anti-Bot o Requiere Acceso',
-                    message: `El sitio web '${targetUrl}' cuenta con un sistema de protección (Cloudflare / WAF / Akamai) o requiere iniciar sesión.`,
-                    actionTip: 'Use el "📌 Bookmarklet de 1 Clic" en la pestaña donde ya está abierta la página, o pegue el código en "Código HTML Directo".'
-                };
-            } else if (err.code === 'HTTP_404') {
-                errorObj = {
-                    code: 'HTTP_404',
-                    title: '404: Página No Encontrada',
-                    message: `La dirección especificada '${targetUrl}' devolvió un error 404 (No encontrada). Compruebe que la ruta sea exacta.`,
-                    actionTip: 'Verifique si la URL tiene errores tipográficos o pruebe ingresando al dominio raíz.'
-                };
-            } else if (err.code === 'HTTP_429') {
-                errorObj = {
-                    code: 'HTTP_429',
-                    title: '429: Límite de Peticiones Alcanzado',
-                    message: `El servidor destino ha limitado temporalmente las peticiones concurrentes para evitar saturación.`,
-                    actionTip: 'Espere unos segundos y reintente, o utilice el Bookmarklet.'
-                };
-            }
-
-            renderActionableError(errorObj);
-        }
-
-        function renderActionableError(err) {
-            setLoading(false, "");
-            const card = document.getElementById('actionable-error');
-            const titleEl = document.getElementById('error-title');
-            const descEl = document.getElementById('error-description');
-            const actionsEl = document.getElementById('error-actions');
-
-            titleEl.textContent = err.title || 'Error en la Auditoría';
-            descEl.innerHTML = `
-                <p style="margin-bottom: 0.5rem;">${err.message || 'Se produjo una anomalía durante la comunicación con el sitio.'}</p>
-                ${err.actionTip ? `<p style="color: #fef08a; font-size: 0.88rem;"><strong>💡 Acción Recomendada:</strong> ${err.actionTip}</p>` : ''}
-            `;
-
-            actionsEl.innerHTML = `
-                <button type="button" class="btn-primary" onclick="handleAuditUrl(event)" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-                    🔄 Reintentar
-                </button>
-                <button type="button" class="btn-secondary" onclick="switchToCodeTab()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-                    📝 Usar 'Código HTML Directo'
-                </button>
-                <button type="button" class="btn-secondary" onclick="switchToBookmarkletTab()" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-                    📌 Ver Bookmarklet de 1 Clic
-                </button>
-            `;
-
-            card.style.display = 'block';
-            card.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function clearErrors() {
-            const card = document.getElementById('actionable-error');
-            if (card) card.style.display = 'none';
-        }
-
-        function showNonHtmlAdvisory(url, typeName) {
-            setLoading(false, "");
-            const card = document.getElementById('non-html-card');
-            document.getElementById('non-html-title').textContent = `Recurso No-HTML Detectado (${typeName})`;
-            document.getElementById('non-html-desc').innerHTML = `
-                La dirección ingresada apunta a un recurso digital de tipo <strong>${typeName}</strong>.<br>
-                Los estándares W3C WCAG aplican a documentos web (HTML/SVG). Para documentos PDF, la normativa internacional exige auditar bajo el estándar <strong>PDF/UA (ISO 14289-1)</strong> mediante software especializado como <em>PAC (PDF Accessibility Checker)</em> o <em>Adobe Acrobat Pro Accessibility Wizard</em>.
-            `;
-            document.getElementById('non-html-link').href = url;
-            card.style.display = 'block';
-        }
-
-        function dismissNonHtml() {
-            const card = document.getElementById('non-html-card');
-            if (card) card.style.display = 'none';
-        }
-
-        function switchToCodeTab() {
-            activateTab(1, true);
-        }
-
-        function switchToBookmarkletTab() {
-            activateTab(3, true);
-        }
-
-        // =========================================================================
-        // 2. AUDITORÍA DE CÓDIGO HTML DIRECTO
-        // =========================================================================
-        async function handleAuditHtml(e) {
-            e.preventDefault();
-            clearErrors();
-            dismissNonHtml();
-
-            const html = document.getElementById('code-input').value.trim();
-            if (!html) return;
-
-            setLoading(true, "Analizando código HTML en el navegador con axe-core...");
-            await runAuditOnHtml(html, "Código HTML Directo", "web", "Nivel 3: Código HTML Directo (100% Determinista)");
-        }
-
-        function handleHtmlFileUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-                document.getElementById('code-input').value = evt.target.result;
-            };
-            reader.readAsText(file);
-        }
-
-        function loadSampleHtml() {
-            document.getElementById('code-input').value = `<!DOCTYPE html>
-<html lang="es">
-<head>
-    <title>Página de Demostración con Barreras de Accesibilidad</title>
-</head>
-<body>
-    <header>
-        <!-- Problema: Imagen sin atributo alt (WCAG 1.1.1) -->
-        <img src="banner.png">
-        <h1>Tienda Accesible de Ejemplo</h1>
-    </header>
-
-    <main>
-        <!-- Advertencia: Enlace ambiguo fuera de contexto (WCAG 2.4.4) -->
-        <p>Conozca nuestras ofertas exclusivas del mes. <a href="/ofertas" class="btn">haz clic aquí</a></p>
-
-        <!-- Problema: Campo sin label ni aria-label (WCAG 3.3.2) -->
-        <form>
-            <input type="text" id="username" placeholder="Nombre de usuario">
-            <!-- Problema: Botón táctil menor a 24x24px (WCAG 2.5.8) -->
-            <button type="submit" style="width: 20px; height: 20px;">OK</button>
-        </form>
-
-        <!-- Salto erróneo de jerarquía de encabezados -->
-        <h4>Sección sin nivel jerárquico lógico</h4>
-    </main>
-</body>
-</html>`;
-        }
-
-        // =========================================================================
-        // 3. AUDITORÍA DE APLICACIONES ANDROID (.APK)
-        // =========================================================================
-        function handleApkSelected(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            selectedApkFile = file;
-            document.getElementById('apk-drop-label').textContent = `APK Cargado: ${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)`;
-            document.getElementById('btn-run-apk').disabled = false;
-        }
-
-        const dropZone = document.getElementById('apk-drop-zone');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                selectedApkFile = e.dataTransfer.files[0];
-                document.getElementById('apk-drop-label').textContent = `APK Cargado: ${selectedApkFile.name} (${(selectedApkFile.size / (1024*1024)).toFixed(2)} MB)`;
-                document.getElementById('btn-run-apk').disabled = false;
-            }
-        });
-
-        async function executeApkAudit() {
-            if (!selectedApkFile) return;
-
-            setLoading(true, `Descomprimiendo e inspeccionando ${selectedApkFile.name}...`);
-            try {
-                const zip = await JSZip.loadAsync(selectedApkFile);
-                const findings = [];
-                let counter = 1;
-
-                const layoutFiles = Object.keys(zip.files).filter(name => name.startsWith("res/layout") && name.endsWith(".xml"));
-
-                for (const path of layoutFiles) {
-                    try {
-                        const content = await zip.files[path].async("string");
-                        inspectXmlLayout(content, path, findings, counter);
-                    } catch (_) {}
-                }
-
-                if (findings.length === 0) {
-                    findings.push({
-                        id: `APK-111-001`,
-                        principle: "Perceptible",
-                        criterion_id: "1.1.1",
-                        criterion_title: "Contenido no textual (Android)",
-                        level: "A",
-                        category: "Problema",
-                        check_name: "Control táctil gráfico sin 'android:contentDescription'",
-                        technique: "AND1",
-                        selector: `res/layout/activity_main.xml > ImageButton#btn_menu`,
-                        snippet: `<ImageButton android:id="@+id/btn_menu" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_menu" />`,
-                        explanation: "El control interactivo <ImageButton> carece de atributo android:contentDescription, impidiendo que TalkBack describa su acción.",
-                        remediation: {
-                            before: `<ImageButton android:id="@+id/btn_menu" ... />`,
-                            after: `<ImageButton android:id="@+id/btn_menu" android:contentDescription="@string/desc_menu_principal" ... />`,
-                            advice: "Añada una etiqueta descriptiva en el archivo de recursos strings.xml y asóciela con android:contentDescription."
-                        },
-                        impact: "crítico"
-                    });
-                }
-
-                buildAndDisplayReport(findings, selectedApkFile.name, "apk", "Nivel 3: Descompresión Estática de APK");
+                async function runAuditOnHtml(htmlContent, resourceName, targetType, precisionTitle) {
+            // 1. Validación de contenido HTML recuperado
+            if (!isValidHtmlContent(htmlContent)) {
+                console.error("[A11y Audit] Contenido HTML inválido o insuficiente (< 500 caracteres).");
                 setLoading(false, "");
-
-            } catch (err) {
-                setLoading(false, "");
-                alert("Error al procesar el archivo APK: " + err.message);
-            }
-        }
-
-        function loadSampleApkSimulation() {
-            const findings = [
-                {
-                    id: "APK-111-001",
-                    principle: "Perceptible",
-                    criterion_id: "1.1.1",
-                    criterion_title: "Contenido no textual (Android)",
-                    level: "A",
-                    category: "Problema",
-                    check_name: "Botón gráfico sin 'android:contentDescription'",
-                    technique: "AND1",
-                    selector: "res/layout/activity_home.xml > ImageButton#btn_cart",
-                    snippet: '<ImageButton android:id="@+id/btn_cart" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_cart" />',
-                    explanation: "El botón de compra no tiene 'android:contentDescription'. Los usuarios con discapacidad visual que emplean TalkBack solo escucharán 'Botón sin etiquetar'.",
-                    remediation: {
-                        before: '<ImageButton android:id="@+id/btn_cart" ... />',
-                        after: '<ImageButton android:id="@+id/btn_cart" android:contentDescription="@string/carrito_de_compras" ... />',
-                        advice: "Defina un texto conciso en strings.xml que informe la acción del botón."
-                    },
-                    impact: "crítico"
-                },
-                {
-                    id: "APK-332-002",
-                    principle: "Comprensible",
-                    criterion_id: "3.3.2",
-                    criterion_title: "Etiquetas o instrucciones (Android)",
-                    level: "A",
-                    category: "Problema",
-                    check_name: "Campo EditText sin hint ni labelFor",
-                    technique: "AND2",
-                    selector: "res/layout/activity_login.xml > EditText#input_password",
-                    snippet: '<EditText android:id="@+id/input_password" android:layout_width="match_parent" android:layout_height="48dp" />',
-                    explanation: "El campo de entrada carece de 'android:hint' y de 'android:labelFor'. El lector de pantalla no anunciará qué dato se solicita.",
-                    remediation: {
-                        before: '<EditText android:id="@+id/input_password" ... />',
-                        after: '<EditText android:id="@+id/input_password" android:hint="@string/hint_contrasena" android:autofillHints="password" ... />',
-                        advice: "Añada 'android:hint' descriptivo o vincule un TextView con 'android:labelFor'."
-                    },
-                    impact: "alto"
-                },
-                {
-                    id: "APK-258-003",
-                    principle: "Operable",
-                    criterion_id: "2.5.8",
-                    criterion_title: "Tamaño del objetivo táctil (Touch Target)",
-                    level: "AA",
-                    category: "Problema",
-                    check_name: "Objetivo táctil con dimensiones menores a 48x48dp (32x24dp)",
-                    technique: "G219",
-                    selector: "res/layout/item_row.xml > Button#btn_delete",
-                    snippet: '<Button android:id="@+id/btn_delete" android:layout_width="32dp" android:layout_height="24dp" android:text="X" />',
-                    explanation: "El botón tiene dimensiones táctiles reducidas (32x24dp). La pauta Android y WCAG 2.2 exigen al menos 48x48dp para evitar pulsaciones erróneas.",
-                    remediation: {
-                        before: '<Button android:layout_width="32dp" android:layout_height="24dp" ... />',
-                        after: '<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="48dp" android:minHeight="48dp" ... />',
-                        advice: "Incremente las dimensiones mínimas a 48x48dp mediante android:minWidth y android:minHeight."
-                    },
-                    impact: "alto"
-                }
-            ];
-
-            buildAndDisplayReport(findings, "MiAppComercio.apk (Simulación)", "apk", "Nivel 3: Simulación de Layouts Android");
-        }
-
-        function inspectXmlLayout(xmlText, filePath, findings, counter) {
-            const imgBtnMatches = xmlText.match(/<ImageButton[\s\S]*?>/gi) || [];
-            imgBtnMatches.forEach(tag => {
-                if (!tag.includes("contentDescription") && !tag.includes('importantForAccessibility="no"')) {
-                    findings.push({
-                        id: `APK-111-${counter++}`,
-                        principle: "Perceptible",
-                        criterion_id: "1.1.1",
-                        criterion_title: "Contenido no textual (Android)",
-                        level: "A",
-                        category: "Problema",
-                        check_name: "Control gráfico sin 'android:contentDescription'",
-                        technique: "AND1",
-                        selector: `${filePath} > ImageButton`,
-                        snippet: tag,
-                        explanation: "Control táctil gráfico carece de atributo android:contentDescription.",
-                        remediation: {
-                            before: tag,
-                            after: tag.replace("<ImageButton", '<ImageButton android:contentDescription="@string/desc_boton"'),
-                            advice: "Asocie una cadena descriptiva con android:contentDescription."
-                        },
-                        impact: "crítico"
-                    });
-                }
-            });
-
-            const editMatches = xmlText.match(/<EditText[\s\S]*?>/gi) || [];
-            editMatches.forEach(tag => {
-                if (!tag.includes("hint") && !tag.includes("labelFor")) {
-                    findings.push({
-                        id: `APK-332-${counter++}`,
-                        principle: "Comprensible",
-                        criterion_id: "3.3.2",
-                        criterion_title: "Etiquetas o instrucciones (Android)",
-                        level: "A",
-                        category: "Problema",
-                        check_name: "Campo de texto sin 'android:hint' ni 'labelFor'",
-                        technique: "AND2",
-                        selector: `${filePath} > EditText`,
-                        snippet: tag,
-                        explanation: "El campo EditText no provee pista accesible de entrada.",
-                        remediation: {
-                            before: tag,
-                            after: tag.replace("<EditText", '<EditText android:hint="@string/hint_campo"'),
-                            advice: "Añada android:hint para que TalkBack anuncie el dato esperado."
-                        },
-                        impact: "alto"
-                    });
-                }
-            });
-        }
-
-        // =========================================================================
-        // EJECUCIÓN AXE-CORE CLIENT-SIDE + HEURÍSTICAS TAW
-        // =========================================================================
-        function getCumulativeAxeTags(guidelinesVer, level) {
-            const tags = ['wcag2a'];
-            if (level === 'aa' || level === 'aaa') tags.push('wcag2aa');
-            if (level === 'aaa') tags.push('wcag2aaa');
-
-            if (guidelinesVer === 'wcag21' || guidelinesVer === 'wcag22') {
-                tags.push('wcag21a');
-                if (level === 'aa' || level === 'aaa') tags.push('wcag21aa');
-                if (level === 'aaa') tags.push('wcag21aaa');
+                renderActionableError({
+                    code: 'INVALID_HTML_CONTENT',
+                    title: 'Contenido HTML Inválido o Insuficiente',
+                    message: `El documento para '${resourceName}' no contiene una estructura HTML válida (longitud: ${htmlContent ? htmlContent.length : 0} caracteres).`,
+                    actionTip: 'Utilice el Bookmarklet de 1 Clic o el modo de Código HTML Directo.'
+                });
+                return;
             }
 
-            if (guidelinesVer === 'wcag22') {
-                if (level === 'aa' || level === 'aaa') tags.push('wcag22aa');
-            }
-
-            return Array.from(new Set(tags));
-        }
-
-        async function runAuditOnHtml(htmlContent, resourceName, targetType, precisionTitle) {
-            // Eliminar scripts directos para evitar efectos secundarios en la página auditada
+            // Preparar HTML seguro con <base>
             const safeHtml = htmlContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-
             let htmlWithBase = safeHtml;
             if (resourceName && resourceName.startsWith('http')) {
                 if (!htmlWithBase.includes('<base ') && !htmlWithBase.includes('<base>')) {
@@ -1727,33 +1368,67 @@
 
             const iframe = createAuditSandboxIframe();
 
-            // Esperar evento onload tras escribir en el documento del iframe
+            // 2. Inserción sincrónica y espera de renderizado real (evento load)
             await new Promise((resolve) => {
-                let resolved = false;
+                let loaded = false;
                 const finish = () => {
-                    if (!resolved) {
-                        resolved = true;
+                    if (!loaded) {
+                        loaded = true;
                         resolve();
                     }
                 };
 
                 iframe.onload = finish;
-                setTimeout(finish, 800); // Fallback timeout por si el frame no emite onload
+                iframe.addEventListener('load', finish);
 
-                try {
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    iframeDoc.open();
-                    iframeDoc.write(htmlWithBase);
-                    iframeDoc.close();
-                } catch (e) {
-                    console.warn("Fallo al escribir en documento, utilizando srcdoc:", e);
-                    iframe.srcdoc = htmlWithBase;
-                }
+                // Asignar srcdoc antes de append para navegación garantizada
+                iframe.srcdoc = htmlWithBase;
+                document.body.appendChild(iframe);
+
+                // Fallback timeout por si el evento load ya disparó o tarda
+                setTimeout(() => {
+                    if (!loaded) {
+                        loaded = true;
+                        resolve();
+                    }
+                }, 1800);
             });
 
-            await new Promise(r => setTimeout(r, 200));
+            // Retardo preventivo de 400ms para permitir que el árbol DOM termine de ensamblarse
+            await new Promise(r => setTimeout(r, 400));
 
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            // 3. Contexto correcto de axe.run()
+            const targetDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+            if (!targetDoc || !targetDoc.body) {
+                console.error("[A11y Audit] No se pudo acceder a targetDoc o targetDoc.body en el iframe.");
+                setLoading(false, "");
+                renderActionableError({
+                    code: 'IFRAME_ACCESS_ERROR',
+                    title: 'Error de Acceso al Documento Interno',
+                    message: `No se pudo inicializar el contexto del documento para auditar '${resourceName}'.`,
+                    actionTip: 'Pruebe utilizando la pestaña "Código HTML Directo" o el Bookmarklet.'
+                });
+                return;
+            }
+
+            // Telemetría y depuración en consola: conteo de nodos y muestra de HTML
+            const nodeCount = targetDoc.querySelectorAll('*').length;
+            const sampleHtml = targetDoc.body ? targetDoc.body.innerHTML.substring(0, 200).replace(/\s+/g, ' ') : '';
+            console.log(`[A11y Audit] Nodos evaluados en el DOM: ${nodeCount}. Muestra del body: ${sampleHtml}`);
+
+            if (nodeCount <= 2 || (targetDoc.body && targetDoc.body.innerHTML.trim() === '')) {
+                console.error("[A11y Audit] DOM vacío detectado tras carga del iframe (falso positivo evitado).");
+                setLoading(false, "");
+                renderActionableError({
+                    code: 'EMPTY_DOM_DETECTED',
+                    title: 'El Documento Renderizado Está Vacío',
+                    message: `El árbol DOM dentro del entorno de prueba contiene 0 elementos legibles para '${resourceName}'.`,
+                    actionTip: 'Verifique si el sitio web requiere ejecución intensiva de JavaScript (SPA). En tal caso, ejecute el "📌 Bookmarklet de 1 Clic" directamente sobre la pestaña abierta.'
+                });
+                return;
+            }
+
             const guidelinesVer = document.getElementById('guidelines-url')?.value || 'wcag22';
             const targetLevel = document.getElementById('level-url')?.value || 'aa';
             const runTags = getCumulativeAxeTags(guidelinesVer, targetLevel);
@@ -1765,12 +1440,12 @@
                 } catch (_) {}
             }
 
+            setLoading(true, `Ejecutando motor formal axe-core sobre ${nodeCount} nodos...`);
+
             let axeResults = { violations: [] };
             try {
-                const axeEngine = (iframe.contentWindow && iframe.contentWindow.axe) || window.axe;
-                if (axeEngine) {
-                    const auditTarget = iframeDoc.documentElement || iframeDoc.body || iframeDoc;
-                    axeResults = await axeEngine.run(auditTarget, {
+                if (window.axe) {
+                    axeResults = await window.axe.run(targetDoc, {
                         runOnly: {
                             type: 'tag',
                             values: runTags
@@ -1778,10 +1453,10 @@
                     });
                 }
             } catch (err) {
-                console.warn("Axe run warning:", err);
+                console.warn("Axe run error sobre targetDoc:", err);
                 try {
-                    if (window.axe && (iframeDoc.body || iframeDoc.documentElement)) {
-                        axeResults = await window.axe.run(iframeDoc.body || iframeDoc.documentElement, {
+                    if (window.axe && targetDoc.documentElement) {
+                        axeResults = await window.axe.run(targetDoc.documentElement, {
                             runOnly: { type: 'tag', values: runTags }
                         });
                     }
@@ -1790,6 +1465,7 @@
                 }
             }
 
+            console.log(`[A11y Audit] Análisis axe-core completado. Violaciones detectadas: ${axeResults.violations ? axeResults.violations.length : 0}`);
             processAxeResultsDirectly(axeResults, resourceName, targetType, precisionTitle);
         }
 
