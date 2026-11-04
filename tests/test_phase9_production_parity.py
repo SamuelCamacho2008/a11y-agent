@@ -20,7 +20,7 @@ def test_config_js_exists_and_configured():
         content = cfg_path.read_text(encoding="utf-8")
         assert "window.A11Y_CONFIG" in content
         assert "apiEndpoint" in content
-        assert "backendTimeoutMs" in content
+        assert "backendTimeoutMs: 120000" in content
         assert "enableClientFallback" in content
         assert "isProduction" in content
 
@@ -63,7 +63,7 @@ def test_subresource_integrity_and_config_in_html():
         )
 
         # Verify config.js script load (relative path)
-        assert 'config.js?v=1.2.1"' in content, f"config.js missing in {html_file}"
+        assert 'config.js?v=1.2.2"' in content, f"config.js missing in {html_file}"
 
 def test_no_insecure_mixed_content_http():
     """Verify no active mixed-content http:// resources are referenced in production index.html."""

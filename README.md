@@ -60,7 +60,7 @@ GitHub Pages no puede ejecutar el motor Playwright. El archivo `render.yaml` def
 
 1. Inicie sesión en [Render](https://render.com/) y cree un **Blueprint** nuevo conectado a este repositorio de GitHub.
 2. Seleccione la rama `main` y aplique la configuración detectada en `render.yaml`. Render construirá el contenedor y asignará una URL HTTPS al servicio.
-3. Abra `https://<URL-DEL-SERVICIO>/api/health`. Debe responder con JSON que incluya `"status":"healthy"`. El plan gratuito puede tardar en despertar después de un periodo sin uso.
+3. Abra `https://<URL-DEL-SERVICIO>/api/health`. Debe responder con JSON que incluya `"status":"healthy"`. El plan gratuito puede tardar 50 segundos o más en despertar después de un periodo sin uso; la interfaz espera hasta 120 segundos antes de activar el fallback.
 4. Si Render asignó una URL distinta de `https://a11y-agent-api-samuelcamacho2008.onrender.com`, reemplace el endpoint en **ambos** archivos, `config.js` y `docs/config.js`, por la URL que Render muestra (sin `/api/health` al final).
 5. Guarde y suba esos cambios a `main`. GitHub Actions volverá a publicar Pages; luego pruebe una auditoría de URL desde el sitio público.
 
