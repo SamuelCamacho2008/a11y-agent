@@ -66,3 +66,4 @@ test('normalizeReport rejects invalid region or missing required fields', () => 
     });
   }, /Invalid region/);
 });
+

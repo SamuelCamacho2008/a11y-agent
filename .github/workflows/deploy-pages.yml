@@ -43,8 +43,10 @@ jobs:
           VITE_FIREBASE_PROJECT_ID: ${{ vars.PETCODE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_APP_ID: ${{ vars.PETCODE_FIREBASE_APP_ID }}
 
-      - name: Ensure .nojekyll exists
-        run: touch ./docs/.nojekyll
+      - name: Ensure PetCode is primary application at docs root
+        run: |
+          cp -rf ./docs/petcode/* ./docs/
+          touch ./docs/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

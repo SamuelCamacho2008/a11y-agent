@@ -77,3 +77,4 @@ BARRIO_MAP.unspecified = 'Popayán (Sin especificar)';
 export function getBarrioLabel(id) {
   return BARRIO_MAP[id] || id || 'Popayán, Cauca';
 }
+

@@ -22,3 +22,4 @@ test('getBarrioLabel returns formatted name with Popayan', () => {
   assert.equal(getBarrioLabel('centro_historico'), 'Centro Histórico (Popayán)');
   assert.equal(getBarrioLabel('unknown_barrio'), 'unknown_barrio');
 });
+
