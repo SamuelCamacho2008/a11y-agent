@@ -1,0 +1,14 @@
+{
+  "firestore": {
+    "rules": "petcode/firestore.rules",
+    "indexes": "petcode/firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "docs/petcode",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

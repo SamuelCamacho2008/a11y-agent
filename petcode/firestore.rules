@@ -1,0 +1,227 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function verified() {
+      return signedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return verified()
+        && ((request.auth.token.keys().hasAll(['email'])
+             && request.auth.token.email.lower() == 'samuelcamachoaguirre4@gmail.com')
+          || (exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+              && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.enabled == true));
+    }
+
+    function isReportOwner(reportId) {
+      return verified()
+        && exists(/databases/$(database)/documents/reportOwners/$(reportId))
+        && get(/databases/$(database)/documents/reportOwners/$(reportId)).data.ownerUid == request.auth.uid;
+    }
+
+    function validReport(data) {
+      return data.keys().hasAll([
+          'reportType',
+          'species',
+          'color',
+          'region',
+          'status',
+          'chatEnabled',
+          'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'reportType',
+          'species',
+          'color',
+          'region',
+          'status',
+          'chatEnabled',
+          'createdAt',
+          'handoffOption',
+          'rewardAmount',
+          'platformFeePercent',
+          'specialConditions',
+          'petName'
+        ])
+        && data.reportType in ['lost', 'found']
+        && data.species in ['dog', 'cat', 'other']
+        && data.color in ['black', 'white', 'brown', 'gray', 'mixed', 'unknown']
+        && data.region is string
+        && data.region.size() > 0
+        && data.region.size() <= 80
+        && data.status in ['open', 'hidden']
+        && data.chatEnabled == true
+        && data.createdAt is timestamp
+        && (!data.keys().hasAny(['handoffOption'])
+          || (data.reportType == 'found'
+            && data.handoffOption in ['meetup', 'deliver', 'both']))
+        && (!data.keys().hasAny(['rewardAmount'])
+          || (data.reportType == 'lost'
+            && data.rewardAmount is number
+            && data.rewardAmount >= 0))
+        && (!data.keys().hasAny(['platformFeePercent'])
+          || (data.platformFeePercent is number
+            && data.platformFeePercent == 5))
+        && (!data.keys().hasAny(['specialConditions'])
+          || (data.specialConditions is string
+            && data.specialConditions.size() <= 500))
+        && (!data.keys().hasAny(['petName'])
+          || (data.petName is string
+            && data.petName.size() <= 100));
+    }
+
+    function conversationExists(conversationId) {
+      return exists(/databases/$(database)/documents/conversations/$(conversationId));
+    }
+
+    function conversationData(conversationId) {
+      return get(/databases/$(database)/documents/conversations/$(conversationId)).data;
+    }
+
+    function canReadConversation(data) {
+      return verified()
+        && (data.createdBy == request.auth.uid
+          || isReportOwner(data.reportId)
+          || isAdmin());
+    }
+
+    function safeMessage(text) {
+      return text is string
+        && text.size() > 0
+        && text.size() <= 1000
+        && !text.matches('.*[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}.*')
+        && !text.matches('.*[0-9][0-9().+ -]{5,}[0-9].*')
+        && !text.matches('.*(https?://|www\\.).*');
+    }
+
+    match /admins/{userId} {
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list, create, update, delete: if false;
+    }
+
+    match /reports/{reportId} {
+      allow get: if isAdmin() || resource.data.status == 'open';
+
+      allow list: if request.query.limit != null
+        && request.query.limit <= 50
+        && (isAdmin() || resource.data.status == 'open');
+
+      allow create: if verified()
+        && validReport(request.resource.data)
+        && request.resource.data.status == 'open'
+        && request.resource.data.createdAt == request.time
+        && existsAfter(/databases/$(database)/documents/reportOwners/$(reportId))
+        && getAfter(/databases/$(database)/documents/reportOwners/$(reportId)).data.ownerUid == request.auth.uid;
+
+      allow update: if isAdmin()
+        && resource.data.diff(request.resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['open', 'hidden'];
+
+      allow delete: if isAdmin();
+    }
+
+    match /reportOwners/{reportId} {
+      allow get: if isAdmin()
+        || (verified() && resource.data.ownerUid == request.auth.uid);
+
+      allow list: if verified()
+        && request.query.limit != null
+        && request.query.limit <= 50
+        && resource.data.ownerUid == request.auth.uid;
+
+      allow create: if verified()
+        && request.resource.data.keys().hasAll(['ownerUid', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['ownerUid', 'createdAt'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && !exists(/databases/$(database)/documents/reports/$(reportId))
+        && existsAfter(/databases/$(database)/documents/reports/$(reportId))
+        && getAfter(/databases/$(database)/documents/reports/$(reportId)).data.createdAt == request.time;
+
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /conversations/{conversationId} {
+      allow get: if canReadConversation(resource.data);
+
+      allow list: if canReadConversation(resource.data)
+        && request.query.limit != null
+        && request.query.limit <= 50;
+
+      allow create: if verified()
+        && request.resource.data.keys().hasAll([
+          'reportId',
+          'createdBy',
+          'createdAt',
+          'lastMessageAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'reportId',
+          'createdBy',
+          'createdAt',
+          'lastMessageAt',
+          'rewardAmount',
+          'platformFeePercent',
+          'platformFee',
+          'finderPayout',
+          'paymentStatus'
+        ])
+        && request.resource.data.reportId is string
+        && request.resource.data.createdBy == request.auth.uid
+        && conversationId == request.resource.data.reportId + '_' + request.auth.uid
+        && exists(/databases/$(database)/documents/reports/$(request.resource.data.reportId))
+        && get(/databases/$(database)/documents/reports/$(request.resource.data.reportId)).data.status == 'open'
+        && get(/databases/$(database)/documents/reports/$(request.resource.data.reportId)).data.chatEnabled == true
+        && exists(/databases/$(database)/documents/reportOwners/$(request.resource.data.reportId))
+        && get(/databases/$(database)/documents/reportOwners/$(request.resource.data.reportId)).data.ownerUid != request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.lastMessageAt == request.time;
+
+      allow update: if canReadConversation(resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'lastMessageAt',
+          'paymentStatus',
+          'rewardAmount',
+          'platformFee',
+          'finderPayout',
+          'paymentMethod',
+          'paymentNote',
+          'paidAt',
+          'paidBy'
+        ])
+        && get(/databases/$(database)/documents/reports/$(resource.data.reportId)).data.status == 'open';
+
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow get: if conversationExists(conversationId)
+          && canReadConversation(conversationData(conversationId));
+
+        allow list: if conversationExists(conversationId)
+          && canReadConversation(conversationData(conversationId))
+          && request.query.limit != null
+          && request.query.limit <= 50;
+
+        allow create: if conversationExists(conversationId)
+          && canReadConversation(conversationData(conversationId))
+          && (conversationData(conversationId).createdBy == request.auth.uid
+            || isReportOwner(conversationData(conversationId).reportId))
+          && request.resource.data.keys().hasAll(['senderUid', 'text', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['senderUid', 'text', 'createdAt'])
+          && request.resource.data.senderUid == request.auth.uid
+          && safeMessage(request.resource.data.text)
+          && request.resource.data.createdAt == request.time
+          && get(/databases/$(database)/documents/reports/$(conversationData(conversationId).reportId)).data.status == 'open'
+          && get(/databases/$(database)/documents/reports/$(conversationData(conversationId).reportId)).data.chatEnabled == true;
+
+        allow update: if false;
+        allow delete: if isAdmin();
+      }
+    }
+  }
+}

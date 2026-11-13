@@ -107,3 +107,13 @@ playwright install chromium
 # 2. Iniciar la API y servidor local
 python -m a11y_agent serve --port 8000
 ```
+
+---
+
+## PetCode — rescate de mascotas
+
+Este repositorio también contiene la aplicación independiente PetCode en [`petcode/`](./petcode/). Su despliegue dedicado de Firebase Hosting estará disponible en [https://petcode-rescue-samuel.web.app/](https://petcode-rescue-samuel.web.app/); GitHub Pages sigue publicando la plataforma principal de A11y Agent.
+
+PetCode usa cuentas individuales verificadas, Firestore para avisos en tiempo real y conversaciones privadas asociadas a cada aviso. Configura el proveedor Email/Password, despliega las reglas e índices de [`petcode/firestore.rules`](./petcode/firestore.rules) y sigue la guía de [`petcode/README.md`](./petcode/README.md) para asignar moderadores de forma segura. Para despliegues automáticos, configura las cuatro variables `PETCODE_FIREBASE_*` y el secreto `FIREBASE_SERVICE_ACCOUNT_PETCODE_RESCUE_SAMUEL` en GitHub Actions.
+
+Los reportes no admiten texto libre, datos de contacto ni ubicaciones exactas. Los documentos publicados son visibles para cualquiera; revisa la guía de privacidad y los controles operativos de abuso en [`petcode/README.md`](./petcode/README.md).

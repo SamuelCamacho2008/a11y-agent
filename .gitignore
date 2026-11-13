@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+node_modules/
+petcode/dist/
+.firebase/
+firestore-debug.log
 
 # Virtual environments
 venv/
@@ -10,7 +14,11 @@ env/
 
 # Environment files with sensitive credentials
 .env
+.env.*
 !.env.example
+!**/.env.example
+!.env.production
+!**/.env.production
 
 # Pytest & Cache
 .pytest_cache/
