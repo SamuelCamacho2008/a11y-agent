@@ -78,4 +78,3 @@ python -m pytest agente-a11y/tests -v
 
 * **`agente-a11y/`**: Código fuente de la biblioteca Python `a11y_agent` (analizadores, Playwright crawler, reglas axe, exportadores y suite de tests).
 * **`docs/`**: Distribución pública desplegada en GitHub Pages (`index.html`, `config.js`, `portal.html`, `reports/`, `reports.json`).
-* **`petcode/`**: Proyecto independiente de rescate de mascotas (Popayán, Cauca), aislado en su propia carpeta autocontenida para exportación.

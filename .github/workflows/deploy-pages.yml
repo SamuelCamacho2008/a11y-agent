@@ -25,29 +25,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: petcode/package-lock.json
-
-      - name: Install PetCode dependencies
-        run: npm ci --prefix petcode
-
-      - name: Build PetCode
-        run: npm run build --prefix petcode
-        env:
-          VITE_FIREBASE_API_KEY: ${{ vars.PETCODE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.PETCODE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ vars.PETCODE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_APP_ID: ${{ vars.PETCODE_FIREBASE_APP_ID }}
-
-      - name: Ensure PetCode is primary application at docs root
-        run: |
-          cp -rf ./docs/petcode/* ./docs/
-          touch ./docs/.nojekyll
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
