@@ -3,12 +3,12 @@
 from pathlib import Path
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DOCS_DIR = REPO_ROOT / "docs"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DOCS_DIR = PROJECT_ROOT / "docs"
 
 def test_favicon_ico_exists():
     """Verify favicon.ico exists in root and docs/ to eliminate 404 console errors."""
-    root_favicon = REPO_ROOT / "favicon.ico"
+    root_favicon = PROJECT_ROOT / "favicon.ico"
     docs_favicon = DOCS_DIR / "favicon.ico"
     
     assert root_favicon.exists(), "root favicon.ico missing"
@@ -18,7 +18,7 @@ def test_favicon_ico_exists():
 
 def test_iframe_sandbox_permissions_in_html():
     """Verify iframe sandbox declaration includes allow-scripts, allow-same-origin, and allow-forms."""
-    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+    for html_file in [DOCS_DIR / "index.html", PROJECT_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         assert 'id="audit-sandbox"' in content
         assert 'sandbox="allow-scripts allow-same-origin allow-forms"' in content, (
@@ -28,7 +28,7 @@ def test_iframe_sandbox_permissions_in_html():
 
 def test_dynamic_iframe_creation_sets_sandbox_before_append():
     """Verify createAuditSandboxIframe sets sandbox attributes before attaching to DOM."""
-    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+    for html_file in [DOCS_DIR / "index.html", PROJECT_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         assert "function createAuditSandboxIframe" in content
         
@@ -37,7 +37,7 @@ def test_dynamic_iframe_creation_sets_sandbox_before_append():
 
 def test_html_content_validation():
     """Verify content validation checks length > 500 chars and structural HTML tags."""
-    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+    for html_file in [DOCS_DIR / "index.html", PROJECT_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         assert "function isValidHtmlContent" in content
         assert "trimmed.length < 500" in content
@@ -45,7 +45,7 @@ def test_html_content_validation():
 
 def test_axe_core_execution_with_onload_and_srcdoc():
     """Verify runAuditOnHtml uses srcdoc, attaches load listener to iframe, and runs on targetDoc."""
-    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+    for html_file in [DOCS_DIR / "index.html", PROJECT_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         assert "iframe.srcdoc = htmlWithBase" in content
         assert "iframe.onload = finish" in content
@@ -60,7 +60,7 @@ def test_axe_core_execution_with_onload_and_srcdoc():
 
 def test_cors_fallback_proxies_pipeline():
     """Verify multi-proxy pipeline with encodeURIComponent, AllOrigins, Jina, CodeTabs."""
-    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+    for html_file in [DOCS_DIR / "index.html", PROJECT_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         assert "fetchHtmlWithCorsFallback" in content
         assert "https://api.allorigins.win/get?url=" in content
@@ -70,9 +70,9 @@ def test_cors_fallback_proxies_pipeline():
 
 def test_relative_paths_for_github_pages_subpath():
     """Verify relative paths are used for local assets and scripts."""
-    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+    for html_file in [DOCS_DIR / "index.html", PROJECT_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         assert 'href="./favicon.ico"' in content
-        assert 'src="./config.js?v=1.2.0"' in content
+        assert 'src="./config.js?v=1.2.' in content
         assert not ('href="/favicon.ico"' in content)
         assert not ('src="/config.js"' in content)

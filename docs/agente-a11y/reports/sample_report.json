@@ -1,0 +1,660 @@
+{
+  "id": "rep_eb1a8e4191a7",
+  "metadata": {
+    "url": "http://127.0.0.1:8999/common_errors_page.html",
+    "timestamp": "2026-10-22T20:53:12.494964Z",
+    "guidelines": "WCAG 2.1",
+    "target_level": "AA",
+    "technologies": [
+      "HTML5"
+    ],
+    "execution_time_seconds": 1.74,
+    "screenshot_path": "C:\\Users\\samue\\OneDrive\\Escritorio\\Nueva carpeta (2)\\reports\\screenshots\\rep_eb1a8e4191a7.png"
+  },
+  "summary": {
+    "score": 28,
+    "executive_summary": "1. Estado General: La página obtiene un puntaje global de accesibilidad de 28/100, evaluada bajo nivel AA (con barreras significativas).\n2. Barreras Críticas: Se detectaron 5 problemas deterministas y 7 advertencias que requieren revisión experta.\n3. Distribución de Impacto: 1 barreras de impacto crítico y 8 de impacto alto impiden la interacción de usuarios con discapacidad.\n4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en textos alternativos, contraste y control por teclado.\n5. Plan de Acción: Se recomienda priorizar los fallos clasificados como Problemas Críticos aplicando las soluciones de código antes/después incluidas en este informe.",
+    "total_problems": 5,
+    "total_warnings": 7,
+    "total_unverified": 0,
+    "impact_breakdown": {
+      "crítico": 1,
+      "alto": 8,
+      "medio": 3,
+      "bajo": 0
+    }
+  },
+  "principles": {
+    "perceptible": {
+      "key": "perceptible",
+      "name": "1. Perceptible",
+      "description": "La información y los componentes de la interfaz de usuario deben presentarse a los usuarios de modo que puedan percibirlos (no puede ser invisible para todos sus sentidos).",
+      "success_criteria": [
+        {
+          "criterion_id": "1.1.1",
+          "criterion_title": "Contenido no textual",
+          "level": "A",
+          "findings": [
+            {
+              "id": "P-005",
+              "principle": "perceptible",
+              "criterion_id": "1.1.1",
+              "criterion_title": "Contenido no textual",
+              "level": "A",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "Elementos <img> deben tener un atributo alt descriptivo",
+              "w3c_technique": "H37",
+              "selector": "#banner-hero",
+              "line_number": 29,
+              "html_snippet": "<img id=\"banner-hero\" src=\"/images/banner-sale.png\">",
+              "explanation": "Images must have alternative text",
+              "remediation": {
+                "before_snippet": "<img id=\"banner-hero\" src=\"/images/banner-sale.png\">",
+                "after_snippet": "<img alt=\"Descripción clara de la imagen\" id=\"banner-hero\" src=\"/images/banner-sale.png\">",
+                "advice": "Agregue un atributo alt con una descripción funcional y precisa de la imagen.",
+                "effort": "bajo"
+              },
+              "impact": "crítico",
+              "confidence": 1.0
+            },
+            {
+              "id": "IA-IMG-01",
+              "principle": "perceptible",
+              "criterion_id": "1.1.1",
+              "criterion_title": "Contenido no textual",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Evaluación semántica de texto alternativo",
+              "w3c_technique": "H37",
+              "selector": "img[src='/images/banner-sale.png']",
+              "line_number": 29,
+              "html_snippet": "<img id=\"banner-hero\" src=\"/images/banner-sale.png\"/>",
+              "explanation": "La imagen carece de texto alternativo. Los lectores de pantalla leerán el nombre del archivo o la ignorarán.",
+              "remediation": {
+                "before_snippet": "<img id=\"banner-hero\" src=\"/images/banner-sale.png\"/>",
+                "after_snippet": "<img alt=\"Descripción concisa y útil de la imagen\" id=\"banner-hero\" src=\"/images/banner-sale.png\"/>",
+                "advice": "Agregue un atributo alt descriptivo con el propósito de la imagen.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 0.88
+            },
+            {
+              "id": "IA-IMG-02",
+              "principle": "perceptible",
+              "criterion_id": "1.1.1",
+              "criterion_title": "Contenido no textual",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Evaluación semántica de texto alternativo",
+              "w3c_technique": "H37",
+              "selector": "img[src='/images/user-pic.jpg']",
+              "line_number": 30,
+              "html_snippet": "<img alt=\"imagen\" id=\"avatar-user\" src=\"/images/user-pic.jpg\"/>",
+              "explanation": "El texto alternativo 'imagen' es genérico y no describe el contenido visual para usuarios ciegos.",
+              "remediation": {
+                "before_snippet": "<img alt=\"imagen\" id=\"avatar-user\" src=\"/images/user-pic.jpg\"/>",
+                "after_snippet": "<img alt=\"Descripción objetiva del contenido\" id=\"avatar-user\" src=\"/images/user-pic.jpg\"/>",
+                "advice": "Sustituya el texto alternativo por uno que describa objetivamente la función o información de la imagen.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 0.88
+            }
+          ]
+        },
+        {
+          "criterion_id": "1.3.1",
+          "criterion_title": "Información y relaciones",
+          "level": "A",
+          "findings": [
+            {
+              "id": "IA-HDG-05",
+              "principle": "perceptible",
+              "criterion_id": "1.3.1",
+              "criterion_title": "Información y relaciones",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Discontinuidad en jerarquía de encabezados",
+              "w3c_technique": "G141",
+              "selector": "h4",
+              "line_number": 25,
+              "html_snippet": "<h4>Catálogo de Novedades</h4>",
+              "explanation": "Se detectó un salto brusco de nivel <h1> a <h4> ('Catálogo de Novedades'). La estructura de encabezados debe ser secuencial sin saltos.",
+              "remediation": {
+                "before_snippet": "<h4>Catálogo de Novedades</h4>",
+                "after_snippet": "<h2>Catálogo de Novedades</h2>",
+                "advice": "Utilice <h2> para mantener una jerarquía anidada lógica.",
+                "effort": "bajo"
+              },
+              "impact": "medio",
+              "confidence": 0.9
+            }
+          ]
+        },
+        {
+          "criterion_id": "1.4.3",
+          "criterion_title": "Contraste (mínimo)",
+          "level": "AA",
+          "findings": [
+            {
+              "id": "P-001",
+              "principle": "perceptible",
+              "criterion_id": "1.4.3",
+              "criterion_title": "Contraste (mínimo)",
+              "level": "AA",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "El contraste de color del texto cumple el umbral mínimo (4.5:1 / 3:1)",
+              "w3c_technique": "G18",
+              "selector": ".low-contrast-text",
+              "line_number": 34,
+              "html_snippet": "<p class=\"low-contrast-text\">\n        Este texto de términos y condiciones es prácticamente invisible para usuarios con baja visión.\n    </p>",
+              "explanation": "Elements must meet minimum color contrast ratio thresholds",
+              "remediation": {
+                "before_snippet": "<p class=\"low-contrast-text\">\n        Este texto de términos y condiciones es prácticamente invisible para usuarios con baja visión.\n    </p>",
+                "after_snippet": "<p class=\"low-contrast-text\">\n        Este texto de términos y condiciones es prácticamente invisible para usuarios con baja visión.\n    </p>",
+                "advice": "Ajuste el color de texto o fondo para alcanzar un contraste mínimo de 4.5:1 (o 3:1 para texto mayor a 18pt/24px).",
+                "effort": "medio"
+              },
+              "impact": "alto",
+              "confidence": 1.0
+            },
+            {
+              "id": "P-002",
+              "principle": "perceptible",
+              "criterion_id": "1.4.3",
+              "criterion_title": "Contraste (mínimo)",
+              "level": "AA",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "El contraste de color del texto cumple el umbral mínimo (4.5:1 / 3:1)",
+              "w3c_technique": "G18",
+              "selector": ".fake-button",
+              "line_number": 47,
+              "html_snippet": "<div class=\"fake-button\" onclick=\"alert('Enviado')\">Suscribirme</div>",
+              "explanation": "Elements must meet minimum color contrast ratio thresholds",
+              "remediation": {
+                "before_snippet": "<div class=\"fake-button\" onclick=\"alert('Enviado')\">Suscribirme</div>",
+                "after_snippet": "<div class=\"fake-button\" onclick=\"alert('Enviado')\">Suscribirme</div>",
+                "advice": "Ajuste el color de texto o fondo para alcanzar un contraste mínimo de 4.5:1 (o 3:1 para texto mayor a 18pt/24px).",
+                "effort": "medio"
+              },
+              "impact": "alto",
+              "confidence": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    "operable": {
+      "key": "operable",
+      "name": "2. Operable",
+      "description": "Los componentes de la interfaz de usuario y la navegación deben ser operables (la interfaz no puede requerir una interacción que el usuario no pueda realizar).",
+      "success_criteria": [
+        {
+          "criterion_id": "2.4.2",
+          "criterion_title": "Titulación de páginas",
+          "level": "A",
+          "findings": [
+            {
+              "id": "P-003",
+              "principle": "operable",
+              "criterion_id": "2.4.2",
+              "criterion_title": "Titulación de páginas",
+              "level": "A",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "El documento debe tener un elemento <title> no vacío",
+              "w3c_technique": "H25",
+              "selector": "html",
+              "line_number": 1,
+              "html_snippet": "<html>",
+              "explanation": "Documents must have <title> element to aid in navigation",
+              "remediation": {
+                "before_snippet": "<html>",
+                "after_snippet": "<title>Título Descriptivo y Único de la Página | Organización</title>",
+                "advice": "Agregue una etiqueta <title> en el <head> que describa el contenido de la página.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 1.0
+            }
+          ]
+        },
+        {
+          "criterion_id": "2.4.4",
+          "criterion_title": "Propósito de cada enlace (en contexto)",
+          "level": "A",
+          "findings": [
+            {
+              "id": "IA-LNK-03",
+              "principle": "operable",
+              "criterion_id": "2.4.4",
+              "criterion_title": "Propósito de cada enlace (en contexto)",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Evaluación de claridad del texto de enlace",
+              "w3c_technique": "H30",
+              "selector": "a[href='/ofertas']",
+              "line_number": 39,
+              "html_snippet": "<a href=\"/ofertas\">haz clic aquí</a>",
+              "explanation": "El texto del enlace 'haz clic aquí' es ambiguo fuera de contexto. Los usuarios de lectores de pantalla navegan frecuentemente por listas de enlaces aislados.",
+              "remediation": {
+                "before_snippet": "<a href=\"/ofertas\">haz clic aquí</a>",
+                "after_snippet": "<a href=\"/ofertas\">Ver detalles completos del informe de accesibilidad</a>",
+                "advice": "Sustituya el texto por uno que identifique claramente el destino o agregue un atributo aria-label explicativo.",
+                "effort": "bajo"
+              },
+              "impact": "medio",
+              "confidence": 0.92
+            },
+            {
+              "id": "IA-LNK-04",
+              "principle": "operable",
+              "criterion_id": "2.4.4",
+              "criterion_title": "Propósito de cada enlace (en contexto)",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Evaluación de claridad del texto de enlace",
+              "w3c_technique": "H30",
+              "selector": "a[href='/politicas']",
+              "line_number": 40,
+              "html_snippet": "<a href=\"/politicas\">leer más</a>",
+              "explanation": "El texto del enlace 'leer más' es ambiguo fuera de contexto. Los usuarios de lectores de pantalla navegan frecuentemente por listas de enlaces aislados.",
+              "remediation": {
+                "before_snippet": "<a href=\"/politicas\">leer más</a>",
+                "after_snippet": "<a href=\"/politicas\">Ver detalles completos del informe de accesibilidad</a>",
+                "advice": "Sustituya el texto por uno que identifique claramente el destino o agregue un atributo aria-label explicativo.",
+                "effort": "bajo"
+              },
+              "impact": "medio",
+              "confidence": 0.92
+            }
+          ]
+        }
+      ]
+    },
+    "understandable": {
+      "key": "understandable",
+      "name": "3. Comprensible",
+      "description": "La información y el manejo de la interfaz de usuario deben ser comprensibles (el contenido y los controles no pueden resultar confusos o impredecibles).",
+      "success_criteria": [
+        {
+          "criterion_id": "3.1.1",
+          "criterion_title": "Idioma de la página",
+          "level": "A",
+          "findings": [
+            {
+              "id": "P-004",
+              "principle": "understandable",
+              "criterion_id": "3.1.1",
+              "criterion_title": "Idioma de la página",
+              "level": "A",
+              "category": "Problema",
+              "origin": "regla",
+              "check_name": "El elemento <html> debe tener un atributo lang válido",
+              "w3c_technique": "H57",
+              "selector": "html",
+              "line_number": 1,
+              "html_snippet": "<html>",
+              "explanation": "<html> element must have a lang attribute | Nota IA: La etiqueta <html> no define el idioma del documento. Los sintetizadores de voz pronunciarán el texto con el acento predeterminado del sistema operativo.",
+              "remediation": {
+                "before_snippet": "<html>",
+                "after_snippet": "<html lang=\"es\">",
+                "advice": "Declare el idioma primario del documento mediante el atributo lang='es' (o el código correspondiente).",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 1.0
+            }
+          ]
+        },
+        {
+          "criterion_id": "3.3.2",
+          "criterion_title": "Etiquetas o instrucciones",
+          "level": "A",
+          "findings": [
+            {
+              "id": "IA-FRM-06",
+              "principle": "understandable",
+              "criterion_id": "3.3.2",
+              "criterion_title": "Etiquetas o instrucciones",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Uso inadecuado de placeholder en vez de etiqueta",
+              "w3c_technique": "H44",
+              "selector": "input#campo-buscar",
+              "line_number": 44,
+              "html_snippet": "<input id=\"campo-buscar\" placeholder=\"Buscar productos en el catálogo\" type=\"text\"/>",
+              "explanation": "El campo no tiene una etiqueta <label> formal. Los placeholders desaparecen al escribir y no son reconocidos como etiquetas persistentes por todas las ayudas técnicas.",
+              "remediation": {
+                "before_snippet": "<input id=\"campo-buscar\" placeholder=\"Buscar productos en el catálogo\" type=\"text\"/>",
+                "after_snippet": "<label for=\"campo-accesible\">Buscar productos en el catálogo:</label>\n<input id=\"campo-accesible\" id=\"campo-buscar\" placeholder=\"Buscar productos en el catálogo\" type=\"text\"/>",
+                "advice": "Asocie una etiqueta <label for='...'> visible con el identificador del campo de entrada.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 0.95
+            },
+            {
+              "id": "IA-FRM-07",
+              "principle": "understandable",
+              "criterion_id": "3.3.2",
+              "criterion_title": "Etiquetas o instrucciones",
+              "level": "A",
+              "category": "Advertencia",
+              "origin": "ia",
+              "check_name": "Uso inadecuado de placeholder en vez de etiqueta",
+              "w3c_technique": "H44",
+              "selector": "input#campo-newsletter",
+              "line_number": 45,
+              "html_snippet": "<input id=\"campo-newsletter\" placeholder=\"Introduce tu correo\" type=\"email\"/>",
+              "explanation": "El campo no tiene una etiqueta <label> formal. Los placeholders desaparecen al escribir y no son reconocidos como etiquetas persistentes por todas las ayudas técnicas.",
+              "remediation": {
+                "before_snippet": "<input id=\"campo-newsletter\" placeholder=\"Introduce tu correo\" type=\"email\"/>",
+                "after_snippet": "<label for=\"campo-accesible\">Introduce tu correo:</label>\n<input id=\"campo-accesible\" id=\"campo-newsletter\" placeholder=\"Introduce tu correo\" type=\"email\"/>",
+                "advice": "Asocie una etiqueta <label for='...'> visible con el identificador del campo de entrada.",
+                "effort": "bajo"
+              },
+              "impact": "alto",
+              "confidence": 0.95
+            }
+          ]
+        }
+      ]
+    },
+    "robust": {
+      "key": "robust",
+      "name": "4. Robusto",
+      "description": "El contenido debe ser suficientemente robusto como para que pueda ser interpretado de forma fiable por una amplia variedad de agentes de usuario, incluyendo tecnologías de asistencia.",
+      "success_criteria": []
+    }
+  },
+  "all_findings": [
+    {
+      "id": "P-001",
+      "principle": "perceptible",
+      "criterion_id": "1.4.3",
+      "criterion_title": "Contraste (mínimo)",
+      "level": "AA",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "El contraste de color del texto cumple el umbral mínimo (4.5:1 / 3:1)",
+      "w3c_technique": "G18",
+      "selector": ".low-contrast-text",
+      "line_number": 34,
+      "html_snippet": "<p class=\"low-contrast-text\">\n        Este texto de términos y condiciones es prácticamente invisible para usuarios con baja visión.\n    </p>",
+      "explanation": "Elements must meet minimum color contrast ratio thresholds",
+      "remediation": {
+        "before_snippet": "<p class=\"low-contrast-text\">\n        Este texto de términos y condiciones es prácticamente invisible para usuarios con baja visión.\n    </p>",
+        "after_snippet": "<p class=\"low-contrast-text\">\n        Este texto de términos y condiciones es prácticamente invisible para usuarios con baja visión.\n    </p>",
+        "advice": "Ajuste el color de texto o fondo para alcanzar un contraste mínimo de 4.5:1 (o 3:1 para texto mayor a 18pt/24px).",
+        "effort": "medio"
+      },
+      "impact": "alto",
+      "confidence": 1.0
+    },
+    {
+      "id": "P-002",
+      "principle": "perceptible",
+      "criterion_id": "1.4.3",
+      "criterion_title": "Contraste (mínimo)",
+      "level": "AA",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "El contraste de color del texto cumple el umbral mínimo (4.5:1 / 3:1)",
+      "w3c_technique": "G18",
+      "selector": ".fake-button",
+      "line_number": 47,
+      "html_snippet": "<div class=\"fake-button\" onclick=\"alert('Enviado')\">Suscribirme</div>",
+      "explanation": "Elements must meet minimum color contrast ratio thresholds",
+      "remediation": {
+        "before_snippet": "<div class=\"fake-button\" onclick=\"alert('Enviado')\">Suscribirme</div>",
+        "after_snippet": "<div class=\"fake-button\" onclick=\"alert('Enviado')\">Suscribirme</div>",
+        "advice": "Ajuste el color de texto o fondo para alcanzar un contraste mínimo de 4.5:1 (o 3:1 para texto mayor a 18pt/24px).",
+        "effort": "medio"
+      },
+      "impact": "alto",
+      "confidence": 1.0
+    },
+    {
+      "id": "P-003",
+      "principle": "operable",
+      "criterion_id": "2.4.2",
+      "criterion_title": "Titulación de páginas",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "El documento debe tener un elemento <title> no vacío",
+      "w3c_technique": "H25",
+      "selector": "html",
+      "line_number": 1,
+      "html_snippet": "<html>",
+      "explanation": "Documents must have <title> element to aid in navigation",
+      "remediation": {
+        "before_snippet": "<html>",
+        "after_snippet": "<title>Título Descriptivo y Único de la Página | Organización</title>",
+        "advice": "Agregue una etiqueta <title> en el <head> que describa el contenido de la página.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 1.0
+    },
+    {
+      "id": "P-004",
+      "principle": "understandable",
+      "criterion_id": "3.1.1",
+      "criterion_title": "Idioma de la página",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "El elemento <html> debe tener un atributo lang válido",
+      "w3c_technique": "H57",
+      "selector": "html",
+      "line_number": 1,
+      "html_snippet": "<html>",
+      "explanation": "<html> element must have a lang attribute | Nota IA: La etiqueta <html> no define el idioma del documento. Los sintetizadores de voz pronunciarán el texto con el acento predeterminado del sistema operativo.",
+      "remediation": {
+        "before_snippet": "<html>",
+        "after_snippet": "<html lang=\"es\">",
+        "advice": "Declare el idioma primario del documento mediante el atributo lang='es' (o el código correspondiente).",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 1.0
+    },
+    {
+      "id": "P-005",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "Elementos <img> deben tener un atributo alt descriptivo",
+      "w3c_technique": "H37",
+      "selector": "#banner-hero",
+      "line_number": 29,
+      "html_snippet": "<img id=\"banner-hero\" src=\"/images/banner-sale.png\">",
+      "explanation": "Images must have alternative text",
+      "remediation": {
+        "before_snippet": "<img id=\"banner-hero\" src=\"/images/banner-sale.png\">",
+        "after_snippet": "<img alt=\"Descripción clara de la imagen\" id=\"banner-hero\" src=\"/images/banner-sale.png\">",
+        "advice": "Agregue un atributo alt con una descripción funcional y precisa de la imagen.",
+        "effort": "bajo"
+      },
+      "impact": "crítico",
+      "confidence": 1.0
+    },
+    {
+      "id": "IA-IMG-01",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Evaluación semántica de texto alternativo",
+      "w3c_technique": "H37",
+      "selector": "img[src='/images/banner-sale.png']",
+      "line_number": 29,
+      "html_snippet": "<img id=\"banner-hero\" src=\"/images/banner-sale.png\"/>",
+      "explanation": "La imagen carece de texto alternativo. Los lectores de pantalla leerán el nombre del archivo o la ignorarán.",
+      "remediation": {
+        "before_snippet": "<img id=\"banner-hero\" src=\"/images/banner-sale.png\"/>",
+        "after_snippet": "<img alt=\"Descripción concisa y útil de la imagen\" id=\"banner-hero\" src=\"/images/banner-sale.png\"/>",
+        "advice": "Agregue un atributo alt descriptivo con el propósito de la imagen.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 0.88
+    },
+    {
+      "id": "IA-IMG-02",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Evaluación semántica de texto alternativo",
+      "w3c_technique": "H37",
+      "selector": "img[src='/images/user-pic.jpg']",
+      "line_number": 30,
+      "html_snippet": "<img alt=\"imagen\" id=\"avatar-user\" src=\"/images/user-pic.jpg\"/>",
+      "explanation": "El texto alternativo 'imagen' es genérico y no describe el contenido visual para usuarios ciegos.",
+      "remediation": {
+        "before_snippet": "<img alt=\"imagen\" id=\"avatar-user\" src=\"/images/user-pic.jpg\"/>",
+        "after_snippet": "<img alt=\"Descripción objetiva del contenido\" id=\"avatar-user\" src=\"/images/user-pic.jpg\"/>",
+        "advice": "Sustituya el texto alternativo por uno que describa objetivamente la función o información de la imagen.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 0.88
+    },
+    {
+      "id": "IA-LNK-03",
+      "principle": "operable",
+      "criterion_id": "2.4.4",
+      "criterion_title": "Propósito de cada enlace (en contexto)",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Evaluación de claridad del texto de enlace",
+      "w3c_technique": "H30",
+      "selector": "a[href='/ofertas']",
+      "line_number": 39,
+      "html_snippet": "<a href=\"/ofertas\">haz clic aquí</a>",
+      "explanation": "El texto del enlace 'haz clic aquí' es ambiguo fuera de contexto. Los usuarios de lectores de pantalla navegan frecuentemente por listas de enlaces aislados.",
+      "remediation": {
+        "before_snippet": "<a href=\"/ofertas\">haz clic aquí</a>",
+        "after_snippet": "<a href=\"/ofertas\">Ver detalles completos del informe de accesibilidad</a>",
+        "advice": "Sustituya el texto por uno que identifique claramente el destino o agregue un atributo aria-label explicativo.",
+        "effort": "bajo"
+      },
+      "impact": "medio",
+      "confidence": 0.92
+    },
+    {
+      "id": "IA-LNK-04",
+      "principle": "operable",
+      "criterion_id": "2.4.4",
+      "criterion_title": "Propósito de cada enlace (en contexto)",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Evaluación de claridad del texto de enlace",
+      "w3c_technique": "H30",
+      "selector": "a[href='/politicas']",
+      "line_number": 40,
+      "html_snippet": "<a href=\"/politicas\">leer más</a>",
+      "explanation": "El texto del enlace 'leer más' es ambiguo fuera de contexto. Los usuarios de lectores de pantalla navegan frecuentemente por listas de enlaces aislados.",
+      "remediation": {
+        "before_snippet": "<a href=\"/politicas\">leer más</a>",
+        "after_snippet": "<a href=\"/politicas\">Ver detalles completos del informe de accesibilidad</a>",
+        "advice": "Sustituya el texto por uno que identifique claramente el destino o agregue un atributo aria-label explicativo.",
+        "effort": "bajo"
+      },
+      "impact": "medio",
+      "confidence": 0.92
+    },
+    {
+      "id": "IA-HDG-05",
+      "principle": "perceptible",
+      "criterion_id": "1.3.1",
+      "criterion_title": "Información y relaciones",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Discontinuidad en jerarquía de encabezados",
+      "w3c_technique": "G141",
+      "selector": "h4",
+      "line_number": 25,
+      "html_snippet": "<h4>Catálogo de Novedades</h4>",
+      "explanation": "Se detectó un salto brusco de nivel <h1> a <h4> ('Catálogo de Novedades'). La estructura de encabezados debe ser secuencial sin saltos.",
+      "remediation": {
+        "before_snippet": "<h4>Catálogo de Novedades</h4>",
+        "after_snippet": "<h2>Catálogo de Novedades</h2>",
+        "advice": "Utilice <h2> para mantener una jerarquía anidada lógica.",
+        "effort": "bajo"
+      },
+      "impact": "medio",
+      "confidence": 0.9
+    },
+    {
+      "id": "IA-FRM-06",
+      "principle": "understandable",
+      "criterion_id": "3.3.2",
+      "criterion_title": "Etiquetas o instrucciones",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Uso inadecuado de placeholder en vez de etiqueta",
+      "w3c_technique": "H44",
+      "selector": "input#campo-buscar",
+      "line_number": 44,
+      "html_snippet": "<input id=\"campo-buscar\" placeholder=\"Buscar productos en el catálogo\" type=\"text\"/>",
+      "explanation": "El campo no tiene una etiqueta <label> formal. Los placeholders desaparecen al escribir y no son reconocidos como etiquetas persistentes por todas las ayudas técnicas.",
+      "remediation": {
+        "before_snippet": "<input id=\"campo-buscar\" placeholder=\"Buscar productos en el catálogo\" type=\"text\"/>",
+        "after_snippet": "<label for=\"campo-accesible\">Buscar productos en el catálogo:</label>\n<input id=\"campo-accesible\" id=\"campo-buscar\" placeholder=\"Buscar productos en el catálogo\" type=\"text\"/>",
+        "advice": "Asocie una etiqueta <label for='...'> visible con el identificador del campo de entrada.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 0.95
+    },
+    {
+      "id": "IA-FRM-07",
+      "principle": "understandable",
+      "criterion_id": "3.3.2",
+      "criterion_title": "Etiquetas o instrucciones",
+      "level": "A",
+      "category": "Advertencia",
+      "origin": "ia",
+      "check_name": "Uso inadecuado de placeholder en vez de etiqueta",
+      "w3c_technique": "H44",
+      "selector": "input#campo-newsletter",
+      "line_number": 45,
+      "html_snippet": "<input id=\"campo-newsletter\" placeholder=\"Introduce tu correo\" type=\"email\"/>",
+      "explanation": "El campo no tiene una etiqueta <label> formal. Los placeholders desaparecen al escribir y no son reconocidos como etiquetas persistentes por todas las ayudas técnicas.",
+      "remediation": {
+        "before_snippet": "<input id=\"campo-newsletter\" placeholder=\"Introduce tu correo\" type=\"email\"/>",
+        "after_snippet": "<label for=\"campo-accesible\">Introduce tu correo:</label>\n<input id=\"campo-accesible\" id=\"campo-newsletter\" placeholder=\"Introduce tu correo\" type=\"email\"/>",
+        "advice": "Asocie una etiqueta <label for='...'> visible con el identificador del campo de entrada.",
+        "effort": "bajo"
+      },
+      "impact": "alto",
+      "confidence": 0.95
+    }
+  ],
+  "disclaimer": "AVISO IMPORTANTE: Esta auditoría automática y asistida por IA es una herramienta de apoyo y no sustituye la evaluación manual exhaustiva realizada por expertos ni las pruebas directas con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla, switches, etc.)."
+}

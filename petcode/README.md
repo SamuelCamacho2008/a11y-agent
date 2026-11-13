@@ -38,9 +38,7 @@ who opened a chat, the report owner, and moderators.
    npm run dev
    ```
 
-The production build is `npm run build`. Vite writes it to `../docs/petcode`
-relative to this folder, uses relative asset URLs (`base: './'`), and does not
-clean the rest of `docs`.
+The production build is `npm run build`. Vite writes it to `dist/` inside this folder, uses relative asset URLs (`base: './'`), and is completely independent and portable.
 
 ## Accounts, private chat, and administrator
 

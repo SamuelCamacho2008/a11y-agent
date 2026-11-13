@@ -1,0 +1,33 @@
+{
+  "id": "rep_x",
+  "target_type": "web",
+  "app_name": null,
+  "package_name": null,
+  "public_url": null,
+  "github_pages_url": null,
+  "metadata": {
+    "url": "http://a.com",
+    "target_type": "web",
+    "app_name": null,
+    "package_name": null,
+    "public_url": null,
+    "github_pages_url": null,
+    "timestamp": "2026-11-03T20:55:52.315295Z",
+    "guidelines": "WCAG 2.1",
+    "target_level": "AA",
+    "technologies": [],
+    "execution_time_seconds": 0.0,
+    "screenshot_path": null
+  },
+  "summary": {
+    "score": 90,
+    "executive_summary": "ok",
+    "total_problems": 0,
+    "total_warnings": 0,
+    "total_unverified": 0,
+    "impact_breakdown": {}
+  },
+  "principles": {},
+  "all_findings": [],
+  "disclaimer": "AVISO IMPORTANTE: Esta auditoría automática y asistida por IA es una herramienta de apoyo y no sustituye la evaluación manual exhaustiva realizada por expertos ni las pruebas directas con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla TalkBack, NVDA, switches, etc.)."
+}

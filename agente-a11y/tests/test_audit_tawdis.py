@@ -5,6 +5,8 @@ import threading
 from pathlib import Path
 from playwright.async_api import async_playwright
 
+import pytest
+
 PORT = 8999
 DOCS_DIR = Path(__file__).resolve().parent.parent / "docs"
 
@@ -17,6 +19,7 @@ def start_server():
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     return httpd
 
+@pytest.mark.asyncio
 async def test_audit_tawdis():
     start_server()
     async with async_playwright() as p:

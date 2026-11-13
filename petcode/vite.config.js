@@ -7,7 +7,7 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   base: './',
   build: {
-    outDir: resolve(projectRoot, '../docs/petcode'),
+    outDir: resolve(projectRoot, 'dist'),
     emptyOutDir: true,
   },
 });

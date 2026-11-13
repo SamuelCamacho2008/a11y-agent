@@ -5,17 +5,18 @@ import re
 from pathlib import Path
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DOCS_DIR = REPO_ROOT / "docs"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = PROJECT_ROOT.parent if (PROJECT_ROOT.parent / ".github").exists() else PROJECT_ROOT
+DOCS_DIR = PROJECT_ROOT / "docs"
 
 def test_nojekyll_files_exist():
     """Verify that .nojekyll exists both in root and docs/ to prevent GitHub Pages Jekyll processing."""
-    assert (REPO_ROOT / ".nojekyll").exists(), "Root .nojekyll missing"
+    assert (PROJECT_ROOT / ".nojekyll").exists(), "Root .nojekyll missing"
     assert (DOCS_DIR / ".nojekyll").exists(), "docs/.nojekyll missing"
 
 def test_config_js_exists_and_configured():
     """Verify that config.js exists in root and docs/ with valid structure."""
-    for cfg_path in [REPO_ROOT / "config.js", DOCS_DIR / "config.js"]:
+    for cfg_path in [PROJECT_ROOT / "config.js", DOCS_DIR / "config.js"]:
         assert cfg_path.exists(), f"Configuration file {cfg_path} missing"
         content = cfg_path.read_text(encoding="utf-8")
         assert "window.A11Y_CONFIG" in content
@@ -26,18 +27,18 @@ def test_config_js_exists_and_configured():
 
 def test_render_backend_configuration_matches_frontend():
     """Keep the Render API service and both frontend configs aligned."""
-    render_config = (REPO_ROOT / "render.yaml").read_text(encoding="utf-8")
+    render_config = (PROJECT_ROOT / "render.yaml").read_text(encoding="utf-8")
     expected_endpoint = "https://a11y-agent-api-samuelcamacho2008.onrender.com"
 
     assert "name: a11y-agent-api-samuelcamacho2008" in render_config
     assert "healthCheckPath: /api/health" in render_config
-    for config_path in [REPO_ROOT / "config.js", DOCS_DIR / "config.js"]:
+    for config_path in [PROJECT_ROOT / "config.js", DOCS_DIR / "config.js"]:
         assert expected_endpoint in config_path.read_text(encoding="utf-8")
 
 def test_playwright_version_matches_docker_image():
     """Keep Playwright's Python package aligned with the bundled Chromium version."""
-    dockerfile = (REPO_ROOT / "Dockerfile").read_text(encoding="utf-8")
-    requirements = (REPO_ROOT / "requirements.txt").read_text(encoding="utf-8")
+    dockerfile = (PROJECT_ROOT / "Dockerfile").read_text(encoding="utf-8")
+    requirements = (PROJECT_ROOT / "requirements.txt").read_text(encoding="utf-8")
 
     image_match = re.search(r"playwright/python:v([0-9.]+)-jammy", dockerfile)
     package_match = re.search(r"^playwright==([0-9.]+)$", requirements, re.MULTILINE)
@@ -48,7 +49,7 @@ def test_playwright_version_matches_docker_image():
 
 def test_subresource_integrity_and_config_in_html():
     """Verify docs/index.html and root index.html have SRI hashes and load config.js."""
-    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+    for html_file in [DOCS_DIR / "index.html", PROJECT_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         
         # Verify SRI for axe-core
@@ -99,7 +100,7 @@ def test_tabs_wai_aria_accessibility_pattern():
     assert 'Mapa de Cobertura' not in content
 
 def test_cloud_report_uses_api_findings_and_does_not_claim_taw_score():
-    for html_file in [DOCS_DIR / "index.html", REPO_ROOT / "index.html"]:
+    for html_file in [DOCS_DIR / "index.html", PROJECT_ROOT / "index.html"]:
         content = html_file.read_text(encoding="utf-8")
         assert "Array.isArray(cloudReport.all_findings)" in content
         assert "cloudReport.summary" in content

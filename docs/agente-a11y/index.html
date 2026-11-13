@@ -53,7 +53,7 @@
 
             --text-main: #f8fafc;
 
-            --text-muted: #94a3b8;
+            --text-muted: #cbd5e1; /* WCAG AAA contrast ratio > 7:1 */
 
             --primary: #38bdf8;
 
@@ -65,8 +65,127 @@
 
             --danger: #ef4444;
 
-            --focus-ring: #0284c7;
+            --focus-ring: #38bdf8;
 
+        }
+
+        /* Screen reader utility class (WCAG 4.1.3) */
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+
+        /* Focus appearance (WCAG 2.2 Criterion 2.4.11 / 2.4.13) */
+        :focus-visible {
+            outline: 3px solid var(--primary) !important;
+            outline-offset: 3px !important;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.4) !important;
+            border-radius: 4px;
+        }
+
+        /* Accessibility Quick Controls Bar */
+        .a11y-quick-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .a11y-bar-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-right: 0.25rem;
+        }
+
+        .a11y-quick-btn {
+            background: var(--surface-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .a11y-quick-btn:hover {
+            background: var(--border-color);
+            border-color: var(--primary);
+        }
+
+        .a11y-quick-btn[aria-pressed="true"] {
+            background: var(--primary);
+            color: #0f172a;
+            border-color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* High contrast mode */
+        body.high-contrast {
+            --bg-color: #000000 !important;
+            --surface-color: #121212 !important;
+            --surface-card: #1c1c1c !important;
+            --border-color: #ffff00 !important;
+            --text-main: #ffffff !important;
+            --text-muted: #ffff00 !important;
+            --primary: #ffff00 !important;
+            --primary-dark: #eab308 !important;
+            --focus-ring: #00ffff !important;
+            background-color: #000000 !important;
+            color: #ffffff !important;
+        }
+        body.high-contrast * {
+            border-color: #ffff00 !important;
+        }
+        body.high-contrast .tab-btn[aria-selected="true"] {
+            background: #ffff00 !important;
+            color: #000000 !important;
+        }
+        body.high-contrast .btn-primary {
+            background: #ffff00 !important;
+            color: #000000 !important;
+        }
+
+        /* Large text mode */
+        body.font-lg {
+            font-size: 1.15rem !important;
+        }
+        body.font-xl {
+            font-size: 1.3rem !important;
+        }
+
+        /* Enhanced readability spacing */
+        body.dyslexic-mode {
+            letter-spacing: 0.06em !important;
+            word-spacing: 0.12em !important;
+            line-height: 1.85 !important;
+        }
+
+        /* Reduced motion */
+        body.reduce-motion *,
+        body.reduce-motion *::before,
+        body.reduce-motion *::after {
+            animation-duration: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.001ms !important;
         }
 
 
@@ -1262,23 +1381,34 @@
 </head>
 
 <body>
-    <!-- Enlace directo al proyecto PetCode -->
-    <aside style="background: linear-gradient(135deg, #1e3a2f, #263b32); border-bottom: 2px solid #c77b56; padding: 14px 20px; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 15px; font-family: system-ui, sans-serif; position: relative; z-index: 999; margin: -1.5rem -1rem 1.5rem -1rem;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 24px;">🐾</span>
-        <div>
-          <strong style="font-size: 15px; color: #f5f4ed;">PetCode — Red de Mascotas Perdidas, Recompensas y Chats Privados</strong>
-          <p style="margin: 3px 0 0; font-size: 11px; color: #cbd5e1;">Menú con información de cuenta, Samuel como administrador, recompensas (5% comisión) y chats privados.</p>
-        </div>
-      </div>
-      <a href="./petcode/index.html" style="background: #c77b56; color: #fff; padding: 9px 20px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">Abrir PetCode ↗</a>
-    </aside>
-
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
 
-
+    <!-- Live Region accesible para lectores de pantalla (WCAG 4.1.3) -->
+    <div id="a11y-live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <div class="container">
+        <!-- Barra rápida de configuración de accesibilidad -->
+        <nav aria-label="Preferencias de accesibilidad" class="a11y-quick-bar">
+            <span class="a11y-bar-title" id="a11y-bar-title">♿ Ajustes A11y:</span>
+            <button type="button" class="a11y-quick-btn" id="btn-toggle-contrast" onclick="toggleHighContrast()" aria-pressed="false" title="Alternar modo de alto contraste (Blanco y Negro)">
+                🌓 Alto contraste
+            </button>
+            <button type="button" class="a11y-quick-btn" id="btn-zoom-in" onclick="adjustFontSize(1)" title="Aumentar tamaño de letra">
+                A+ Letra grande
+            </button>
+            <button type="button" class="a11y-quick-btn" id="btn-zoom-out" onclick="adjustFontSize(-1)" title="Disminuir tamaño de letra">
+                A- Letra normal
+            </button>
+            <button type="button" class="a11y-quick-btn" id="btn-toggle-dyslexia" onclick="toggleDyslexiaFont()" aria-pressed="false" title="Alternar espaciado amplio de lectura fácil">
+                📖 Lectura amplia
+            </button>
+            <button type="button" class="a11y-quick-btn" id="btn-toggle-motion" onclick="toggleReduceMotion()" aria-pressed="false" title="Pausar animaciones y efectos visuales">
+                ⏸️ Sin movimiento
+            </button>
+            <a href="./portal.html" class="a11y-quick-btn" style="margin-left: auto; text-decoration: none;" title="Abrir portal de auditorías públicas">
+                📂 Portal de Reportes
+            </a>
+        </nav>
 
         <!-- App Header -->
 
@@ -1965,6 +2095,112 @@
 
 
 
+        // Screen reader announcement helper (WCAG 4.1.3 Status Messages)
+        function announceA11y(message) {
+            const el = document.getElementById('a11y-live-announcer');
+            if (el) {
+                el.textContent = '';
+                setTimeout(() => {
+                    el.textContent = message;
+                }, 40);
+            }
+        }
+
+        // Accessibility controls functions
+        function toggleHighContrast() {
+            const body = document.body;
+            const btn = document.getElementById('btn-toggle-contrast');
+            const isActive = body.classList.toggle('high-contrast');
+            if (btn) btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            announceA11y(isActive ? 'Modo de alto contraste activado' : 'Modo de alto contraste desactivado');
+            try { localStorage.setItem('a11y_contrast', isActive ? '1' : '0'); } catch (e) {}
+        }
+
+        let fontLevel = 0;
+        function adjustFontSize(delta) {
+            fontLevel = Math.max(0, Math.min(2, fontLevel + delta));
+            document.body.classList.remove('font-lg', 'font-xl');
+            if (fontLevel === 1) document.body.classList.add('font-lg');
+            if (fontLevel === 2) document.body.classList.add('font-xl');
+            const desc = fontLevel === 0 ? 'Tamaño de texto estándar restablecido' : (fontLevel === 1 ? 'Tamaño de texto grande activado' : 'Tamaño de texto muy grande activado');
+            announceA11y(desc);
+            try { localStorage.setItem('a11y_font_level', fontLevel.toString()); } catch (e) {}
+        }
+
+        function toggleDyslexiaFont() {
+            const body = document.body;
+            const btn = document.getElementById('btn-toggle-dyslexia');
+            const isActive = body.classList.toggle('dyslexic-mode');
+            if (btn) btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            announceA11y(isActive ? 'Modo de lectura amplia activado' : 'Modo de lectura amplia desactivado');
+            try { localStorage.setItem('a11y_dyslexia', isActive ? '1' : '0'); } catch (e) {}
+        }
+
+        function toggleReduceMotion() {
+            const body = document.body;
+            const btn = document.getElementById('btn-toggle-motion');
+            const isActive = body.classList.toggle('reduce-motion');
+            if (btn) btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            announceA11y(isActive ? 'Reducción de movimiento activada' : 'Reducción de movimiento desactivada');
+            try { localStorage.setItem('a11y_reduce_motion', isActive ? '1' : '0'); } catch (e) {}
+        }
+
+        // Restore saved accessibility preferences on page load
+        (function restoreA11yPrefs() {
+            try {
+                if (localStorage.getItem('a11y_contrast') === '1') {
+                    document.body.classList.add('high-contrast');
+                    const b = document.getElementById('btn-toggle-contrast');
+                    if (b) b.setAttribute('aria-pressed', 'true');
+                }
+                const savedFont = parseInt(localStorage.getItem('a11y_font_level') || '0', 10);
+                if (savedFont > 0) adjustFontSize(savedFont);
+                if (localStorage.getItem('a11y_dyslexia') === '1') {
+                    document.body.classList.add('dyslexic-mode');
+                    const b = document.getElementById('btn-toggle-dyslexia');
+                    if (b) b.setAttribute('aria-pressed', 'true');
+                }
+                if (localStorage.getItem('a11y_reduce_motion') === '1') {
+                    document.body.classList.add('reduce-motion');
+                    const b = document.getElementById('btn-toggle-motion');
+                    if (b) b.setAttribute('aria-pressed', 'true');
+                }
+            } catch (e) {}
+        })();
+
+        // Global Accessible Keyboard Shortcuts (WCAG 2.1.1)
+        window.addEventListener('keydown', (e) => {
+            const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+            if (e.altKey && !e.ctrlKey && !e.metaKey) {
+                if (e.key === '1') {
+                    e.preventDefault();
+                    activateTab(0, true);
+                } else if (e.key === '2') {
+                    e.preventDefault();
+                    activateTab(1, true);
+                } else if (e.key === '3') {
+                    e.preventDefault();
+                    activateTab(2, true);
+                } else if (e.key === '4') {
+                    e.preventDefault();
+                    activateTab(3, true);
+                } else if (e.key.toLowerCase() === 'a') {
+                    e.preventDefault();
+                    const activeTabIdx = tabs.findIndex(t => t.btn.getAttribute('aria-selected') === 'true');
+                    if (activeTabIdx === 0) {
+                        document.getElementById('form-url')?.requestSubmit?.() || document.getElementById('form-url')?.querySelector('button[type="submit"]')?.click();
+                    } else if (activeTabIdx === 1) {
+                        document.getElementById('form-code')?.requestSubmit?.() || document.getElementById('form-code')?.querySelector('button[type="submit"]')?.click();
+                    }
+                }
+            } else if (e.key === 'Escape') {
+                const results = document.getElementById('results-container');
+                if (results && results.style.display === 'block') {
+                    tabs[0].btn.focus();
+                }
+            }
+        });
+
         // Tabs switching logic (WAI-ARIA Pattern with Keyboard Arrows & Roving Tabindex)
 
         const tabs = [
@@ -1979,7 +2215,7 @@
 
         ];
 
-
+        const tabNames = ['Auditoría Web por URL', 'Código HTML', 'App Android APK', 'Bookmarklet de Intranet'];
 
         function activateTab(tabIndex, setFocus = true) {
 
@@ -1993,10 +2229,9 @@
 
                 t.panel.style.display = isSelected ? 'block' : 'none';
 
-                if (isSelected && setFocus) {
-
-                    t.btn.focus();
-
+                if (isSelected) {
+                    if (setFocus) t.btn.focus();
+                    announceA11y(`Pestaña activa: ${tabNames[i]}`);
                 }
 
             });
@@ -3008,27 +3243,17 @@
 <html lang="es">
 
 <head>
-    <title>Página de Demostración con Barreras de Accesibilidad</title>
+    <meta charset="UTF-8">
+    <title>Demostración de Barreras de Accesibilidad (WCAG 2.2)</title>
 </head>
 <body>
-    <!-- Enlace directo al proyecto PetCode -->
-    <aside style="background: linear-gradient(135deg, #1e3a2f, #263b32); border-bottom: 2px solid #c77b56; padding: 14px 20px; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 15px; font-family: system-ui, sans-serif; position: relative; z-index: 999; margin: -1.5rem -1rem 1.5rem -1rem;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 24px;">🐾</span>
-        <div>
-          <strong style="font-size: 15px; color: #f5f4ed;">PetCode — Red de Mascotas Perdidas, Recompensas y Chats Privados</strong>
-          <p style="margin: 3px 0 0; font-size: 11px; color: #cbd5e1;">Menú con información de cuenta, Samuel como administrador, recompensas (5% comisión) y chats privados.</p>
-        </div>
-      </div>
-      <a href="./petcode/index.html" style="background: #c77b56; color: #fff; padding: 9px 20px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">Abrir PetCode ↗</a>
-    </aside>
     <header>
 
-        <!-- Problema: Imagen sin atributo alt (WCAG 1.1.1) -->
+        <!-- Problema: Imagen sin atributo alt (WCAG 1.1.1 No textual) -->
 
         <img src="banner.png">
 
-        <h1>Tienda Accesible de Ejemplo</h1>
+        <h1>Portal de Servicios Accesibles de Ejemplo</h1>
 
     </header>
 
@@ -4390,6 +4615,10 @@
 
                 btns.forEach(b => { if (b) b.disabled = false; });
 
+            }
+
+            if (message) {
+                announceA11y(message);
             }
 
         }
