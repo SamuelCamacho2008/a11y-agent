@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Accesibilidad - Accessible Test App | A11y Agent</title>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-color: #cbd5e1;
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --info: #2563eb;
+            --info-bg: #eff6ff;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header.report-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: var(--text-main);
+            font-size: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .meta-item strong {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .meta-item span {
+            font-size: 1rem;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #1e293b;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.35rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Summary Dashboard */
+        .summary-dashboard {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .summary-dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .score-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            border: 6px solid;
+        }
+
+        .score-high { border-color: var(--success); color: var(--success); }
+        .score-mid { border-color: var(--warning); color: var(--warning); }
+        .score-low { border-color: var(--danger); color: var(--danger); }
+
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 5px solid;
+        }
+
+        .kpi-card.danger { border-left-color: var(--danger); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.info { border-left-color: var(--info); }
+
+        .kpi-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .exec-summary-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .exec-summary-box h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .exec-summary-text {
+            white-space: pre-line;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        /* Principles & Criteria Tables */
+        .principle-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .principle-header {
+            background: #f1f5f9;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .principle-header h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            color: #0f172a;
+        }
+
+        .principle-desc {
+            margin: 0.25rem 0 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .criterion-block {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .criterion-block:last-child {
+            border-bottom: none;
+        }
+
+        .criterion-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 0.75rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge-level {
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 0.75rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 3px;
+        }
+
+        /* TAW-like table */
+        table.taw-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+        }
+
+        table.taw-table th, table.taw-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.65rem 0.85rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        table.taw-table th {
+            background: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .badge-cat {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .badge-cat.problema {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid #fecaca;
+        }
+
+        .badge-cat.advertencia {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 1px solid #fed7aa;
+        }
+
+        .badge-origin {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .badge-origin.ia {
+            background: #ede9fe;
+            color: #6b21a8;
+        }
+
+        .badge-origin.regla {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        code.snippet {
+            display: block;
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 0.82rem;
+            overflow-x: auto;
+            max-width: 500px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .remediation-box {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-left: 3px solid var(--success);
+            font-size: 0.85rem;
+        }
+
+        .diff-code {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.35rem;
+        }
+
+        .diff-before {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 0.35rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+
+        .diff-after {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 0.35rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+
+        footer.report-footer {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-left: 4px solid #64748b;
+        }
+
+        @media print {
+            body { padding: 0; background: #fff; }
+            .container { max-width: 100%; }
+            .principle-section { break-inside: avoid; margin-bottom: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <header class="report-header">
+        <h1>
+            <span>&#9855;</span> Informe de Accesibilidad Android APK (A11y Agent)
+        </h1>
+        <div class="meta-grid">
+            <div class="meta-item">
+                <strong>Recurso Analizado</strong>
+                <span>
+                    
+                    <code>Accessible Test App</code>
+                    
+                </span>
+            </div>
+            <div class="meta-item">
+                <strong>Fecha y Hora (UTC)</strong>
+                <span>2026-11-03 21:02:17</span>
+            </div>
+            <div class="meta-item">
+                <strong>Pautas & Nivel</strong>
+                <span>WCAG 2.2 — Nivel AA</span>
+            </div>
+            <div class="meta-item">
+                <strong>Tecnologías Detectadas</strong>
+                <div>
+                    
+                    <span class="tech-badge">Android APK</span>
+                    
+                    <span class="tech-badge">XML Layouts</span>
+                    
+                </div>
+            </div>
+            
+            <div class="meta-item" style="grid-column: 1 / -1;">
+                <strong>Enlace Público Permanente</strong>
+                <span><a href="http://test/view/rep_98fa07ba1f23bd6949bd1242462eed9d" target="_blank" rel="noopener">http://test/view/rep_98fa07ba1f23bd6949bd1242462eed9d</a></span>
+            </div>
+            
+        </div>
+    </header>
+
+    <!-- Dashboard -->
+    <section class="summary-dashboard" aria-label="Resumen ejecutivo">
+        <div class="score-box">
+            <div class="score-circle score-low">
+                42
+            </div>
+            <strong>Puntaje Global</strong>
+            <small style="color: var(--text-muted);">Escala 0 a 100</small>
+        </div>
+
+        <div>
+            <div class="kpi-cards">
+                <div class="kpi-card danger">
+                    <div class="kpi-number" style="color: var(--danger);">4</div>
+                    <div class="kpi-label">Problemas (Fallos Automáticos)</div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-number" style="color: var(--warning);">3</div>
+                    <div class="kpi-label">Advertencias (Revisión/IA)</div>
+                </div>
+                <div class="kpi-card info">
+                    <div class="kpi-number" style="color: var(--info);">0</div>
+                    <div class="kpi-label">No Verificados</div>
+                </div>
+            </div>
+
+            <div class="exec-summary-box">
+                <h3>Resumen Ejecutivo</h3>
+                <div class="exec-summary-text">1. Estado General: La aplicación móvil Android (Accessible Test App) obtiene un puntaje global de accesibilidad de 42/100, evaluada bajo nivel AA (con barreras significativas).
+2. Barreras Críticas: Se detectaron 4 problemas deterministas y 3 advertencias que requieren revisión experta.
+3. Distribución de Impacto: 2 barreras de impacto crítico y 4 de impacto alto impiden la interacción de usuarios con discapacidad.
+4. Conformidad Semántica: Las principales oportunidades de mejora se concentran en etiquetado accesible, contraste y adaptabilidad para tecnologías de asistencia.
+5. Plan de Acción: Se recomienda priorizar los fallos clasificados como Problemas Críticos aplicando las soluciones de código antes/después incluidas en este informe.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4 Principles Sections -->
+    
+    <section class="principle-section" aria-labelledby="principle-heading-perceptible">
+        <div class="principle-header">
+            <h2 id="principle-heading-perceptible">1. Perceptible</h2>
+            <p class="principle-desc">La información y los componentes de la interfaz de usuario deben presentarse a los usuarios de modo que puedan percibirlos (no puede ser invisible para todos sus sentidos).</p>
+        </div>
+
+        
+        
+        <div class="criterion-block">
+            <div class="criterion-title">
+                <span>1.1.1 Contenido no textual</span>
+                <span class="badge-level">Nivel A</span>
+            </div>
+
+            <table class="taw-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Resultado</th>
+                        <th style="width: 180px;">Comprobación / Técnica</th>
+                        <th style="width: 160px;">Ubicación & Línea</th>
+                        <th>Incidencia & Solución de Código</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <span class="badge-cat problema">
+                                Problema
+                            </span>
+                            <br>
+                            <span class="badge-origin regla">
+                                regla
+                            </span>
+                            <br>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Impacto: crítico</small>
+                        </td>
+                        <td>
+                            <strong>Control gráfico sin descripción accesible (android:contentDescription ausente)</strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Técnica: <strong>AND1</strong></small>
+                            <br>
+                            <small style="color: #64748b;">ID: APK-02-111-002</small>
+                        </td>
+                        <td>
+                            <strong style="font-size: 0.8rem; font-family: monospace;">res/layout/activity_main.xml#btn_cart</strong>
+                            
+                            <br>
+                            <small style="color: var(--text-muted);">XML / Layout</small>
+                            
+                        </td>
+                        <td>
+                            <div>El componente interactivo <ImageButton> carece de 'android:contentDescription'. Los lectores de pantalla como TalkBack no podrán informar su propósito al usuario ciego.</div>
+                            <div style="margin-top: 0.4rem;">
+                                <code class="snippet"><ImageButton xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_cart" ns0:layout_width="48dp" ns0:layout_height="48dp" ns0:src="@drawable/ic_cart" />
+
+    
+    </code>
+                            </div>
+                            
+                            <div class="remediation-box">
+                                <strong>Solución Sugerida (Esfuerzo bajo):</strong> Defina un recurso de texto accesible descriptivo con 'android:contentDescription'. Si la imagen es puramente decorativa, use android:importantForAccessibility='no'.
+                                <div class="diff-code">
+                                    <div class="diff-before">
+                                        <div style="font-weight: 700; color: var(--danger); font-size: 0.75rem;">Antes:</div>
+                                        <code><ImageButton xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_cart" ns0:layout_width="48dp" ns0:layout_height="48dp" ns0:src="@drawable/ic_cart" />
+
+    
+    </code>
+                                    </div>
+                                    <div class="diff-after">
+                                        <div style="font-weight: 700; color: var(--success); font-size: 0.75rem;">Después (Accesible):</div>
+                                        <code><ImageButton android:contentDescription="@string/desc_btn_cart" xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_cart" ns0:layout_width="48dp" ns0:layout_height="48dp" ns0:src="@drawable/ic_cart" />
+
+    
+    </code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <span class="badge-cat advertencia">
+                                Advertencia
+                            </span>
+                            <br>
+                            <span class="badge-origin ia">
+                                ia
+                            </span>
+                            <br>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Impacto: alto</small>
+                        </td>
+                        <td>
+                            <strong>Evaluación semántica de texto alternativo</strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Técnica: <strong>H37</strong></small>
+                            <br>
+                            <small style="color: #64748b;">ID: IA-IMG-01</small>
+                        </td>
+                        <td>
+                            <strong style="font-size: 0.8rem; font-family: monospace;">res/layout/activity_main.xml#ImageView</strong>
+                            
+                            <br>
+                            <small style="color: var(--text-muted);">XML / Layout</small>
+                            
+                        </td>
+                        <td>
+                            <div>El texto alternativo 'Logotipo accesible de la aplicación' es genérico y no describe el contenido visual para usuarios ciegos.</div>
+                            <div style="margin-top: 0.4rem;">
+                                <code class="snippet"><ImageView xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/img_good" ns0:layout_width="48dp" ns0:layout_height="48dp" ns0:contentDescription="Logotipo accesible de la aplicación" />
+</code>
+                            </div>
+                            
+                            <div class="remediation-box">
+                                <strong>Solución Sugerida (Esfuerzo bajo):</strong> Sustituya el texto alternativo por uno que describa objetivamente la función o información de la imagen.
+                                <div class="diff-code">
+                                    <div class="diff-before">
+                                        <div style="font-weight: 700; color: var(--danger); font-size: 0.75rem;">Antes:</div>
+                                        <code><ImageView xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/img_good" ns0:layout_width="48dp" ns0:layout_height="48dp" ns0:contentDescription="Logotipo accesible de la aplicación" />
+</code>
+                                    </div>
+                                    <div class="diff-after">
+                                        <div style="font-weight: 700; color: var(--success); font-size: 0.75rem;">Después (Accesible):</div>
+                                        <code><ImageView xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/img_good" ns0:layout_width="48dp" ns0:layout_height="48dp" ns0:contentDescription="Logotipo accesible de la aplicación" />
+</code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="criterion-block">
+            <div class="criterion-title">
+                <span>1.4.3 Contraste (mínimo)</span>
+                <span class="badge-level">Nivel AA</span>
+            </div>
+
+            <table class="taw-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Resultado</th>
+                        <th style="width: 180px;">Comprobación / Técnica</th>
+                        <th style="width: 160px;">Ubicación & Línea</th>
+                        <th>Incidencia & Solución de Código</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <span class="badge-cat problema">
+                                Problema
+                            </span>
+                            <br>
+                            <span class="badge-origin regla">
+                                regla
+                            </span>
+                            <br>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Impacto: alto</small>
+                        </td>
+                        <td>
+                            <strong>Contraste de color insuficiente (1.61:1 frente al mínimo 4.5:1)</strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Técnica: <strong>G18</strong></small>
+                            <br>
+                            <small style="color: #64748b;">ID: APK-06-143-COL-006</small>
+                        </td>
+                        <td>
+                            <strong style="font-size: 0.8rem; font-family: monospace;">res/layout/activity_main.xml#txt_low_contrast</strong>
+                            
+                            <br>
+                            <small style="color: var(--text-muted);">XML / Layout</small>
+                            
+                        </td>
+                        <td>
+                            <div>La relación de contraste entre el texto (#CCCCCC) y el fondo (#FFFFFF) es de 1.61:1, por debajo del estándar mínimo de 4.5:1 para texto normal.</div>
+                            <div style="margin-top: 0.4rem;">
+                                <code class="snippet"><TextView xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/txt_low_contrast" ns0:layout_width="wrap_content" ns0:layout_height="wrap_content" ns0:text="Texto con bajo contraste" ns0:textColor="#CCCCCC" ns0:background="#FFFFFF" />
+
+    
+    </code>
+                            </div>
+                            
+                            <div class="remediation-box">
+                                <strong>Solución Sugerida (Esfuerzo medio):</strong> Oscurezca el color del texto o aclare el fondo para garantizar un ratio de contraste superior a 4.5:1.
+                                <div class="diff-code">
+                                    <div class="diff-before">
+                                        <div style="font-weight: 700; color: var(--danger); font-size: 0.75rem;">Antes:</div>
+                                        <code><TextView xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/txt_low_contrast" ns0:layout_width="wrap_content" ns0:layout_height="wrap_content" ns0:text="Texto con bajo contraste" ns0:textColor="#CCCCCC" ns0:background="#FFFFFF" />
+
+    
+    </code>
+                                    </div>
+                                    <div class="diff-after">
+                                        <div style="font-weight: 700; color: var(--success); font-size: 0.75rem;">Después (Accesible):</div>
+                                        <code><TextView xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/txt_low_contrast" ns0:layout_width="wrap_content" ns0:layout_height="wrap_content" ns0:text="Texto con bajo contraste" ns0:textColor="#CCCCCC" ns0:background="#FFFFFF" />
+
+    
+    </code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+        
+    </section>
+    
+    <section class="principle-section" aria-labelledby="principle-heading-operable">
+        <div class="principle-header">
+            <h2 id="principle-heading-operable">2. Operable</h2>
+            <p class="principle-desc">Los componentes de la interfaz de usuario y la navegación deben ser operables (la interfaz no puede requerir una interacción que el usuario no pueda realizar).</p>
+        </div>
+
+        
+        
+        <div class="criterion-block">
+            <div class="criterion-title">
+                <span>2.5.5 Criterio 2.5.5</span>
+                <span class="badge-level">Nivel A</span>
+            </div>
+
+            <table class="taw-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Resultado</th>
+                        <th style="width: 180px;">Comprobación / Técnica</th>
+                        <th style="width: 160px;">Ubicación & Línea</th>
+                        <th>Incidencia & Solución de Código</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <span class="badge-cat advertencia">
+                                Advertencia
+                            </span>
+                            <br>
+                            <span class="badge-origin regla">
+                                regla
+                            </span>
+                            <br>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Impacto: medio</small>
+                        </td>
+                        <td>
+                            <strong>Objetivo táctil con dimensiones inferiores a 48x48dp (32.0x24.0dp)</strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Técnica: <strong>G219</strong></small>
+                            <br>
+                            <small style="color: #64748b;">ID: APK-04-258-004</small>
+                        </td>
+                        <td>
+                            <strong style="font-size: 0.8rem; font-family: monospace;">res/layout/activity_main.xml#btn_small</strong>
+                            
+                            <br>
+                            <small style="color: var(--text-muted);">XML / Layout</small>
+                            
+                        </td>
+                        <td>
+                            <div>El elemento interactivo <Button> tiene dimensiones táctiles reducidas (32.0x24.0dp). La pauta Android y WCAG recomiendan un mínimo de 48x48dp para evitar pulsaciones erróneas en pantallas táctiles.</div>
+                            <div style="margin-top: 0.4rem;">
+                                <code class="snippet"><Button xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_small" ns0:layout_width="32dp" ns0:layout_height="24dp" ns0:text="OK" />
+
+    
+    </code>
+                            </div>
+                            
+                            <div class="remediation-box">
+                                <strong>Solución Sugerida (Esfuerzo bajo):</strong> Establezca 'android:minWidth="48dp"' y 'android:minHeight="48dp"' o compense con padding interno para alcanzar el área táctil recomendada.
+                                <div class="diff-code">
+                                    <div class="diff-before">
+                                        <div style="font-weight: 700; color: var(--danger); font-size: 0.75rem;">Antes:</div>
+                                        <code><Button xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_small" ns0:layout_width="32dp" ns0:layout_height="24dp" ns0:text="OK" />
+
+    
+    </code>
+                                    </div>
+                                    <div class="diff-after">
+                                        <div style="font-weight: 700; color: var(--success); font-size: 0.75rem;">Después (Accesible):</div>
+                                        <code><Button android:minWidth="48dp" android:minHeight="48dp" android:padding="10dp" xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_small" ns0:layout_width="32dp" ns0:layout_height="24dp" ns0:text="OK" />
+
+    
+    </code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+        
+    </section>
+    
+    <section class="principle-section" aria-labelledby="principle-heading-understandable">
+        <div class="principle-header">
+            <h2 id="principle-heading-understandable">3. Comprensible</h2>
+            <p class="principle-desc">La información y el manejo de la interfaz de usuario deben ser comprensibles (el contenido y los controles no pueden resultar confusos o impredecibles).</p>
+        </div>
+
+        
+        
+        <div class="criterion-block">
+            <div class="criterion-title">
+                <span>3.1.1 Idioma de la página</span>
+                <span class="badge-level">Nivel A</span>
+            </div>
+
+            <table class="taw-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Resultado</th>
+                        <th style="width: 180px;">Comprobación / Técnica</th>
+                        <th style="width: 160px;">Ubicación & Línea</th>
+                        <th>Incidencia & Solución de Código</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <span class="badge-cat advertencia">
+                                Advertencia
+                            </span>
+                            <br>
+                            <span class="badge-origin ia">
+                                ia
+                            </span>
+                            <br>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Impacto: alto</small>
+                        </td>
+                        <td>
+                            <strong>Atributo lang ausente en etiqueta <html></strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Técnica: <strong>H57</strong></small>
+                            <br>
+                            <small style="color: #64748b;">ID: IA-LNG-02</small>
+                        </td>
+                        <td>
+                            <strong style="font-size: 0.8rem; font-family: monospace;">html</strong>
+                            
+                            <br>
+                            <span style="color: var(--primary-dark); font-weight: 600; font-size: 0.8rem;">
+                                Línea: 1
+                            </span>
+                            
+                        </td>
+                        <td>
+                            <div>La etiqueta <html> no define el idioma del documento. Los sintetizadores de voz pronunciarán el texto con el acento predeterminado del sistema operativo.</div>
+                            <div style="margin-top: 0.4rem;">
+                                <code class="snippet"><html></code>
+                            </div>
+                            
+                            <div class="remediation-box">
+                                <strong>Solución Sugerida (Esfuerzo bajo):</strong> Declare el idioma primario del documento mediante el atributo lang='es' (o el código correspondiente).
+                                <div class="diff-code">
+                                    <div class="diff-before">
+                                        <div style="font-weight: 700; color: var(--danger); font-size: 0.75rem;">Antes:</div>
+                                        <code><html></code>
+                                    </div>
+                                    <div class="diff-after">
+                                        <div style="font-weight: 700; color: var(--success); font-size: 0.75rem;">Después (Accesible):</div>
+                                        <code><html lang="es"></code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="criterion-block">
+            <div class="criterion-title">
+                <span>3.3.2 Etiquetas o instrucciones</span>
+                <span class="badge-level">Nivel A</span>
+            </div>
+
+            <table class="taw-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Resultado</th>
+                        <th style="width: 180px;">Comprobación / Técnica</th>
+                        <th style="width: 160px;">Ubicación & Línea</th>
+                        <th>Incidencia & Solución de Código</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <span class="badge-cat problema">
+                                Problema
+                            </span>
+                            <br>
+                            <span class="badge-origin regla">
+                                regla
+                            </span>
+                            <br>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Impacto: alto</small>
+                        </td>
+                        <td>
+                            <strong>Campo de entrada de texto sin etiqueta ni hint accesible</strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Técnica: <strong>AND2</strong></small>
+                            <br>
+                            <small style="color: #64748b;">ID: APK-03-332-003</small>
+                        </td>
+                        <td>
+                            <strong style="font-size: 0.8rem; font-family: monospace;">res/layout/activity_main.xml#input_user</strong>
+                            
+                            <br>
+                            <small style="color: var(--text-muted);">XML / Layout</small>
+                            
+                        </td>
+                        <td>
+                            <div>El campo <EditText> no define 'android:hint', 'android:labelFor' ni 'android:contentDescription'. Los usuarios de tecnologías de asistencia no sabrán qué dato deben introducir.</div>
+                            <div style="margin-top: 0.4rem;">
+                                <code class="snippet"><EditText xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/input_user" ns0:layout_width="match_parent" ns0:layout_height="48dp" />
+
+    
+    </code>
+                            </div>
+                            
+                            <div class="remediation-box">
+                                <strong>Solución Sugerida (Esfuerzo bajo):</strong> Agregue 'android:hint' o vincule un TextView descriptivo mediante 'android:labelFor'.
+                                <div class="diff-code">
+                                    <div class="diff-before">
+                                        <div style="font-weight: 700; color: var(--danger); font-size: 0.75rem;">Antes:</div>
+                                        <code><EditText xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/input_user" ns0:layout_width="match_parent" ns0:layout_height="48dp" />
+
+    
+    </code>
+                                    </div>
+                                    <div class="diff-after">
+                                        <div style="font-weight: 700; color: var(--success); font-size: 0.75rem;">Después (Accesible):</div>
+                                        <code><EditText android:hint="@string/hint_input_user" android:autofillHints="name" xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/input_user" ns0:layout_width="match_parent" ns0:layout_height="48dp" />
+
+    
+    </code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+        
+    </section>
+    
+    <section class="principle-section" aria-labelledby="principle-heading-robust">
+        <div class="principle-header">
+            <h2 id="principle-heading-robust">4. Robusto</h2>
+            <p class="principle-desc">El contenido debe ser suficientemente robusto como para que pueda ser interpretado de forma fiable por una amplia variedad de agentes de usuario, incluyendo tecnologías de asistencia.</p>
+        </div>
+
+        
+        
+        <div class="criterion-block">
+            <div class="criterion-title">
+                <span>4.1.2 Nombre, función, valor</span>
+                <span class="badge-level">Nivel A</span>
+            </div>
+
+            <table class="taw-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Resultado</th>
+                        <th style="width: 180px;">Comprobación / Técnica</th>
+                        <th style="width: 160px;">Ubicación & Línea</th>
+                        <th>Incidencia & Solución de Código</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>
+                            <span class="badge-cat problema">
+                                Problema
+                            </span>
+                            <br>
+                            <span class="badge-origin regla">
+                                regla
+                            </span>
+                            <br>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Impacto: crítico</small>
+                        </td>
+                        <td>
+                            <strong>Control interactivo oculto indebidamente con android:importantForAccessibility='no'</strong>
+                            <br>
+                            <small style="color: var(--text-muted);">Técnica: <strong>AND4</strong></small>
+                            <br>
+                            <small style="color: #64748b;">ID: APK-05-412-SUP-005</small>
+                        </td>
+                        <td>
+                            <strong style="font-size: 0.8rem; font-family: monospace;">res/layout/activity_main.xml#btn_hidden_interactive</strong>
+                            
+                            <br>
+                            <small style="color: var(--text-muted);">XML / Layout</small>
+                            
+                        </td>
+                        <td>
+                            <div>El componente interactivo <Button> fue marcado con importantForAccessibility='no'. Esto elimina el elemento del árbol accesible de TalkBack, impidiendo su uso a personas con discapacidad visual.</div>
+                            <div style="margin-top: 0.4rem;">
+                                <code class="snippet"><Button xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_hidden_interactive" ns0:layout_width="50dp" ns0:layout_height="50dp" ns0:text="Ignorado" ns0:importantForAccessibility="no" />
+
+    
+    </code>
+                            </div>
+                            
+                            <div class="remediation-box">
+                                <strong>Solución Sugerida (Esfuerzo bajo):</strong> Elimine 'android:importantForAccessibility="no"' o cámbielo a 'yes' en controles que admiten clics o interacción.
+                                <div class="diff-code">
+                                    <div class="diff-before">
+                                        <div style="font-weight: 700; color: var(--danger); font-size: 0.75rem;">Antes:</div>
+                                        <code><Button xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_hidden_interactive" ns0:layout_width="50dp" ns0:layout_height="50dp" ns0:text="Ignorado" ns0:importantForAccessibility="no" />
+
+    
+    </code>
+                                    </div>
+                                    <div class="diff-after">
+                                        <div style="font-weight: 700; color: var(--success); font-size: 0.75rem;">Después (Accesible):</div>
+                                        <code><Button xmlns:ns0="http://schemas.android.com/apk/res/android" ns0:id="@+id/btn_hidden_interactive" ns0:layout_width="50dp" ns0:layout_height="50dp" ns0:text="Ignorado" ns0:importantForAccessibility="no" />
+
+    
+    </code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+        
+    </section>
+    
+
+    <!-- Footer Disclaimer -->
+    <footer class="report-footer">
+        <strong>Aviso Legal y Metodológico:</strong> AVISO IMPORTANTE: Esta auditoría automática y asistida por IA es una herramienta de apoyo y no sustituye la evaluación manual exhaustiva realizada por expertos ni las pruebas directas con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla TalkBack, NVDA, switches, etc.).
+    </footer>
+</div>
+</body>
+</html>

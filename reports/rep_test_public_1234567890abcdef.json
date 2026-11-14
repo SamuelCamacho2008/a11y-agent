@@ -1,0 +1,54 @@
+{
+  "id": "rep_test_public_1234567890abcdef",
+  "target_type": "web",
+  "app_name": null,
+  "package_name": null,
+  "public_url": "http://localhost:8000/view/rep_test_public_1234567890abcdef",
+  "github_pages_url": null,
+  "metadata": {
+    "url": "https://ejemplo.com/public",
+    "target_type": "web",
+    "app_name": null,
+    "package_name": null,
+    "public_url": null,
+    "github_pages_url": null,
+    "timestamp": "2026-11-13T22:39:19.417964Z",
+    "guidelines": "WCAG 2.1",
+    "target_level": "AA",
+    "technologies": [
+      "HTML5"
+    ],
+    "execution_time_seconds": 0.0,
+    "screenshot_path": null
+  },
+  "summary": {
+    "score": 82,
+    "executive_summary": "Reporte de prueba persistido",
+    "total_problems": 1,
+    "total_warnings": 0,
+    "total_unverified": 0,
+    "impact_breakdown": {}
+  },
+  "principles": {},
+  "all_findings": [
+    {
+      "id": "P-001",
+      "principle": "perceptible",
+      "criterion_id": "1.1.1",
+      "criterion_title": "Contenido no textual",
+      "level": "A",
+      "category": "Problema",
+      "origin": "regla",
+      "check_name": "Falta texto alternativo",
+      "w3c_technique": "H37",
+      "selector": "img.banner",
+      "line_number": 5,
+      "html_snippet": "<img class=\"banner\" src=\"banner.jpg\">",
+      "explanation": "La imagen no contiene atributo alt.",
+      "remediation": null,
+      "impact": "alto",
+      "confidence": 1.0
+    }
+  ],
+  "disclaimer": "AVISO IMPORTANTE: Esta auditoría automática y asistida por IA es una herramienta de apoyo y no sustituye la evaluación manual exhaustiva realizada por expertos ni las pruebas directas con usuarios con discapacidad empleando tecnologías de asistencia (lectores de pantalla TalkBack, NVDA, switches, etc.)."
+}
